@@ -26,22 +26,11 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
-.avatar {
-  font-size: 3rem;
-  margin-bottom: .75rem;
-}
+.avatar { font-size: 3rem; margin-bottom: .75rem; }
 
-header h1 {
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-}
+header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: .02em; }
 
-.bio {
-  color: var(--muted);
-  margin: .4rem 0 1.2rem;
-  font-size: .95rem;
-}
+.bio { color: var(--muted); margin: .4rem 0 1.2rem; font-size: .95rem; }
 
 nav a {
   color: var(--text);
@@ -51,12 +40,10 @@ nav a {
   font-weight: 500;
   transition: color .2s;
 }
-
 nav a:hover { color: var(--accent); }
 
 /* ── Main ── */
 main { margin-top: 2.5rem; }
-
 section { margin-bottom: 3rem; }
 
 section h2 {
@@ -68,7 +55,7 @@ section h2 {
   margin-bottom: 1.5rem;
 }
 
-/* ── Article ── */
+/* ── Article card ── */
 article {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -77,47 +64,93 @@ article {
   margin-bottom: 1rem;
   transition: box-shadow .2s;
 }
-
 article:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
 
-.date {
-  font-size: .8rem;
-  color: var(--muted);
-}
+.date { font-size: .8rem; color: var(--muted); }
 
-article h3 {
-  font-size: 1.05rem;
-  margin: .3rem 0 .5rem;
-}
+article h3 { font-size: 1.05rem; margin: .3rem 0 .5rem; }
 
 article h3 a {
   color: var(--text);
   text-decoration: none;
+  transition: color .2s;
 }
-
 article h3 a:hover { color: var(--accent); }
 
-article p {
-  font-size: .9rem;
-  color: #555;
-  margin-bottom: .75rem;
-}
+article .summary { font-size: .9rem; color: #555; margin-bottom: .75rem; }
 
 .read-more {
   font-size: .85rem;
   color: var(--accent);
   text-decoration: none;
   font-weight: 500;
+  cursor: pointer;
 }
-
 .read-more:hover { text-decoration: underline; }
 
-/* ── About ── */
-#about p {
-  font-size: .95rem;
-  margin-bottom: .5rem;
+/* ── Full content (collapsed by default) ── */
+.full-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .4s ease;
 }
 
+article.expanded .full-content { /* max-height set by JS */ }
+article.expanded .read-more { display: none; }
+
+.full-content h4 {
+  font-size: .95rem;
+  font-weight: 600;
+  margin: 1.25rem 0 .4rem;
+  color: var(--text);
+}
+
+.full-content p {
+  font-size: .92rem;
+  color: #444;
+  margin-bottom: .75rem;
+}
+
+.full-content code {
+  background: #f0f0f0;
+  border-radius: 4px;
+  padding: .1em .4em;
+  font-size: .88em;
+  font-family: "Fira Code", "Cascadia Code", monospace;
+}
+
+.full-content pre {
+  background: #f6f6f6;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  margin: .75rem 0 1rem;
+}
+
+.full-content pre code {
+  background: none;
+  padding: 0;
+  font-size: .85rem;
+  line-height: 1.6;
+}
+
+.close-btn {
+  display: inline-block;
+  margin-top: .5rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .3rem .8rem;
+  font-size: .82rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+}
+.close-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── About ── */
+#about p { font-size: .95rem; margin-bottom: .5rem; }
 #about a { color: var(--accent); }
 
 /* ── Footer ── */
@@ -133,22 +166,13 @@ footer {
 /* ── Mobile ── */
 @media (max-width: 480px) {
   body { padding: 1rem 1rem 3rem; }
-
   header { padding: 2rem 0 1.75rem; }
-
   .avatar { font-size: 2.4rem; }
-
   header h1 { font-size: 1.35rem; }
-
   .bio { font-size: .88rem; }
-
   nav a { margin: 0 .5rem; font-size: .88rem; }
-
   section h2 { font-size: 1rem; }
-
   article { padding: 1rem 1.1rem; border-radius: 8px; }
-
   article h3 { font-size: 1rem; }
-
-  article p { font-size: .875rem; }
+  .full-content pre { padding: .75rem 1rem; }
 }

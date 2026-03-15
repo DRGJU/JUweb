@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JUblog</title>
-  <link rel="stylesheet" href="./style.css" />
+  <title>我的博客</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <header>
-    <div class="avatar">🧑‍💻</div>
-    <h1>JU的博客</h1>
+    <div class="avatar">🧑💻</div>
+    <h1>张三的博客</h1>
     <p class="bio">热爱代码，热爱生活。记录技术与思考。</p>
     <nav>
       <a href="#posts">文章</a>
@@ -21,39 +21,69 @@
   <main>
     <section id="posts">
       <h2>最新文章</h2>
-
-      <article>
-        <span class="date">2025-07-01</span>
-        <h3><a href="#">如何用 CSS 写出优雅的排版</a></h3>
-        <p>好的排版能让读者专注于内容本身，本文分享几个实用的 CSS 排版技巧……</p>
-        <a class="read-more" href="#">阅读全文 →</a>
-      </article>
-
-      <article>
-        <span class="date">2025-06-18</span>
-        <h3><a href="#">Python 异步编程入门</a></h3>
-        <p>asyncio 让 Python 也能高效处理并发任务，本文从零开始讲解 async/await……</p>
-        <a class="read-more" href="#">阅读全文 →</a>
-      </article>
-
-      <article>
-        <span class="date">2025-06-05</span>
-        <h3><a href="#">我的 2025 年上半年总结</a></h3>
-        <p>回顾这半年的学习与成长，记录下那些值得铭记的瞬间……</p>
-        <a class="read-more" href="#">阅读全文 →</a>
-      </article>
+      <div id="post-list"></div>
     </section>
 
     <section id="about">
       <h2>关于我</h2>
-      <p>你好，我是JU，一名全栈开发者，喜欢折腾开源项目和写作。</p>
+      <p>你好，我是张三，一名全栈开发者，喜欢折腾开源项目和写作。</p>
       <p>联系我：<a href="mailto:hello@example.com">hello@example.com</a></p>
     </section>
   </main>
 
   <footer>
-    <p>© 2025 JU的博客 · 用 ❤️ 构建</p>
+    <p>© 2025 张三的博客 · 用 ❤️ 构建</p>
   </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    async function loadPosts() {
+      const res = await fetch('posts/index.json');
+      const posts = await res.json();
+      const list = document.getElementById('post-list');
+
+      posts.forEach(post => {
+        const article = document.createElement('article');
+        article.innerHTML = `
+          <span class="date">${post.date}</span>
+          <h3><a class="toggle" href="#">${post.title}</a></h3>
+          <div class="full-content"></div>
+          <a class="read-more" href="#">阅读全文 →</a>
+        `;
+        list.appendChild(article);
+
+        const toggle = article.querySelector('.toggle');
+        const readMore = article.querySelector('.read-more');
+        const content = article.querySelector('.full-content');
+        let loaded = false;
+
+        async function openPost(e) {
+          e.preventDefault();
+          if (!loaded) {
+            const md = await fetch(`posts/${post.file}`).then(r => r.text());
+            content.innerHTML = marked.parse(md);
+            content.innerHTML += '<button class="close-btn">收起 ↑</button>';
+            content.querySelector('.close-btn').addEventListener('click', closePost);
+            loaded = true;
+          }
+          article.classList.add('expanded');
+          content.style.maxHeight = content.scrollHeight + 'px';
+        }
+
+        function closePost() {
+          article.classList.remove('expanded');
+          content.style.maxHeight = '0';
+        }
+
+        toggle.addEventListener('click', e =>
+          article.classList.contains('expanded') ? closePost() : openPost(e)
+        );
+        readMore.addEventListener('click', openPost);
+      });
+    }
+
+    loadPosts();
+  </script>
 
 </body>
 </html>
