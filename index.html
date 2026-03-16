@@ -48,7 +48,20 @@
   <!-- Hero 区域 (全屏) -->
   <header class="h-screen flex flex-col justify-center items-center relative px-6">
     <div class="max-w-4xl mx-auto text-center">
-      <div class="reveal">
+      
+      <!-- 头像区域 -->
+      <div class="reveal mb-8" style="transition-delay: 0.1s;">
+        <div class="hero-avatar-wrapper mx-auto">
+          <!-- 注意：请将 src 替换为你自己的头像路径，例如 ./avatar.jpg -->
+          <img 
+            src="https://api.dicebear.com/7.x/avataaars/svg?seed=moji" 
+            alt="博主头像" 
+            class="hero-avatar"
+          />
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay: 0.2s;">
         <p class="text-muted text-sm tracking-widest uppercase mb-4">个人博客</p>
         <h1 class="font-display text-5xl sm:text-6xl md:text-7xl font-semibold text-fg leading-tight mb-6">
           记录思考<br>沉淀生活
