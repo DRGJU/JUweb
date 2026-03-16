@@ -86,16 +86,15 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  /* 修改：浅色模式下完全透明，只在最底部稍微渐变以融合滚动提示 */
   background: linear-gradient(
     to bottom,
-    rgba(250, 248, 245, 0) 0%,    /* 完全透明 */
-    rgba(250, 248, 245, 0) 80%,   /* 保持透明 */
-    rgba(250, 248, 245, 0.6) 100% /* 底部轻微遮罩 */
+    rgba(250, 248, 245, 0) 0%,    
+    rgba(250, 248, 245, 0) 80%,   
+    rgba(250, 248, 245, 0.6) 100% 
   );
 }
 
-/* 暗色模式下的遮罩 - 保持适度遮罩 */
+/* 暗色模式下的遮罩 */
 [data-theme="dark"] .video-overlay {
   background: linear-gradient(
     to bottom,
@@ -149,14 +148,14 @@ body {
   display: block;
 }
 
-/* Hero 区域文字 - 优化阴影适应透明背景 */
+/* Hero 区域文字 - 浅色模式无阴影 */
 header .reveal h1,
 header .reveal p {
-  /* 增强文字阴影，确保在无遮罩的彩色视频背景上依然清晰 */
-  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.95), 0 1px 3px rgba(0,0,0,0.1);
+  /* 移除了 text-shadow，字体不再发亮 */
+  text-shadow: none;
 }
 
-/* 暗色模式下文字阴影 */
+/* 暗色模式下文字阴影保留，保证可读性 */
 [data-theme="dark"] header .reveal h1,
 [data-theme="dark"] header .reveal p {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
@@ -183,7 +182,7 @@ header .reveal p {
 
 /* 标签样式 - 浅色模式 */
 .tag {
-  background-color: rgba(0, 0, 0, 0.05); /* 浅色背景 */
+  background-color: rgba(0, 0, 0, 0.05);
   color: var(--fg-muted);
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
@@ -196,9 +195,9 @@ header .reveal p {
 
 /* 标签样式 - 深色模式修复 */
 [data-theme="dark"] .tag {
-  background-color: rgba(255, 255, 255, 0.1); /* 深色半透明背景 */
-  color: rgba(255, 255, 255, 0.8); /* 亮色文字 */
-  border: 1px solid rgba(255, 255, 255, 0.15); /* 增加微弱边框 */
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 [data-theme="dark"] .tag:hover {
