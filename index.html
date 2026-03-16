@@ -8,9 +8,13 @@
 </head>
 <body>
 
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="bg.mp4" type="video/mp4" />
+  </video>
+
   <header>
     <div class="avatar">🧑💻</div>
-    <h1>张三的博客</h1>
+    <h1>JU 的博客</h1>
     <p class="bio">热爱代码，热爱生活。记录技术与思考。</p>
     <nav>
       <a href="#posts">文章</a>
@@ -24,65 +28,60 @@
       <div id="post-list"></div>
     </section>
 
-    <section id="about">
-      <h2>关于我</h2>
-      <p>你好，我是张三，一名全栈开发者，喜欢折腾开源项目和写作。</p>
-      <p>联系我：<a href="mailto:hello@example.com">hello@example.com</a></p>
-    </section>
   </main>
 
   <footer>
-    <p>© 2025 张三的博客 · 用 ❤️ 构建</p>
+    <p>© 2025 JU 的博客 · 用 ❤️ 构建</p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    async function loadPosts() {
-      const res = await fetch('posts/index.json');
-      const posts = await res.json();
-      const list = document.getElementById('post-list');
+    const list = document.getElementById('post-list');
 
-      posts.forEach(post => {
-        const article = document.createElement('article');
-        article.innerHTML = `
-          <span class="date">${post.date}</span>
-          <h3><a class="toggle" href="#">${post.title}</a></h3>
-          <div class="full-content"></div>
-          <a class="read-more" href="#">阅读全文 →</a>
-        `;
-        list.appendChild(article);
+    function createArticle(post) {
+      const article = document.createElement('article');
+      article.innerHTML = `
+        <span class="date">${post.date}</span>
+        <h3><a class="toggle" href="#">${post.title}</a></h3>
+        <div class="full-content"></div>
+        <a class="read-more" href="#">阅读全文 →</a>
+      `;
 
-        const toggle = article.querySelector('.toggle');
-        const readMore = article.querySelector('.read-more');
-        const content = article.querySelector('.full-content');
-        let loaded = false;
+      const toggle = article.querySelector('.toggle');
+      const readMore = article.querySelector('.read-more');
+      const content = article.querySelector('.full-content');
+      let loaded = false;
 
-        async function openPost(e) {
-          e.preventDefault();
-          if (!loaded) {
-            const md = await fetch(`posts/${post.file}`).then(r => r.text());
-            content.innerHTML = marked.parse(md);
-            content.innerHTML += '<button class="close-btn">收起 ↑</button>';
-            content.querySelector('.close-btn').addEventListener('click', closePost);
-            loaded = true;
-          }
-          article.classList.add('expanded');
-          content.style.maxHeight = content.scrollHeight + 'px';
+      async function openPost(e) {
+        e.preventDefault();
+        if (!loaded) {
+          const md = await fetch(`posts/${post.file}`).then(r => r.text());
+          content.innerHTML = marked.parse(md);
+          content.innerHTML += '<button class="close-btn">收起 ↑</button>';
+          content.querySelector('.close-btn').addEventListener('click', closePost);
+          loaded = true;
         }
+        article.classList.add('expanded');
+        content.style.overflow = 'visible';
+        content.style.maxHeight = content.scrollHeight + 'px';
+      }
 
-        function closePost() {
-          article.classList.remove('expanded');
-          content.style.maxHeight = '0';
-        }
+      function closePost() {
+        article.classList.remove('expanded');
+        content.style.overflow = 'hidden';
+        content.style.maxHeight = '0';
+      }
 
-        toggle.addEventListener('click', e =>
-          article.classList.contains('expanded') ? closePost() : openPost(e)
-        );
-        readMore.addEventListener('click', openPost);
-      });
+      toggle.addEventListener('click', e =>
+        article.classList.contains('expanded') ? closePost() : openPost(e)
+      );
+      readMore.addEventListener('click', openPost);
+      return article;
     }
 
-    loadPosts();
+    fetch('posts/index.json')
+      .then(r => r.json())
+      .then(posts => posts.forEach(post => list.appendChild(createArticle(post))));
   </script>
 
 </body>
