@@ -225,20 +225,18 @@ function changePage(page) {
   }
 }
 
-// 3D 倾斜效果初始化 (极速响应版)
+// 3D 倾斜效果初始化
 function initTiltEffect() {
   if ('ontouchstart' in window) return;
 
   const cards = document.querySelectorAll('.article-card');
   
   cards.forEach(card => {
-    // 1. 鼠标进入：立即放大，不等待
     card.addEventListener('mouseenter', () => {
-      card.style.transition = 'none'; // 禁用过渡，让放大瞬间发生
+      card.style.transition = 'none';
       card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1.03)';
     });
 
-    // 2. 鼠标移动：仅计算旋转，丝滑跟随
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -250,17 +248,34 @@ function initTiltEffect() {
       const rotateX = ((y - centerY) / centerY) * -10; 
       const rotateY = ((x - centerX) / centerX) * 10;
       
-      // 保持 transition: none 确保旋转无延迟
       card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
     });
 
-    // 3. 鼠标离开：平滑复位
     card.addEventListener('mouseleave', () => {
-      // 恢复过渡，让复位动作看起来很高级
       card.style.transition = 'transform 0.2s ease-out'; 
       card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     });
   });
+}
+
+// 视频背景初始化
+function initVideoBackground() {
+  const video = document.getElementById('bgVideo');
+  if (!video) return;
+
+  // 移动端降级：暂停视频以节省流量
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  if (isMobile) {
+    // 移动端暂停视频，只显示 poster 图片
+    video.pause();
+    video.style.display = 'none';
+  } else {
+    // 桌面端确保视频播放
+    video.play().catch(err => {
+      console.log('视频自动播放失败，可能需要用户交互:', err);
+    });
+  }
 }
 
 // 主题切换
@@ -318,4 +333,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderArticles(currentPage);
   renderPagination();
   initThemeToggle();
+  initVideoBackground();
 });

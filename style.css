@@ -55,6 +55,54 @@ body {
 .border-theme { border-color: var(--border); }
 .hover-accent:hover { color: var(--accent); }
 
+/* 视频背景容器 */
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh; /* 只覆盖首屏 */
+  z-index: -2;
+  overflow: hidden;
+}
+
+.video-background video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+}
+
+/* 视频遮罩层 - 确保文字可读 */
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(250, 248, 245, 0.75) 0%,  /* 浅色遮罩 */
+    rgba(250, 248, 245, 0.85) 50%,
+    rgba(250, 248, 245, 0.95) 100%
+  );
+}
+
+/* 暗色模式下的遮罩 */
+[data-theme="dark"] .video-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(26, 26, 26, 0.7) 0%,
+    rgba(26, 26, 26, 0.8) 50%,
+    rgba(26, 26, 26, 0.9) 100%
+  );
+}
+
 /* 背景纹理 */
 .texture-overlay {
   position: fixed;
@@ -102,7 +150,6 @@ body {
   transform-style: preserve-3d;
   will-change: transform;
   
-  /* 毛玻璃效果 */
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -110,8 +157,6 @@ body {
   
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-  
-  /* 关键：移除 transform 的默认过渡，让 JS 完全掌控，避免任何卡顿感 */
   transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
@@ -250,6 +295,7 @@ body {
   }
 }
 
+/* 移动端适配 */
 @media (max-width: 640px) {
   .hero-avatar-wrapper {
     width: 110px;
@@ -269,6 +315,7 @@ body {
   }
 }
 
+/* 滚动条 */
 ::-webkit-scrollbar {
   width: 6px;
 }
