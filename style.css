@@ -7,6 +7,9 @@
   --accent-light: #3D6B54;
   --card: #FFFFFF;
   --border: #E8E4DE;
+  /* 毛玻璃卡片背景色 */
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.5);
 }
 
 [data-theme="dark"] {
@@ -18,6 +21,9 @@
   --accent-light: #7BC49E;
   --card: #222222;
   --border: #333333;
+  /* 暗黑模式毛玻璃 */
+  --glass-bg: rgba(30, 30, 30, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -61,23 +67,20 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* 头像容器 - 负责画圆和边框 */
+/* 头像容器 */
 .hero-avatar-wrapper {
   position: relative;
   display: inline-block;
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  
-  /* 边框和阴影 */
   box-shadow: 
     0 8px 24px rgba(45, 74, 62, 0.25),
-    0 0 0 4px var(--bg),      /* 内层白色边框 */
-    0 0 0 5px var(--border);  /* 外层灰色边框 */
-    
+    0 0 0 4px var(--bg),
+    0 0 0 5px var(--border);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
-  background-color: var(--bg-alt); /* 图片加载前的背景色 */
-  overflow: hidden; /* 重要：裁剪图片为圆形 */
+  background-color: var(--bg-alt);
+  overflow: hidden;
 }
 
 .hero-avatar-wrapper:hover {
@@ -88,38 +91,51 @@ body {
     0 0 0 5px var(--accent);
 }
 
-/* 图片样式 - 负责铺满容器 */
+/* 图片样式 */
 .hero-avatar {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 重要：保持比例填充，多余部分裁剪 */
-  object-position: center; /* 图片居中 */
+  object-fit: cover;
+  object-position: center;
   display: block;
 }
 
-/* 文章卡片 */
+/* 文章卡片 - 毛玻璃效果 */
 .article-card {
-  background-color: var(--card);
-  border: 1px solid var(--border);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  /* 3D 变换设置 */
+  transform-style: preserve-3d;
+  will-change: transform;
+  
+  /* 毛玻璃效果 */
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px); /* Safari 支持 */
+  border: 1px solid var(--glass-border);
+  
+  /* 阴影和过渡 */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  border-radius: 16px; /* 稍微增大圆角 */
+  transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
+/* 注意：scale 和 rotate 由 JS 控制，所以这里只定义阴影变化 */
 .article-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
-  border-color: var(--accent);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  background: var(--glass-bg); /* 保持背景 */
 }
 
 /* 标签样式 */
 .tag {
-  background-color: var(--bg-alt);
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
   color: var(--fg-muted);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .tag:hover {
   background-color: var(--accent);
   color: white;
+  transform: translateY(-1px);
 }
 
 /* 滚动动画 */
@@ -237,7 +253,7 @@ body {
     transform: none;
     transition: none;
   }
-  .article-card, .hero-avatar-wrapper, .pagination-btn {
+  .article-card {
     transition: none;
   }
   .scroll-indicator {
@@ -257,6 +273,13 @@ body {
     min-width: 36px;
     height: 36px;
     font-size: 13px;
+  }
+
+  /* 移动端禁用毛玻璃以提升性能，并使用实心背景 */
+  .article-card {
+    background: var(--card);
+    backdrop-filter: none;
+    border: 1px solid var(--border);
   }
 }
 

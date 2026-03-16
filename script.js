@@ -1,4 +1,4 @@
-// 文章数据 (扩展至12篇以便演示分页)
+// 文章数据
 const articles = [
   {
     id: 1,
@@ -113,9 +113,8 @@ const articles = [
 // 分页配置
 const ITEMS_PER_PAGE = 7;
 let currentPage = 1;
-let observer = null; // 保存 observer 实例
+let observer = null;
 
-// 获取文章总数显示元素
 const articleCountEl = document.getElementById('articleCount');
 
 // 渲染文章列表
@@ -123,18 +122,16 @@ function renderArticles(page) {
   const container = document.getElementById('articleList');
   if (!container) return;
 
-  // 计算分页
   const start = (page - 1) * ITEMS_PER_PAGE;
   const end = start + ITEMS_PER_PAGE;
   const paginatedArticles = articles.slice(start, end);
 
-  // 更新总数显示
   if(articleCountEl) {
     articleCountEl.textContent = `共 ${articles.length} 篇`;
   }
 
   container.innerHTML = paginatedArticles.map((article, index) => `
-    <article class="article-card rounded-xl p-6 reveal" style="transition-delay: ${index * 0.05}s">
+    <article class="article-card p-6 reveal" style="transition-delay: ${index * 0.05}s">
       <div class="flex items-start justify-between gap-4 mb-3">
         <div class="flex items-center gap-3">
           <span class="text-xs font-medium text-accent bg-alt px-2 py-1 rounded">${article.category}</span>
@@ -159,7 +156,9 @@ function renderArticles(page) {
     </article>
   `).join('');
 
-  // 重新初始化滚动动画
+  // 初始化 3D 倾斜效果
+  initTiltEffect();
+  // 初始化滚动动画
   initScrollReveal();
 }
 
@@ -175,10 +174,7 @@ function renderPagination() {
     return;
   }
 
-  let html = '';
-
-  // 上一页按钮
-  html += `
+  let html = `
     <button 
       class="pagination-btn" 
       onclick="changePage(${currentPage - 1})"
@@ -190,7 +186,6 @@ function renderPagination() {
     </button>
   `;
 
-  // 页码按钮
   for (let i = 1; i <= totalPages; i++) {
     html += `
       <button 
@@ -202,7 +197,6 @@ function renderPagination() {
     `;
   }
 
-  // 下一页按钮
   html += `
     <button 
       class="pagination-btn" 
@@ -221,18 +215,47 @@ function renderPagination() {
 // 切换页面
 function changePage(page) {
   const totalPages = Math.ceil(articles.length / ITEMS_PER_PAGE);
-  
   if (page < 1 || page > totalPages) return;
   
   currentPage = page;
   renderArticles(currentPage);
   renderPagination();
 
-  // 平滑滚动到文章列表顶部
   const articlesSection = document.getElementById('articles');
   if (articlesSection) {
     articlesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+}
+
+// 3D 倾斜效果初始化
+function initTiltEffect() {
+  // 检查是否为触摸设备，如果是则不应用3D效果（避免性能问题和交互冲突）
+  if ('ontouchstart' in window) return;
+
+  const cards = document.querySelectorAll('.article-card');
+  
+  cards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      // 计算旋转角度 (最大 +/- 8 度)
+      const rotateX = ((y - centerY) / centerY) * -8; 
+      const rotateY = ((x - centerX) / centerX) * 8;
+      
+      // 应用变换：放大 + 旋转
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      // 鼠标离开时平滑复位
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+    });
+  });
 }
 
 // 主题切换
@@ -264,7 +287,6 @@ function initThemeToggle() {
 
 // 滚动显示动画
 function initScrollReveal() {
-  // 如果已存在观察者，先断开连接
   if (observer) {
     observer.disconnect();
   }
