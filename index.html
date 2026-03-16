@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>墨迹 | 个人博客</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS (外部库保持原样) -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Google Fonts -->
+  <!-- Google Fonts (外部库保持原样) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
   
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css">
+  <!-- 修改点：CSS 引用路径 -->
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body class="min-h-screen">
   <!-- 背景纹理 -->
@@ -27,6 +27,7 @@
       
       <div class="flex items-center gap-8">
         <div class="hidden sm:flex items-center gap-6">
+          <!-- 注意：这里的锚点链接 (#articles) 在本地和GitHub Pages都能正常工作 -->
           <a href="#" class="nav-link text-sm">首页</a>
           <a href="#articles" class="nav-link text-sm">文章</a>
           <a href="#about" class="nav-link text-sm">关于</a>
@@ -116,7 +117,7 @@
     </div>
   </footer>
 
-  <!-- JavaScript -->
-  <script src="script.js"></script>
+  <!-- 修改点：JS 引用路径 -->
+  <script src="./script.js"></script>
 </body>
 </html>
