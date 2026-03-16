@@ -64,7 +64,7 @@ body {
   height: 100vh;
   z-index: -2;
   overflow: hidden;
-  background-color: var(--bg); /* 视频加载前的背景 */
+  background-color: var(--bg);
 }
 
 .video-background video {
@@ -79,38 +79,38 @@ body {
   object-fit: cover;
 }
 
-/* 视频遮罩层 - 优化清晰度 */
+/* 视频遮罩层 - 浅色模式完全透明 */
 .video-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  /* 优化：降低不透明度，让视频更清晰 */
+  /* 修改：浅色模式下完全透明，只在最底部稍微渐变以融合滚动提示 */
   background: linear-gradient(
     to bottom,
-    rgba(250, 248, 245, 0.4) 0%,   /* 顶部 40% 不透明度 */
-    rgba(250, 248, 245, 0.5) 50%,  /* 中间 50% */
-    rgba(250, 248, 245, 0.7) 100%  /* 底部 70%，保证滚动提示可见 */
+    rgba(250, 248, 245, 0) 0%,    /* 完全透明 */
+    rgba(250, 248, 245, 0) 80%,   /* 保持透明 */
+    rgba(250, 248, 245, 0.6) 100% /* 底部轻微遮罩 */
   );
 }
 
-/* 暗色模式下的遮罩 - 同样降低不透明度 */
+/* 暗色模式下的遮罩 - 保持适度遮罩 */
 [data-theme="dark"] .video-overlay {
   background: linear-gradient(
     to bottom,
     rgba(26, 26, 26, 0.3) 0%,
-    rgba(26, 26, 26, 0.4) 50%,
-    rgba(26, 26, 26, 0.6) 100%
+    rgba(26, 26, 26, 0.5) 50%,
+    rgba(26, 26, 26, 0.7) 100%
   );
 }
 
-/* 背景纹理 - 保持微弱 */
+/* 背景纹理 */
 .texture-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.02; /* 稍微降低纹理不透明度，避免干扰视频 */
+  opacity: 0.02; 
   z-index: -1;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
@@ -129,7 +129,6 @@ body {
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   background-color: var(--bg-alt);
   overflow: hidden;
-  /* 增加阴影提升层级感 */
   backdrop-filter: blur(4px); 
   -webkit-backdrop-filter: blur(4px);
 }
@@ -150,16 +149,17 @@ body {
   display: block;
 }
 
-/* Hero 区域文字阴影 - 保证在清晰视频背景下可读 */
+/* Hero 区域文字 - 优化阴影适应透明背景 */
 header .reveal h1,
 header .reveal p {
-  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8); /* 浅色阴影增加对比度 */
+  /* 增强文字阴影，确保在无遮罩的彩色视频背景上依然清晰 */
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.95), 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* 暗色模式下文字阴影 */
 [data-theme="dark"] header .reveal h1,
 [data-theme="dark"] header .reveal p {
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
 }
 
 /* 文章卡片 */
@@ -181,9 +181,9 @@ header .reveal p {
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
 }
 
+/* 标签样式 - 浅色模式 */
 .tag {
-  background-color: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.05); /* 浅色背景 */
   color: var(--fg-muted);
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
@@ -192,6 +192,19 @@ header .reveal p {
   background-color: var(--accent);
   color: white;
   transform: translateY(-1px);
+}
+
+/* 标签样式 - 深色模式修复 */
+[data-theme="dark"] .tag {
+  background-color: rgba(255, 255, 255, 0.1); /* 深色半透明背景 */
+  color: rgba(255, 255, 255, 0.8); /* 亮色文字 */
+  border: 1px solid rgba(255, 255, 255, 0.15); /* 增加微弱边框 */
+}
+
+[data-theme="dark"] .tag:hover {
+  background-color: var(--accent);
+  color: white;
+  border-color: var(--accent);
 }
 
 .reveal {
