@@ -21,7 +21,6 @@
             <div class="hidden md:flex items-center gap-8">
                 <a href="#home" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">首页</a>
                 <a href="#articles" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">文章</a>
-                <a href="#about" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">关于</a>
                 <a href="#contact" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">联系</a>
             </div>
 
@@ -36,7 +35,6 @@
             <div class="flex flex-col px-6 py-4 space-y-4">
                 <a href="#home" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">首页</a>
                 <a href="#articles" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">文章</a>
-                <a href="#about" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">关于</a>
                 <a href="#contact" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">联系</a>
             </div>
         </div>
@@ -66,9 +64,6 @@
                             阅读文章
                             <iconify-icon icon="lucide:arrow-right" width="16" height="16"></iconify-icon>
                         </a>
-                        <a href="#about" class="inline-flex items-center gap-2 px-6 md:px-8 py-2.5 md:py-3 border border-[#DCCFB8] text-[#3F3A33] text-sm font-medium rounded hover:border-[#C49A5A] hover:text-[#C49A5A] transition-colors">
-                            了解更多
-                        </a>
                     </div>
                 </div>
             </div>
@@ -87,48 +82,6 @@
             <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 <div class="col-span-full text-center py-12 text-[#6A6456]/60">
                     文章加载中...
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 关于我区域 -->
-    <section id="about" class="py-16 md:py-24">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                <div class="relative order-2 lg:order-1">
-                    <img 
-                        src="https://picsum.photos/seed/about-work/800/1000.jpg" 
-                        alt="关于我"
-                        class="img-grayscale w-full aspect-[4/5] object-cover rounded-lg"
-                    >
-                    <div class="absolute -bottom-4 right-4 md:-bottom-6 md:-right-6 bg-[#E7DFC6] p-4 md:p-6 rounded-lg shadow-lg hidden sm:block">
-                        <p class="text-3xl md:text-4xl font-medium text-[#C49A5A]">5+</p>
-                        <p class="text-xs md:text-sm text-[#6A6456]">年写作经验</p>
-                    </div>
-                </div>
-                <div class="order-1 lg:order-2 text-center lg:text-left">
-                    <p class="text-xs font-semibold text-[#C49A5A] uppercase tracking-widest mb-3 md:mb-4">关于我</p>
-                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-medium text-[#3F3A33] tracking-tight mb-4 md:mb-6">用文字记录生活的温度</h2>
-                    <div class="space-y-3 md:space-y-4 text-sm md:text-base font-light leading-relaxed text-[#6A6456]/80">
-                        <p>我是一名自由撰稿人和设计师，居住在杭州。从小就喜欢用文字记录生活中的点滴，这个习惯一直延续至今。</p>
-                        <p>在这个博客里，你会看到关于旅行、阅读、音乐、艺术以及日常生活的随笔。我相信，生活中最美好的事物往往藏在平凡的细节里。</p>
-                        <p>写作对我来说，是一种与自己对话的方式，也是与世界连接的桥梁。</p>
-                    </div>
-                    <div class="grid grid-cols-3 gap-4 md:gap-8 mt-8 md:mt-10 pt-8 md:pt-10 border-t border-[#DCCFB8]">
-                        <div>
-                            <p class="text-2xl md:text-3xl font-medium text-[#C49A5A]">128</p>
-                            <p class="text-xs md:text-sm text-[#6A6456]/60 mt-1">篇文章</p>
-                        </div>
-                        <div>
-                            <p class="text-2xl md:text-3xl font-medium text-[#C49A5A]">52K</p>
-                            <p class="text-xs md:text-sm text-[#6A6456]/60 mt-1">阅读量</p>
-                        </div>
-                        <div>
-                            <p class="text-2xl md:text-3xl font-medium text-[#C49A5A]">1.2K</p>
-                            <p class="text-xs md:text-sm text-[#6A6456]/60 mt-1">订阅者</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -161,19 +114,10 @@
     <!-- Footer -->
     <footer class="bg-[#3F3A33] py-12 md:py-16">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-8 md:mb-12">
                 <div class="md:col-span-2 text-center md:text-left">
                     <a href="index.html" class="text-xl font-semibold text-[#F3F0E6] tracking-tight inline-block mb-3 md:mb-4" style="font-family: 'Playfair Display', serif;">林清雪</a>
                     <p class="text-sm text-[#F3F0E6]/60 leading-relaxed max-w-sm mx-auto md:mx-0">用文字记录生活的温度，分享关于旅行、阅读、艺术与日常的美好。</p>
-                </div>
-                <div class="text-center md:text-left">
-                    <h4 class="text-sm font-medium text-[#F3F0E6] mb-3 md:mb-4">快速链接</h4>
-                    <ul class="space-y-2 flex flex-col items-center md:items-start">
-                        <li><a href="#home" class="text-sm text-[#F3F0E6]/60 hover:text-[#C49A5A] transition-colors">首页</a></li>
-                        <li><a href="#articles" class="text-sm text-[#F3F0E6]/60 hover:text-[#C49A5A] transition-colors">文章</a></li>
-                        <li><a href="#about" class="text-sm text-[#F3F0E6]/60 hover:text-[#C49A5A] transition-colors">关于</a></li>
-                        <li><a href="#contact" class="text-sm text-[#F3F0E6]/60 hover:text-[#C49A5A] transition-colors">联系</a></li>
-                    </ul>
                 </div>
                 <div class="text-center md:text-left">
                     <h4 class="text-sm font-medium text-[#F3F0E6] mb-3 md:mb-4">关注我</h4>
