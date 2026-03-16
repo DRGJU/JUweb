@@ -225,14 +225,20 @@ function changePage(page) {
   }
 }
 
-// 3D 倾斜效果初始化 (优化速度版)
+// 3D 倾斜效果初始化 (极速响应版)
 function initTiltEffect() {
   if ('ontouchstart' in window) return;
 
   const cards = document.querySelectorAll('.article-card');
   
   cards.forEach(card => {
-    // 鼠标移动时：瞬间跟随，无延迟
+    // 1. 鼠标进入：立即放大，不等待
+    card.addEventListener('mouseenter', () => {
+      card.style.transition = 'none'; // 禁用过渡，让放大瞬间发生
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1.03)';
+    });
+
+    // 2. 鼠标移动：仅计算旋转，丝滑跟随
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -241,20 +247,17 @@ function initTiltEffect() {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
       
-      // 旋转角度稍微增大了一点，让效果更明显
       const rotateX = ((y - centerY) / centerY) * -10; 
       const rotateY = ((x - centerX) / centerX) * 10;
       
-      // 关键：移除过渡时间，让动画瞬间响应
-      card.style.transition = 'none'; 
-      
+      // 保持 transition: none 确保旋转无延迟
       card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
     });
 
-    // 鼠标离开时：快速复位
+    // 3. 鼠标离开：平滑复位
     card.addEventListener('mouseleave', () => {
-      // 关键：恢复过渡时间，让复位有弹性且快速 (0.1s)
-      card.style.transition = 'transform 0.1s ease-out'; 
+      // 恢复过渡，让复位动作看起来很高级
+      card.style.transition = 'transform 0.2s ease-out'; 
       card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
     });
   });

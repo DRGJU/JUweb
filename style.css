@@ -89,7 +89,6 @@ body {
     0 0 0 5px var(--accent);
 }
 
-/* 图片样式 */
 .hero-avatar {
   width: 100%;
   height: 100%;
@@ -112,18 +111,14 @@ body {
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
   
-  /* 关键修改：这里只定义默认的过渡属性，具体的时长由JS控制 */
-  /* 这样可以确保鼠标离开时的复位动画既快又有弹性 */
-  transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-              box-shadow 0.1s ease, 
-              background 0.1s ease;
+  /* 关键：移除 transform 的默认过渡，让 JS 完全掌控，避免任何卡顿感 */
+  transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .article-card:hover {
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
 }
 
-/* 标签样式 */
 .tag {
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(4px);
@@ -137,7 +132,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* 滚动动画 */
 .reveal {
   opacity: 0;
   transform: translateY(40px);
@@ -149,7 +143,6 @@ body {
   transform: translateY(0);
 }
 
-/* 导航链接 */
 .nav-link {
   position: relative;
   color: var(--fg-muted);
@@ -175,7 +168,6 @@ body {
   width: 100%;
 }
 
-/* 按钮样式 */
 .btn-theme {
   background-color: var(--bg-alt);
   border: 1px solid var(--border);
@@ -186,7 +178,6 @@ body {
   border-color: var(--accent);
 }
 
-/* 分页样式 */
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -229,7 +220,6 @@ body {
   cursor: not-allowed;
 }
 
-/* 滚动提示动画 */
 .scroll-indicator {
   animation: fadeInUp 1s ease 0.5s backwards;
 }
@@ -245,7 +235,6 @@ body {
   }
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
@@ -261,7 +250,6 @@ body {
   }
 }
 
-/* 移动端适配 */
 @media (max-width: 640px) {
   .hero-avatar-wrapper {
     width: 110px;
@@ -281,7 +269,6 @@ body {
   }
 }
 
-/* 滚动条 */
 ::-webkit-scrollbar {
   width: 6px;
 }
