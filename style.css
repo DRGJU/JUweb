@@ -1,209 +1,108 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* 
+ * 自定义样式文件
+ * 主要处理 Tailwind 无法直接覆盖的样式
+ */
 
-:root {
-  --bg: transparent;
-  --surface: rgba(255, 255, 255, 0.75);
-  --text: #1a1a1a;
-  --muted: #888;
-  --accent: #4f6ef7;
-  --border: #e8e8e8;
+/* 字体引入 */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+/* 基础设置 */
+* {
+    font-family: 'Inter', sans-serif;
 }
 
-#bg-video {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -1;
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
 }
 
-body {
-  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  background: transparent;
-  color: var(--text);
-  line-height: 1.75;
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 6rem;
+html {
+    scroll-behavior: smooth;
 }
 
-/* ── Header ── */
-header {
-  text-align: center;
-  padding: 3rem 0 2.5rem;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 6px;
 }
 
-.avatar { font-size: 3rem; margin-bottom: .75rem; }
-
-header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: .02em; }
-
-.bio { color: var(--muted); margin: .4rem 0 1.2rem; font-size: .95rem; }
-
-nav a {
-  color: var(--text);
-  text-decoration: none;
-  margin: 0 .75rem;
-  font-size: .9rem;
-  font-weight: 500;
-  transition: color .2s;
-}
-nav a:hover { color: var(--accent); }
-
-/* ── Main ── */
-main { margin-top: 2.5rem; }
-section { margin-bottom: 3rem; }
-
-section h2 {
-  display: inline-block;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  margin-bottom: 1.5rem;
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 8px;
-  padding: .3rem .9rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+::-webkit-scrollbar-track {
+    background: #F3F0E6;
 }
 
-/* ── Article card ── */
-article {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
-  transition: box-shadow .2s;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-article:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
-
-.date { font-size: .8rem; color: var(--muted); }
-
-article h3 { font-size: 1.05rem; margin: .3rem 0 .5rem; }
-
-article h3 a {
-  color: var(--text);
-  text-decoration: none;
-  transition: color .2s;
-}
-article h3 a:hover { color: var(--accent); }
-
-article .summary { font-size: .9rem; color: #555; margin-bottom: .75rem; }
-
-.read-more {
-  font-size: .85rem;
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 500;
-  cursor: pointer;
-}
-.read-more:hover { text-decoration: underline; }
-
-/* ── Full content (collapsed by default) ── */
-.full-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height .4s ease;
+::-webkit-scrollbar-thumb {
+    background: #C49A5A;
+    border-radius: 3px;
 }
 
-article.expanded .full-content { /* max-height set by JS */ }
-article.expanded .read-more { display: none; }
-
-.full-content h4 {
-  font-size: .95rem;
-  font-weight: 600;
-  margin: 1.25rem 0 .4rem;
-  color: var(--text);
+/* 文章内容排版 */
+.prose p {
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
 }
 
-.full-content p {
-  font-size: .92rem;
-  color: #444;
-  margin-bottom: .75rem;
+.prose h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #3F3A33;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
 }
 
-.full-content code {
-  background: #f0f0f0;
-  border-radius: 4px;
-  padding: .1em .4em;
-  font-size: .88em;
-  font-family: "Fira Code", "Cascadia Code", monospace;
+.prose h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #3F3A33;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
 }
 
-.full-content pre {
-  background: #f6f6f6;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem 1.2rem;
-  overflow-x: auto;
-  margin: .75rem 0 1rem;
+.prose blockquote {
+    border-left: 4px solid #C49A5A;
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: #6A6456;
 }
 
-.full-content pre code {
-  background: none;
-  padding: 0;
-  font-size: .85rem;
-  line-height: 1.6;
+.prose img {
+    border-radius: 0.5rem;
+    margin: 2rem 0;
 }
 
-.close-btn {
-  display: inline-block;
-  margin-top: .5rem;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: .3rem .8rem;
-  font-size: .82rem;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color .2s, border-color .2s;
-}
-.close-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-/* ── About ── */
-#about p { font-size: .95rem; margin-bottom: .5rem; }
-#about a { color: var(--accent); }
-
-/* ── Footer ── */
-footer {
-  position: fixed;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  color: var(--muted);
-  font-size: .82rem;
-  padding: .5rem 1.5rem;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  white-space: nowrap;
-  z-index: 100;
+.prose a {
+    color: #C49A5A;
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
-/* ── Mobile ── */
-@media (max-width: 480px) {
-  body { padding: 1rem 1rem 3rem; }
-  header { padding: 2rem 0 1.75rem; }
-  .avatar { font-size: 2.4rem; }
-  header h1 { font-size: 1.35rem; }
-  .bio { font-size: .88rem; }
-  nav a { margin: 0 .5rem; font-size: .88rem; }
-  section h2 { font-size: 1rem; }
-  article { padding: 1rem 1.1rem; border-radius: 8px; }
-  article h3 { font-size: 1rem; }
-  .full-content pre { padding: .75rem 1rem; }
+.prose a:hover {
+    color: #B08B4E;
+}
+
+.prose ul, .prose ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.prose li {
+    margin-bottom: 0.5rem;
+}
+
+/* 图片灰度滤镜效果 */
+.img-grayscale {
+    filter: grayscale(20%);
+    transition: filter 0.7s ease;
+}
+
+.img-grayscale:hover {
+    filter: grayscale(0);
+}
+
+/* 文章卡片图片悬停效果 */
+.article-card-img {
+    transition: transform 0.5s ease;
+}
+
+.article-card:hover .article-card-img {
+    transform: scale(1.05);
 }

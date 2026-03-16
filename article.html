@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章详情 | 林清雪</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconify Icons -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#F3F0E6] text-[#6A6456]">
+
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 h-20 bg-[#F3F0E6]/90 backdrop-blur-sm border-b border-[#DCCFB8]">
+        <div class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+            <a href="index.html" class="text-xl font-semibold text-[#3F3A33] tracking-tight" style="font-family: 'Playfair Display', serif;">
+                林清雪
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="index.html#home" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">首页</a>
+                <a href="index.html#articles" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">文章</a>
+                <a href="index.html#about" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">关于</a>
+                <a href="index.html#contact" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">联系</a>
+            </div>
+            <button class="md:hidden text-[#3F3A33]">
+                <iconify-icon icon="lucide:menu" width="24" height="24"></iconify-icon>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 文章内容 -->
+    <article class="pt-20">
+        <!-- 文章头部 -->
+        <header class="max-w-3xl mx-auto px-6 py-12 md:py-20">
+            <a href="index.html#articles" class="inline-flex items-center gap-2 text-sm text-[#6A6456]/60 hover:text-[#C49A5A] transition-colors mb-8">
+                <iconify-icon icon="lucide:arrow-left" width="16" height="16"></iconify-icon>
+                返回文章列表
+            </a>
+            <div id="article-meta" class="flex items-center gap-3 mb-4">
+                <!-- 由 JS 填充 -->
+            </div>
+            <h1 id="article-title" class="text-3xl md:text-5xl font-medium text-[#3F3A33] tracking-tight leading-tight">
+                <!-- 由 JS 填充 -->
+            </h1>
+        </header>
+
+        <!-- 封面图 -->
+        <div id="article-image-container" class="max-w-5xl mx-auto px-6 mb-12">
+            <img id="article-image" src="" alt="" class="w-full aspect-[16/9] object-cover rounded-lg">
+        </div>
+
+        <!-- 正文内容 -->
+        <div class="max-w-3xl mx-auto px-6 pb-20">
+            <div id="article-content" class="prose text-base leading-relaxed text-[#6A6456]">
+                <!-- 由 JS 填充 -->
+            </div>
+            
+            <!-- 文章底部 -->
+            <footer class="mt-16 pt-8 border-t border-[#DCCFB8]">
+                <div class="flex items-center justify-between">
+                    <a href="index.html#articles" class="inline-flex items-center gap-2 text-[#C49A5A] hover:text-[#B08B4E] transition-colors">
+                        <iconify-icon icon="lucide:arrow-left" width="16" height="16"></iconify-icon>
+                        返回首页
+                    </a>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-[#6A6456]/60">分享到：</span>
+                        <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#E7DFC6] text-[#6A6456] hover:bg-[#C49A5A] hover:text-white transition-all">
+                            <iconify-icon icon="lucide:twitter" width="14" height="14"></iconify-icon>
+                        </a>
+                        <a href="#" class="w-8 h-8 flex items-center justify-center rounded-full bg-[#E7DFC6] text-[#6A6456] hover:bg-[#C49A5A] hover:text-white transition-all">
+                            <iconify-icon icon="lucide:link" width="14" height="14"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="bg-[#3F3A33] py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <a href="index.html" class="text-xl font-semibold text-[#F3F0E6] tracking-tight inline-block mb-4" style="font-family: 'Playfair Display', serif;">
+                林清雪
+            </a>
+            <p class="text-xs text-[#F3F0E6]/40">© 2024 林清雪. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
