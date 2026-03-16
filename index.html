@@ -52,12 +52,20 @@
       <!-- 头像区域 -->
       <div class="reveal mb-8" style="transition-delay: 0.1s;">
         <div class="hero-avatar-wrapper mx-auto">
-          <!-- 注意：请将 src 替换为你自己的头像路径，例如 ./avatar.jpg -->
-          <img 
-            src="./touxiang.png" 
-            alt="博主头像" 
-            class="hero-avatar"
-          />
+          <!-- 默认头像：使用纯CSS渐变，无需加载图片 -->
+          <div class="hero-avatar-default" id="avatarContainer">
+            <!-- 如果你有自己的头像，替换下方 img 标签的 src 为你的图片路径 -->
+            <!-- 例如: src="./avatar.jpg" -->
+            <img 
+              src="" 
+              alt="博主头像" 
+              class="hero-avatar hidden"
+              id="avatarImage"
+              loading="lazy"
+              onerror="this.classList.add('hidden')"
+              onload="this.classList.remove('hidden')"
+            />
+          </div>
         </div>
       </div>
 

@@ -118,10 +118,13 @@ function initThemeToggle() {
 
 // 滚动显示动画
 function initScrollReveal() {
+  const reveals = document.querySelectorAll('.reveal');
+  
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
       }
     });
   }, {
@@ -129,7 +132,7 @@ function initScrollReveal() {
     rootMargin: '0px 0px -50px 0px'
   });
 
-  document.querySelectorAll('.reveal').forEach(el => {
+  reveals.forEach(el => {
     observer.observe(el);
   });
 }
@@ -138,5 +141,5 @@ function initScrollReveal() {
 document.addEventListener('DOMContentLoaded', () => {
   renderArticles();
   initThemeToggle();
-  initScrollReveal();
+  setTimeout(initScrollReveal, 100);
 });
