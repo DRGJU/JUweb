@@ -17,6 +17,23 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="min-h-screen">
+  <!-- 视频背景 -->
+  <div class="video-background">
+    <video 
+      id="bgVideo"
+      autoplay 
+      loop 
+      muted 
+      playsinline
+      poster="./poster.jpg"
+    >
+      <!-- 请将 src 修改为你的视频路径 -->
+      <source src="./bg.mp4" type="video/mp4">
+    </video>
+    <!-- 遮罩层：让文字更清晰 -->
+    <div class="video-overlay"></div>
+  </div>
+
   <!-- 背景纹理 -->
   <div class="texture-overlay"></div>
 
