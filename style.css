@@ -79,7 +79,7 @@ body {
   object-fit: cover;
 }
 
-/* 视频遮罩层 - 浅色模式完全透明 */
+/* 视频遮罩层 */
 .video-overlay {
   position: absolute;
   top: 0;
@@ -94,7 +94,6 @@ body {
   );
 }
 
-/* 暗色模式下的遮罩 */
 [data-theme="dark"] .video-overlay {
   background: linear-gradient(
     to bottom,
@@ -148,14 +147,12 @@ body {
   display: block;
 }
 
-/* Hero 区域文字 - 浅色模式无阴影 */
+/* Hero 文字 */
 header .reveal h1,
 header .reveal p {
-  /* 移除了 text-shadow，字体不再发亮 */
   text-shadow: none;
 }
 
-/* 暗色模式下文字阴影保留，保证可读性 */
 [data-theme="dark"] header .reveal h1,
 [data-theme="dark"] header .reveal p {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
@@ -180,7 +177,7 @@ header .reveal p {
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
 }
 
-/* 标签样式 - 浅色模式 */
+/* 标签 */
 .tag {
   background-color: rgba(0, 0, 0, 0.05);
   color: var(--fg-muted);
@@ -193,7 +190,6 @@ header .reveal p {
   transform: translateY(-1px);
 }
 
-/* 标签样式 - 深色模式修复 */
 [data-theme="dark"] .tag {
   background-color: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.8);
@@ -206,6 +202,7 @@ header .reveal p {
   border-color: var(--accent);
 }
 
+/* 动画与交互 */
 .reveal {
   opacity: 0;
   transform: translateY(40px);
@@ -234,23 +231,15 @@ header .reveal p {
   transition: width 0.3s ease;
 }
 
-.nav-link:hover {
-  color: var(--fg);
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
+.nav-link:hover { color: var(--fg); }
+.nav-link:hover::after { width: 100%; }
 
 .btn-theme {
   background-color: var(--bg-alt);
   border: 1px solid var(--border);
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-
-.btn-theme:hover {
-  border-color: var(--accent);
-}
+.btn-theme:hover { border-color: var(--accent); }
 
 .pagination-container {
   display: flex;
@@ -299,62 +288,59 @@ header .reveal p {
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-  .article-card {
-    transition: none;
-  }
-  .scroll-indicator {
-    animation: none;
-    opacity: 1;
-  }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .article-card { transition: none; }
+  .scroll-indicator { animation: none; opacity: 1; }
 }
 
-/* 移动端适配 */
+/* ========================= */
+/* 移动端性能优化 */
+/* ========================= */
 @media (max-width: 640px) {
+  /* 1. 彻底移除视频背景 */
+  .video-background {
+    display: none !important;
+  }
+  
+  /* 2. 移动端使用纯色/渐变背景代替视频 */
+  body {
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+  }
+  header {
+    background: transparent; /* 继承 body 背景 */
+  }
+
+  /* 3. 关闭纹理叠加，减少 GPU 合成层 */
+  .texture-overlay {
+    display: none;
+  }
+  
+  /* 4. 禁用毛玻璃效果，使用实心背景 */
+  .article-card {
+    background: var(--card) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); /* 简化阴影 */
+  }
+  
+  /* 5. 简化头像样式 */
   .hero-avatar-wrapper {
     width: 110px;
     height: 110px;
+    backdrop-filter: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
   
+  /* 6. 优化分页按钮 */
   .pagination-btn {
     min-width: 36px;
     height: 36px;
     font-size: 13px;
   }
-
-  .article-card {
-    background: var(--card);
-    backdrop-filter: none;
-    border: 1px solid var(--border);
-  }
-}
-
-/* 滚动条 */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--fg-muted);
 }
