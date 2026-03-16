@@ -1,4 +1,4 @@
-// 文章数据
+// 文章数据 (扩展至12篇以便演示分页)
 const articles = [
   {
     id: 1,
@@ -53,17 +53,88 @@ const articles = [
     category: '技术',
     tags: ['博客', '架构'],
     readTime: '9 分钟'
+  },
+  {
+    id: 7,
+    title: 'TypeScript 类型体操心得',
+    excerpt: '深入理解 TypeScript 的高级类型系统，通过实际案例掌握类型推导与条件类型。',
+    date: '2023-11-25',
+    category: '技术',
+    tags: ['TypeScript', '前端'],
+    readTime: '15 分钟'
+  },
+  {
+    id: 8,
+    title: '极简主义生活实践',
+    excerpt: '减少物质的拥有，增加精神的富足。我是如何开始极简生活，并从中获益的。',
+    date: '2023-11-18',
+    category: '随笔',
+    tags: ['生活', '极简'],
+    readTime: '6 分钟'
+  },
+  {
+    id: 9,
+    title: 'Node.js 性能优化全攻略',
+    excerpt: '从内存泄漏到 CPU 瓶颈，全面解析 Node.js 后端服务的性能优化策略。',
+    date: '2023-11-10',
+    category: '技术',
+    tags: ['Node.js', '后端'],
+    readTime: '18 分钟'
+  },
+  {
+    id: 10,
+    title: '色彩心理学在 UI 设计中的应用',
+    excerpt: '颜色不仅仅是视觉元素，它还能影响用户的情绪和行为决策。',
+    date: '2023-11-02',
+    category: '设计',
+    tags: ['UI', '心理学'],
+    readTime: '8 分钟'
+  },
+  {
+    id: 11,
+    title: '我的 2023 年度书单',
+    excerpt: '整理了今年读过的几本好书，涵盖技术、文学与个人成长领域。',
+    date: '2023-10-20',
+    category: '随笔',
+    tags: ['阅读', '书单'],
+    readTime: '5 分钟'
+  },
+  {
+    id: 12,
+    title: 'React Server Components 入门',
+    excerpt: '深入解读 React Server Components 的工作原理及其对前端架构的影响。',
+    date: '2023-10-10',
+    category: '技术',
+    tags: ['React', '前端'],
+    readTime: '12 分钟'
   }
 ];
 
+// 分页配置
+const ITEMS_PER_PAGE = 7;
+let currentPage = 1;
+let observer = null; // 保存 observer 实例
+
+// 获取文章总数显示元素
+const articleCountEl = document.getElementById('articleCount');
+
 // 渲染文章列表
-function renderArticles() {
+function renderArticles(page) {
   const container = document.getElementById('articleList');
-  
   if (!container) return;
 
-  container.innerHTML = articles.map((article, index) => `
-    <article class="article-card rounded-xl p-6 reveal" style="transition-delay: ${index * 0.1}s">
+  // 计算分页
+  const start = (page - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  const paginatedArticles = articles.slice(start, end);
+
+  // 更新总数显示
+  if(articleCountEl) {
+    articleCountEl.textContent = `共 ${articles.length} 篇`;
+  }
+
+  container.innerHTML = paginatedArticles.map((article, index) => `
+    <article class="article-card rounded-xl p-6 reveal" style="transition-delay: ${index * 0.05}s">
       <div class="flex items-start justify-between gap-4 mb-3">
         <div class="flex items-center gap-3">
           <span class="text-xs font-medium text-accent bg-alt px-2 py-1 rounded">${article.category}</span>
@@ -87,6 +158,81 @@ function renderArticles() {
       </div>
     </article>
   `).join('');
+
+  // 重新初始化滚动动画
+  initScrollReveal();
+}
+
+// 渲染分页控件
+function renderPagination() {
+  const container = document.getElementById('pagination');
+  if (!container) return;
+
+  const totalPages = Math.ceil(articles.length / ITEMS_PER_PAGE);
+  
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+
+  // 上一页按钮
+  html += `
+    <button 
+      class="pagination-btn" 
+      onclick="changePage(${currentPage - 1})"
+      ${currentPage === 1 ? 'disabled' : ''}
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+  `;
+
+  // 页码按钮
+  for (let i = 1; i <= totalPages; i++) {
+    html += `
+      <button 
+        class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+        onclick="changePage(${i})"
+      >
+        ${i}
+      </button>
+    `;
+  }
+
+  // 下一页按钮
+  html += `
+    <button 
+      class="pagination-btn" 
+      onclick="changePage(${currentPage + 1})"
+      ${currentPage === totalPages ? 'disabled' : ''}
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  `;
+
+  container.innerHTML = html;
+}
+
+// 切换页面
+function changePage(page) {
+  const totalPages = Math.ceil(articles.length / ITEMS_PER_PAGE);
+  
+  if (page < 1 || page > totalPages) return;
+  
+  currentPage = page;
+  renderArticles(currentPage);
+  renderPagination();
+
+  // 平滑滚动到文章列表顶部
+  const articlesSection = document.getElementById('articles');
+  if (articlesSection) {
+    articlesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // 主题切换
@@ -118,9 +264,12 @@ function initThemeToggle() {
 
 // 滚动显示动画
 function initScrollReveal() {
-  const reveals = document.querySelectorAll('.reveal');
-  
-  const observer = new IntersectionObserver((entries) => {
+  // 如果已存在观察者，先断开连接
+  if (observer) {
+    observer.disconnect();
+  }
+
+  observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
@@ -132,14 +281,14 @@ function initScrollReveal() {
     rootMargin: '0px 0px -50px 0px'
   });
 
-  reveals.forEach(el => {
+  document.querySelectorAll('.reveal').forEach(el => {
     observer.observe(el);
   });
 }
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
-  renderArticles();
+  renderArticles(currentPage);
+  renderPagination();
   initThemeToggle();
-  setTimeout(initScrollReveal, 100);
 });

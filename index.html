@@ -52,12 +52,9 @@
       <!-- 头像区域 -->
       <div class="reveal mb-8" style="transition-delay: 0.1s;">
         <div class="hero-avatar-wrapper mx-auto">
-          <!-- 默认头像：使用纯CSS渐变，无需加载图片 -->
           <div class="hero-avatar-default" id="avatarContainer">
-            <!-- 如果你有自己的头像，替换下方 img 标签的 src 为你的图片路径 -->
-            <!-- 例如: src="./avatar.jpg" -->
             <img 
-              src="./touxiang.png" 
+              src="" 
               alt="博主头像" 
               class="hero-avatar hidden"
               id="avatarImage"
@@ -98,13 +95,17 @@
       <div class="reveal">
         <div class="flex items-center justify-between mb-10">
           <h2 class="font-display text-2xl font-semibold text-fg">最新文章</h2>
-          <span class="text-muted text-sm">共 6 篇</span>
+          <!-- 文章总数将根据分页动态计算，这里先保持静态文字或由JS更新 -->
+          <span class="text-muted text-sm" id="articleCount">共 12 篇</span>
         </div>
       </div>
 
       <div class="space-y-6" id="articleList">
         <!-- 文章卡片由 JS 渲染 -->
       </div>
+
+      <!-- 分页控件 -->
+      <div id="pagination" class="pagination-container"></div>
     </div>
   </main>
 
