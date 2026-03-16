@@ -1,6 +1,5 @@
 /* 
  * 自定义样式文件
- * 主要处理 Tailwind 无法直接覆盖的样式
  */
 
 /* 字体引入 */
@@ -105,4 +104,17 @@ html {
 
 .article-card:hover .article-card-img {
     transform: scale(1.05);
+}
+
+/* 移动端菜单过渡效果 */
+.mobile-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.mobile-menu.open {
+    max-height: 300px; /* 足够容纳菜单项的高度 */
+    opacity: 1;
 }

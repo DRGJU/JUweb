@@ -4,63 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章详情 | 林清雪</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Iconify Icons -->
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-    <!-- 自定义样式 -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-[#F3F0E6] text-[#6A6456]">
 
     <!-- 导航栏 -->
-    <nav class="fixed top-0 left-0 right-0 z-50 h-20 bg-[#F3F0E6]/90 backdrop-blur-sm border-b border-[#DCCFB8]">
+    <nav class="fixed top-0 left-0 right-0 z-50 h-20 bg-[#F3F0E6]/95 backdrop-blur-sm border-b border-[#DCCFB8]">
         <div class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
             <a href="index.html" class="text-xl font-semibold text-[#3F3A33] tracking-tight" style="font-family: 'Playfair Display', serif;">
                 林清雪
             </a>
+            
+            <!-- 桌面端导航 -->
             <div class="hidden md:flex items-center gap-8">
                 <a href="index.html#home" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">首页</a>
                 <a href="index.html#articles" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">文章</a>
                 <a href="index.html#about" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">关于</a>
                 <a href="index.html#contact" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">联系</a>
             </div>
-            <button class="md:hidden text-[#3F3A33]">
-                <iconify-icon icon="lucide:menu" width="24" height="24"></iconify-icon>
+
+            <!-- 移动端菜单按钮 -->
+            <button onclick="toggleMobileMenu()" class="md:hidden w-10 h-10 flex items-center justify-center text-[#3F3A33] focus:outline-none">
+                <iconify-icon id="menu-icon" icon="lucide:menu" width="24" height="24"></iconify-icon>
             </button>
+        </div>
+
+        <!-- 移动端下拉菜单 -->
+        <div id="mobile-menu" class="mobile-menu md:hidden absolute top-20 left-0 right-0 bg-[#F3F0E6] border-b border-[#DCCFB8] shadow-lg">
+            <div class="flex flex-col px-6 py-4 space-y-4">
+                <a href="index.html#home" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">首页</a>
+                <a href="index.html#articles" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">文章</a>
+                <a href="index.html#about" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">关于</a>
+                <a href="index.html#contact" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">联系</a>
+            </div>
         </div>
     </nav>
 
     <!-- 文章内容 -->
     <article class="pt-20">
         <!-- 文章头部 -->
-        <header class="max-w-3xl mx-auto px-6 py-12 md:py-20">
-            <a href="index.html#articles" class="inline-flex items-center gap-2 text-sm text-[#6A6456]/60 hover:text-[#C49A5A] transition-colors mb-8">
+        <header class="max-w-3xl mx-auto px-6 py-10 md:py-20">
+            <a href="index.html#articles" class="inline-flex items-center gap-2 text-sm text-[#6A6456]/60 hover:text-[#C49A5A] transition-colors mb-6 md:mb-8">
                 <iconify-icon icon="lucide:arrow-left" width="16" height="16"></iconify-icon>
                 返回文章列表
             </a>
-            <div id="article-meta" class="flex items-center gap-3 mb-4">
+            <div id="article-meta" class="flex items-center gap-3 mb-3 md:mb-4">
                 <!-- 由 JS 填充 -->
             </div>
-            <h1 id="article-title" class="text-3xl md:text-5xl font-medium text-[#3F3A33] tracking-tight leading-tight">
+            <h1 id="article-title" class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium text-[#3F3A33] tracking-tight leading-tight">
                 <!-- 由 JS 填充 -->
             </h1>
         </header>
 
         <!-- 封面图 -->
-        <div id="article-image-container" class="max-w-5xl mx-auto px-6 mb-12">
+        <div id="article-image-container" class="max-w-5xl mx-auto px-6 mb-8 md:mb-12">
             <img id="article-image" src="" alt="" class="w-full aspect-[16/9] object-cover rounded-lg">
         </div>
 
         <!-- 正文内容 -->
-        <div class="max-w-3xl mx-auto px-6 pb-20">
-            <div id="article-content" class="prose text-base leading-relaxed text-[#6A6456]">
+        <div class="max-w-3xl mx-auto px-6 pb-16 md:pb-20">
+            <div id="article-content" class="prose text-sm md:text-base leading-relaxed text-[#6A6456]">
                 <!-- 由 JS 填充 -->
             </div>
             
             <!-- 文章底部 -->
-            <footer class="mt-16 pt-8 border-t border-[#DCCFB8]">
-                <div class="flex items-center justify-between">
+            <footer class="mt-12 md:mt-16 pt-8 border-t border-[#DCCFB8]">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <a href="index.html#articles" class="inline-flex items-center gap-2 text-[#C49A5A] hover:text-[#B08B4E] transition-colors">
                         <iconify-icon icon="lucide:arrow-left" width="16" height="16"></iconify-icon>
                         返回首页
@@ -89,7 +100,6 @@
         </div>
     </footer>
 
-    <!-- JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,10 +1,9 @@
 /**
  * 博客核心脚本
- * 包含文章数据和渲染逻辑
  */
 
 // ============================================
-// 文章数据数组 - 在这里添加你的文章
+// 文章数据数组
 // ============================================
 const articles = [
     {
@@ -69,34 +68,6 @@ const articles = [
             <blockquote>花开花落，皆是风景。</blockquote>
             <p>这次旅行让我明白，美是需要慢下来才能感受的。不必赶景点，只需静静地走，慢慢地看。</p>
         `
-    },
-    {
-        id: 5,
-        title: "深夜的古典乐：德彪西的月光",
-        category: "音乐",
-        date: "2023年12月20日",
-        summary: "当夜深人静，德彪西的《月光》总能带给人无限的遐想与宁静...",
-        image: "https://picsum.photos/seed/blog-music/800/600.jpg",
-        content: `
-            <p>当夜深人静，德彪西的《月光》总能带给人无限的遐想与宁静。</p>
-            <p>古典乐是我深夜工作的伴侣。在那些需要专注的时刻，没有歌词的旋律是最好的背景。</p>
-            <h2>印象派的色彩</h2>
-            <p>德彪西的音乐像是一幅幅水彩画，没有清晰的轮廓，却充满了色彩和光影。《月光》尤其如此，它让人联想到波光粼粼的湖面，或是穿透云层的银色光芒。</p>
-        `
-    },
-    {
-        id: 6,
-        title: "看展手记：当代艺术的边界",
-        category: "艺术",
-        date: "2023年12月15日",
-        summary: "艺术的边界在哪里？也许正是在不断突破与重构中，艺术才能保持它的生命力...",
-        image: "https://picsum.photos/seed/blog-art/800/600.jpg",
-        content: `
-            <p>艺术的边界在哪里？也许正是在不断突破与重构中，艺术才能保持它的生命力。</p>
-            <p>上周末去看了当代艺术展，展出的作品形式多样：装置、影像、行为艺术...有些作品让人困惑，有些则令人深思。</p>
-            <h2>艺术与生活</h2>
-            <p>当代艺术最有意思的地方，在于它模糊了艺术与生活的界限。一个普通的物件，放在展厅里，被观众凝视，就变成了艺术。</p>
-        `
     }
 ];
 
@@ -104,9 +75,6 @@ const articles = [
 // 渲染函数
 // ============================================
 
-/**
- * 渲染首页文章列表
- */
 function renderArticleList() {
     const container = document.getElementById('articles-grid');
     if (!container) return;
@@ -139,36 +107,27 @@ function renderArticleList() {
     container.innerHTML = html;
 }
 
-/**
- * 渲染文章详情页
- */
 function renderArticleDetail() {
     const titleEl = document.getElementById('article-title');
     const metaEl = document.getElementById('article-meta');
     const imageEl = document.getElementById('article-image');
     const contentEl = document.getElementById('article-content');
     
-    if (!titleEl) return; // 不在详情页则退出
+    if (!titleEl) return; 
 
-    // 获取 URL 参数中的文章 ID
     const params = new URLSearchParams(window.location.search);
     const articleId = parseInt(params.get('id'));
-    
-    // 查找对应文章
     const article = articles.find(a => a.id === articleId);
     
     if (!article) {
-        // 文章不存在，显示错误信息
         titleEl.textContent = '文章未找到';
         contentEl.innerHTML = '<p class="text-center py-12">抱歉，该文章不存在或已被删除。<a href="index.html" class="text-[#C49A5A]">返回首页</a></p>';
-        document.getElementById('article-image-container').style.display = 'none';
+        const imgContainer = document.getElementById('article-image-container');
+        if(imgContainer) imgContainer.style.display = 'none';
         return;
     }
 
-    // 更新页面标题
     document.title = `${article.title} | 林清雪`;
-
-    // 渲染内容
     titleEl.textContent = article.title;
     metaEl.innerHTML = `
         <span class="text-xs font-medium text-[#C49A5A] uppercase tracking-wide">${article.category}</span>
@@ -181,9 +140,42 @@ function renderArticleDetail() {
 }
 
 // ============================================
+// 移动端菜单控制
+// ============================================
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const icon = document.getElementById('menu-icon');
+    if (menu) {
+        menu.classList.toggle('open');
+        // 切换图标：汉堡 <-> 关闭
+        if (menu.classList.contains('open')) {
+            icon.setAttribute('icon', 'lucide:x');
+        } else {
+            icon.setAttribute('icon', 'lucide:menu');
+        }
+    }
+}
+
+// 点击菜单项后关闭菜单
+function closeMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const icon = document.getElementById('menu-icon');
+    if (menu && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+        icon.setAttribute('icon', 'lucide:menu');
+    }
+}
+
+// ============================================
 // 页面加载完成后执行
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
-    renderArticleList();    // 首页列表渲染
-    renderArticleDetail();  // 详情页渲染
+    renderArticleList();   
+    renderArticleDetail();
+
+    // 给移动端菜单链接添加点击关闭事件
+    const mobileLinks = document.querySelectorAll('#mobile-menu a');
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
 });

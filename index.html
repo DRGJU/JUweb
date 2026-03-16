@@ -4,58 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>林清雪 | 个人博客</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Iconify Icons -->
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-    <!-- 自定义样式 -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-[#F3F0E6] text-[#6A6456]">
 
     <!-- 导航栏 -->
-    <nav class="fixed top-0 left-0 right-0 z-50 h-20 bg-[#F3F0E6]/90 backdrop-blur-sm border-b border-[#DCCFB8]">
+    <nav class="fixed top-0 left-0 right-0 z-50 h-20 bg-[#F3F0E6]/95 backdrop-blur-sm border-b border-[#DCCFB8]">
         <div class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
             <a href="index.html" class="text-xl font-semibold text-[#3F3A33] tracking-tight" style="font-family: 'Playfair Display', serif;">
                 林清雪
             </a>
+            
+            <!-- 桌面端导航 -->
             <div class="hidden md:flex items-center gap-8">
                 <a href="#home" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">首页</a>
                 <a href="#articles" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">文章</a>
                 <a href="#about" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">关于</a>
                 <a href="#contact" class="text-sm font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">联系</a>
             </div>
-            <button class="md:hidden text-[#3F3A33]">
-                <iconify-icon icon="lucide:menu" width="24" height="24"></iconify-icon>
+
+            <!-- 移动端菜单按钮 -->
+            <button onclick="toggleMobileMenu()" class="md:hidden w-10 h-10 flex items-center justify-center text-[#3F3A33] focus:outline-none">
+                <iconify-icon id="menu-icon" icon="lucide:menu" width="24" height="24"></iconify-icon>
             </button>
+        </div>
+
+        <!-- 移动端下拉菜单 -->
+        <div id="mobile-menu" class="mobile-menu md:hidden absolute top-20 left-0 right-0 bg-[#F3F0E6] border-b border-[#DCCFB8] shadow-lg">
+            <div class="flex flex-col px-6 py-4 space-y-4">
+                <a href="#home" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">首页</a>
+                <a href="#articles" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">文章</a>
+                <a href="#about" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">关于</a>
+                <a href="#contact" class="text-base font-medium text-[#6A6456] hover:text-[#C49A5A] transition-colors">联系</a>
+            </div>
         </div>
     </nav>
 
     <!-- Hero 区域 -->
     <section id="home" class="min-h-screen flex items-center pt-20">
-        <div class="max-w-7xl mx-auto px-6 py-24">
-            <div class="flex flex-col md:flex-row items-center gap-12 md:gap-16">
+        <div class="max-w-7xl mx-auto px-6 py-16 md:py-24 w-full">
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
                 <div class="flex-shrink-0">
                     <img 
                         src="https://picsum.photos/seed/avatar-blog/400/400.jpg" 
                         alt="头像"
-                        class="w-64 h-64 md:w-80 md:h-80 rounded-full object-cover border-4 border-[#DCCFB8] shadow-lg"
+                        class="w-52 h-52 md:w-64 md:h-64 lg:w-80 lg:h-80 rounded-full object-cover border-4 border-[#DCCFB8] shadow-lg"
                     >
                 </div>
                 <div class="text-center md:text-left">
-                    <p class="text-sm font-medium text-[#C49A5A] uppercase tracking-widest mb-4">作家 · 设计师 · 旅行者</p>
-                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-medium text-[#3F3A33] tracking-tight leading-tight mb-6">
+                    <p class="text-xs md:text-sm font-medium text-[#C49A5A] uppercase tracking-widest mb-3 md:mb-4">作家 · 设计师 · 旅行者</p>
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium text-[#3F3A33] tracking-tight leading-tight mb-4 md:mb-6">
                         你好，我是<br>林清雪
                     </h1>
-                    <p class="text-lg font-light leading-relaxed text-[#6A6456]/80 max-w-xl mb-8">
+                    <p class="text-base md:text-lg font-light leading-relaxed text-[#6A6456]/80 max-w-xl mb-6 md:mb-8">
                         一个热爱文字与生活的记录者。在这里分享我的所见所闻、所思所想，记录生活中的点滴美好。
                     </p>
-                    <div class="flex items-center justify-center md:justify-start gap-4">
-                        <a href="#articles" class="inline-flex items-center gap-2 px-8 py-3 bg-[#3F3A33] text-[#F3F0E6] text-sm font-medium rounded hover:bg-[#2A2621] transition-colors">
+                    <div class="flex items-center justify-center md:justify-start gap-3 md:gap-4">
+                        <a href="#articles" class="inline-flex items-center gap-2 px-6 md:px-8 py-2.5 md:py-3 bg-[#3F3A33] text-[#F3F0E6] text-sm font-medium rounded hover:bg-[#2A2621] transition-colors">
                             阅读文章
                             <iconify-icon icon="lucide:arrow-right" width="16" height="16"></iconify-icon>
                         </a>
-                        <a href="#about" class="inline-flex items-center gap-2 px-8 py-3 border border-[#DCCFB8] text-[#3F3A33] text-sm font-medium rounded hover:border-[#C49A5A] hover:text-[#C49A5A] transition-colors">
+                        <a href="#about" class="inline-flex items-center gap-2 px-6 md:px-8 py-2.5 md:py-3 border border-[#DCCFB8] text-[#3F3A33] text-sm font-medium rounded hover:border-[#C49A5A] hover:text-[#C49A5A] transition-colors">
                             了解更多
                         </a>
                     </div>
@@ -65,16 +76,15 @@
     </section>
 
     <!-- 精选文章区域 -->
-    <section id="articles" class="py-24 bg-[#FCFBF5]">
+    <section id="articles" class="py-16 md:py-24 bg-[#FCFBF5]">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <p class="text-xs font-semibold text-[#C49A5A] uppercase tracking-widest mb-4">最新作品</p>
-                <h2 class="text-3xl md:text-4xl font-medium text-[#3F3A33] tracking-tight">精选文章</h2>
+            <div class="text-center mb-12 md:mb-16">
+                <p class="text-xs font-semibold text-[#C49A5A] uppercase tracking-widest mb-3 md:mb-4">最新作品</p>
+                <h2 class="text-2xl md:text-3xl lg:text-4xl font-medium text-[#3F3A33] tracking-tight">精选文章</h2>
             </div>
             
-            <!-- 文章网格 - 由 JavaScript 动态填充 -->
-            <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- 加载中提示 -->
+            <!-- 文章网格 -->
+            <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 <div class="col-span-full text-center py-12 text-[#6A6456]/60">
                     文章加载中...
                 </div>
@@ -83,40 +93,40 @@
     </section>
 
     <!-- 关于我区域 -->
-    <section id="about" class="py-24">
+    <section id="about" class="py-16 md:py-24">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div class="relative">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <div class="relative order-2 lg:order-1">
                     <img 
                         src="https://picsum.photos/seed/about-work/800/1000.jpg" 
                         alt="关于我"
                         class="img-grayscale w-full aspect-[4/5] object-cover rounded-lg"
                     >
-                    <div class="absolute -bottom-6 -right-6 bg-[#E7DFC6] p-6 rounded-lg shadow-lg hidden md:block">
-                        <p class="text-4xl font-medium text-[#C49A5A]">5+</p>
-                        <p class="text-sm text-[#6A6456]">年写作经验</p>
+                    <div class="absolute -bottom-4 right-4 md:-bottom-6 md:-right-6 bg-[#E7DFC6] p-4 md:p-6 rounded-lg shadow-lg hidden sm:block">
+                        <p class="text-3xl md:text-4xl font-medium text-[#C49A5A]">5+</p>
+                        <p class="text-xs md:text-sm text-[#6A6456]">年写作经验</p>
                     </div>
                 </div>
-                <div>
-                    <p class="text-xs font-semibold text-[#C49A5A] uppercase tracking-widest mb-4">关于我</p>
-                    <h2 class="text-3xl md:text-4xl font-medium text-[#3F3A33] tracking-tight mb-6">用文字记录生活的温度</h2>
-                    <div class="space-y-4 text-base font-light leading-relaxed text-[#6A6456]/80">
+                <div class="order-1 lg:order-2 text-center lg:text-left">
+                    <p class="text-xs font-semibold text-[#C49A5A] uppercase tracking-widest mb-3 md:mb-4">关于我</p>
+                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-medium text-[#3F3A33] tracking-tight mb-4 md:mb-6">用文字记录生活的温度</h2>
+                    <div class="space-y-3 md:space-y-4 text-sm md:text-base font-light leading-relaxed text-[#6A6456]/80">
                         <p>我是一名自由撰稿人和设计师，居住在杭州。从小就喜欢用文字记录生活中的点滴，这个习惯一直延续至今。</p>
                         <p>在这个博客里，你会看到关于旅行、阅读、音乐、艺术以及日常生活的随笔。我相信，生活中最美好的事物往往藏在平凡的细节里。</p>
                         <p>写作对我来说，是一种与自己对话的方式，也是与世界连接的桥梁。</p>
                     </div>
-                    <div class="grid grid-cols-3 gap-8 mt-10 pt-10 border-t border-[#DCCFB8]">
+                    <div class="grid grid-cols-3 gap-4 md:gap-8 mt-8 md:mt-10 pt-8 md:pt-10 border-t border-[#DCCFB8]">
                         <div>
-                            <p class="text-3xl font-medium text-[#C49A5A]">128</p>
-                            <p class="text-sm text-[#6A6456]/60 mt-1">篇文章</p>
+                            <p class="text-2xl md:text-3xl font-medium text-[#C49A5A]">128</p>
+                            <p class="text-xs md:text-sm text-[#6A6456]/60 mt-1">篇文章</p>
                         </div>
                         <div>
-                            <p class="text-3xl font-medium text-[#C49A5A]">52K</p>
-                            <p class="text-sm text-[#6A6456]/60 mt-1">阅读量</p>
+                            <p class="text-2xl md:text-3xl font-medium text-[#C49A5A]">52K</p>
+                            <p class="text-xs md:text-sm text-[#6A6456]/60 mt-1">阅读量</p>
                         </div>
                         <div>
-                            <p class="text-3xl font-medium text-[#C49A5A]">1.2K</p>
-                            <p class="text-sm text-[#6A6456]/60 mt-1">订阅者</p>
+                            <p class="text-2xl md:text-3xl font-medium text-[#C49A5A]">1.2K</p>
+                            <p class="text-xs md:text-sm text-[#6A6456]/60 mt-1">订阅者</p>
                         </div>
                     </div>
                 </div>
@@ -125,23 +135,23 @@
     </section>
 
     <!-- 引言区域 -->
-    <section class="py-24 bg-[#3F3A33]">
+    <section class="py-16 md:py-24 bg-[#3F3A33]">
         <div class="max-w-4xl mx-auto px-6 text-center">
-            <iconify-icon icon="lucide:quote" width="48" height="48" class="text-[#C49A5A] opacity-50 mb-6"></iconify-icon>
-            <blockquote class="text-2xl md:text-3xl font-medium text-[#F3F0E6] leading-relaxed mb-6" style="font-family: 'Playfair Display', serif;">
+            <iconify-icon icon="lucide:quote" width="36" height="36" class="md:w-12 md:h-12 text-[#C49A5A] opacity-50 mb-4 md:mb-6"></iconify-icon>
+            <blockquote class="text-xl md:text-2xl lg:text-3xl font-medium text-[#F3F0E6] leading-relaxed mb-4 md:mb-6" style="font-family: 'Playfair Display', serif;">
                 "生活不是等待暴风雨过去，而是学会在雨中翩翩起舞。"
             </blockquote>
-            <p class="text-sm text-[#F3F0E6]/60">— 维维安·格林</p>
+            <p class="text-xs md:text-sm text-[#F3F0E6]/60">— 维维安·格林</p>
         </div>
     </section>
 
     <!-- 订阅区域 -->
-    <section id="contact" class="py-24 bg-[#FCFBF5]">
+    <section id="contact" class="py-16 md:py-24 bg-[#FCFBF5]">
         <div class="max-w-2xl mx-auto px-6 text-center">
-            <p class="text-xs font-semibold text-[#C49A5A] uppercase tracking-widest mb-4">订阅通讯</p>
-            <h2 class="text-3xl md:text-4xl font-medium text-[#3F3A33] tracking-tight mb-4">不错过每一篇精彩</h2>
-            <p class="text-base font-light text-[#6A6456]/80 mb-8">订阅我的邮件通讯，第一时间获取最新文章。</p>
-            <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <p class="text-xs font-semibold text-[#C49A5A] uppercase tracking-widest mb-3 md:mb-4">订阅通讯</p>
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-medium text-[#3F3A33] tracking-tight mb-3 md:mb-4">不错过每一篇精彩</h2>
+            <p class="text-sm md:text-base font-light text-[#6A6456]/80 mb-6 md:mb-8">订阅我的邮件通讯，第一时间获取最新文章。</p>
+            <form class="flex flex-col sm:flex-row gap-3 md:gap-4 max-w-md mx-auto">
                 <input type="email" placeholder="输入你的邮箱地址" class="flex-1 px-4 py-3 bg-[#F3F0E6] border border-[#DCCFB8] rounded text-sm focus:border-[#C49A5A] focus:outline-none transition-colors">
                 <button type="submit" class="px-8 py-3 bg-[#C49A5A] text-white text-sm font-medium rounded hover:bg-[#B08B4E] transition-colors">订阅</button>
             </form>
@@ -149,25 +159,25 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-[#3F3A33] py-16">
+    <footer class="bg-[#3F3A33] py-12 md:py-16">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <div class="md:col-span-2">
-                    <a href="index.html" class="text-xl font-semibold text-[#F3F0E6] tracking-tight inline-block mb-4" style="font-family: 'Playfair Display', serif;">林清雪</a>
-                    <p class="text-sm text-[#F3F0E6]/60 leading-relaxed max-w-sm">用文字记录生活的温度，分享关于旅行、阅读、艺术与日常的美好。</p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
+                <div class="md:col-span-2 text-center md:text-left">
+                    <a href="index.html" class="text-xl font-semibold text-[#F3F0E6] tracking-tight inline-block mb-3 md:mb-4" style="font-family: 'Playfair Display', serif;">林清雪</a>
+                    <p class="text-sm text-[#F3F0E6]/60 leading-relaxed max-w-sm mx-auto md:mx-0">用文字记录生活的温度，分享关于旅行、阅读、艺术与日常的美好。</p>
                 </div>
-                <div>
-                    <h4 class="text-sm font-medium text-[#F3F0E6] mb-4">快速链接</h4>
-                    <ul class="space-y-2">
+                <div class="text-center md:text-left">
+                    <h4 class="text-sm font-medium text-[#F3F0E6] mb-3 md:mb-4">快速链接</h4>
+                    <ul class="space-y-2 flex flex-col items-center md:items-start">
                         <li><a href="#home" class="text-sm text-[#F3F0E6]/60 hover:text-[#C49A5A] transition-colors">首页</a></li>
                         <li><a href="#articles" class="text-sm text-[#F3F0E6]/60 hover:text-[#C49A5A] transition-colors">文章</a></li>
                         <li><a href="#about" class="text-sm text-[#F3F0E6]/60 hover:text-[#C49A5A] transition-colors">关于</a></li>
                         <li><a href="#contact" class="text-sm text-[#F3F0E6]/60 hover:text-[#C49A5A] transition-colors">联系</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="text-sm font-medium text-[#F3F0E6] mb-4">关注我</h4>
-                    <div class="flex items-center gap-4">
+                <div class="text-center md:text-left">
+                    <h4 class="text-sm font-medium text-[#F3F0E6] mb-3 md:mb-4">关注我</h4>
+                    <div class="flex items-center justify-center md:justify-start gap-4">
                         <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#F3F0E6]/10 text-[#F3F0E6]/60 hover:bg-[#C49A5A] hover:text-white transition-all">
                             <iconify-icon icon="lucide:twitter" width="18" height="18"></iconify-icon>
                         </a>
@@ -187,11 +197,10 @@
     </footer>
 
     <!-- 回到顶部按钮 -->
-    <a href="#home" class="fixed bottom-8 right-8 w-12 h-12 flex items-center justify-center bg-[#3F3A33] text-[#F3F0E6] rounded-full shadow-lg hover:bg-[#C49A5A] transition-colors">
-        <iconify-icon icon="lucide:arrow-up" width="20" height="20"></iconify-icon>
+    <a href="#home" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-[#3F3A33] text-[#F3F0E6] rounded-full shadow-lg hover:bg-[#C49A5A] transition-colors">
+        <iconify-icon icon="lucide:arrow-up" width="18" height="18"></iconify-icon>
     </a>
 
-    <!-- JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
