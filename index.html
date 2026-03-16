@@ -52,17 +52,15 @@
       <!-- 头像区域 -->
       <div class="reveal mb-8" style="transition-delay: 0.1s;">
         <div class="hero-avatar-wrapper mx-auto">
-          <div class="hero-avatar-default" id="avatarContainer">
-            <img 
-              src="" 
-              alt="博主头像" 
-              class="hero-avatar hidden"
-              id="avatarImage"
-              loading="lazy"
-              onerror="this.classList.add('hidden')"
-              onload="this.classList.remove('hidden')"
-            />
-          </div>
+          <!-- 
+               请修改下方 src 为你的图片路径，例如: src="./my-avatar.jpg" 
+               如果图片不显示，请检查文件名是否正确，或者尝试清除浏览器缓存 (Ctrl+F5)
+          -->
+          <img 
+            src="./touxiang.png" 
+            alt="博主头像" 
+            class="hero-avatar"
+          />
         </div>
       </div>
 
@@ -95,7 +93,6 @@
       <div class="reveal">
         <div class="flex items-center justify-between mb-10">
           <h2 class="font-display text-2xl font-semibold text-fg">最新文章</h2>
-          <!-- 文章总数将根据分页动态计算，这里先保持静态文字或由JS更新 -->
           <span class="text-muted text-sm" id="articleCount">共 12 篇</span>
         </div>
       </div>

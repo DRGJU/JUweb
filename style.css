@@ -7,7 +7,6 @@
   --accent-light: #3D6B54;
   --card: #FFFFFF;
   --border: #E8E4DE;
-  --avatar-gradient: linear-gradient(135deg, #2D4A3E 0%, #3D6B54 100%);
 }
 
 [data-theme="dark"] {
@@ -19,7 +18,6 @@
   --accent-light: #7BC49E;
   --card: #222222;
   --border: #333333;
-  --avatar-gradient: linear-gradient(135deg, #5B9A7A 0%, #7BC49E 100%);
 }
 
 * {
@@ -63,41 +61,26 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* 头像容器 */
+/* 头像容器 - 负责画圆和边框 */
 .hero-avatar-wrapper {
   position: relative;
   display: inline-block;
-}
-
-/* 默认头像样式 */
-.hero-avatar-default {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: var(--avatar-gradient);
-  position: relative;
-  overflow: hidden;
+  
+  /* 边框和阴影 */
   box-shadow: 
     0 8px 24px rgba(45, 74, 62, 0.25),
-    0 0 0 4px var(--bg),
-    0 0 0 5px var(--border);
+    0 0 0 4px var(--bg),      /* 内层白色边框 */
+    0 0 0 5px var(--border);  /* 外层灰色边框 */
+    
   transition: transform 0.4s ease, box-shadow 0.4s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: var(--bg-alt); /* 图片加载前的背景色 */
+  overflow: hidden; /* 重要：裁剪图片为圆形 */
 }
 
-.hero-avatar-default::after {
-  content: '';
-  width: 60px;
-  height: 60px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0.8;
-}
-
-.hero-avatar-default:hover {
+.hero-avatar-wrapper:hover {
   transform: scale(1.05);
   box-shadow: 
     0 12px 32px rgba(45, 74, 62, 0.35),
@@ -105,17 +88,12 @@ body {
     0 0 0 5px var(--accent);
 }
 
-/* 自定义图片头像 */
+/* 图片样式 - 负责铺满容器 */
 .hero-avatar {
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.hero-avatar:not(.hidden) {
+  object-fit: cover; /* 重要：保持比例填充，多余部分裁剪 */
+  object-position: center; /* 图片居中 */
   display: block;
 }
 
@@ -236,11 +214,6 @@ body {
   cursor: not-allowed;
 }
 
-.pagination-ellipsis {
-  padding: 0 8px;
-  color: var(--fg-muted);
-}
-
 /* 滚动提示动画 */
 .scroll-indicator {
   animation: fadeInUp 1s ease 0.5s backwards;
@@ -264,7 +237,7 @@ body {
     transform: none;
     transition: none;
   }
-  .article-card, .hero-avatar-default, .pagination-btn {
+  .article-card, .hero-avatar-wrapper, .pagination-btn {
     transition: none;
   }
   .scroll-indicator {
@@ -273,15 +246,11 @@ body {
   }
 }
 
-/* 移动端头像大小调整 */
+/* 移动端适配 */
 @media (max-width: 640px) {
-  .hero-avatar-default {
+  .hero-avatar-wrapper {
     width: 110px;
     height: 110px;
-  }
-  .hero-avatar-default::after {
-    width: 48px;
-    height: 48px;
   }
   
   .pagination-btn {
