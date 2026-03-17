@@ -1,4 +1,4 @@
-// 文章数据 (增加了 content 字段)
+// 文章数据
 const articles = [
   {
     id: 1,
@@ -103,7 +103,6 @@ function renderArticles(page) {
         </div>
         <span class="text-xs text-muted whitespace-nowrap">${article.readTime}</span>
       </div>
-      <!-- 修改：添加 onclick 事件 -->
       <h3 class="font-display text-xl font-semibold text-fg mb-2 hover-accent cursor-pointer transition-colors" onclick="openArticle(${article.id})">${article.title}</h3>
       <p class="text-muted text-sm leading-relaxed mb-4">${article.excerpt}</p>
       <div class="flex flex-wrap gap-2">
@@ -115,33 +114,46 @@ function renderArticles(page) {
   initScrollReveal();
 }
 
-// 新增：打开文章详情
+// 打开文章详情（隐藏首页）
 function openArticle(id) {
   const article = articles.find(a => a.id === id);
   if (!article) return;
 
-  // 1. 隐藏列表，显示详情
+  // 1. 隐藏首页 Hero 区域
+  const heroHeader = document.querySelector('header');
+  if (heroHeader) heroHeader.classList.add('hidden');
+
+  // 2. 隐藏文章列表和关于我
   document.getElementById('articles').classList.add('hidden');
-  document.getElementById('about').classList.add('hidden'); // 隐藏关于我
+  document.getElementById('about').classList.add('hidden');
+
+  // 3. 显示文章详情
   document.getElementById('article-detail').classList.remove('hidden');
 
-  // 2. 渲染内容
+  // 4. 渲染内容
   document.getElementById('detail-title').textContent = article.title;
   document.getElementById('detail-date').textContent = article.date;
   document.getElementById('detail-readtime').textContent = article.readTime;
   document.getElementById('detail-content').innerHTML = article.content;
 
-  // 3. 滚动到顶部
+  // 5. 滚动到顶部
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 新增：关闭文章详情
+// 关闭文章详情（恢复首页）
 function closeArticle() {
+  // 1. 恢复显示首页 Hero 区域
+  const heroHeader = document.querySelector('header');
+  if (heroHeader) heroHeader.classList.remove('hidden');
+
+  // 2. 隐藏文章详情
   document.getElementById('article-detail').classList.add('hidden');
+
+  // 3. 恢复显示文章列表和关于我
   document.getElementById('articles').classList.remove('hidden');
-  document.getElementById('about').classList.remove('hidden'); // 显示关于我
-  
-  // 滚动回文章列表位置（可选）
+  document.getElementById('about').classList.remove('hidden');
+
+  // 4. 滚动回文章列表位置
   document.getElementById('articles').scrollIntoView({ behavior: 'smooth' });
 }
 
