@@ -11,10 +11,11 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="min-h-screen">
+
   <!-- 视频背景 -->
   <div class="video-background">
     <video id="bgVideo" autoplay loop muted playsinline poster="./poster.jpg">
-      <source src="./background.mp4" type="video/mp4">
+      <source src="./bg.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
   </div>
@@ -35,6 +36,7 @@
           <a href="#" class="nav-link text-sm">归档</a>
         </div>
         
+        <!-- 恢复主题切换按钮 -->
         <button id="themeToggle" class="btn-theme w-9 h-9 rounded-full flex items-center justify-center" aria-label="切换主题">
           <svg class="w-4 h-4 text-fg sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -50,9 +52,11 @@
   <!-- Hero 区域 -->
   <header class="h-screen flex flex-col justify-center items-center relative px-6">
     <div class="max-w-4xl mx-auto text-center">
+      
+      <!-- 头像区域 (移除了点击切换ID) -->
       <div class="reveal mb-8" style="transition-delay: 0.1s;">
         <div class="hero-avatar-wrapper mx-auto">
-          <img src="./avatar.jpg" alt="博主头像" class="hero-avatar"/>
+          <img src="./touxiang.png" alt="博主头像" class="hero-avatar"/>
         </div>
       </div>
 
@@ -84,7 +88,7 @@
       <div class="reveal">
         <div class="flex items-center justify-between mb-10">
           <h2 class="font-display text-2xl font-semibold text-fg">最新文章</h2>
-          <span class="text-muted text-sm" id="articleCount">共 12 篇</span>
+          <span class="text-muted text-sm" id="articleCount">暂无文章</span>
         </div>
       </div>
       <div class="space-y-6" id="articleList"></div>
@@ -92,7 +96,7 @@
     </div>
   </main>
 
-  <!-- 关于我 (修改了 py-20 为 py-12，mb-8 为 mb-6，gap-8 为 gap-6) -->
+  <!-- 关于我 -->
   <section id="about" class="py-12 px-6">
     <div class="max-w-4xl mx-auto">
       <div class="reveal">
