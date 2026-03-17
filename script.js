@@ -104,22 +104,23 @@ function renderArticles(page) {
   const paginatedArticles = articles.slice(start, end);
   if(articleCountEl) articleCountEl.textContent = `共 ${articles.length} 篇`;
 
-  // 修改：去掉了右上角的 readTime 显示
+  // 修改：整个卡片添加点击事件， cursor-pointer 类移至最外层
   container.innerHTML = paginatedArticles.map((article, index) => `
-    <article class="article-card p-6 reveal" style="transition-delay: ${index * 0.05}s">
+    <article class="article-card p-6 reveal cursor-pointer" style="transition-delay: ${index * 0.05}s" onclick="openArticle(${article.id})">
       <div class="flex items-start justify-between gap-4 mb-3">
         <div class="flex items-center gap-3">
           <span class="text-xs font-medium text-accent bg-alt px-2 py-1 rounded">${article.category}</span>
           <span class="text-xs text-muted">${article.date}</span>
         </div>
       </div>
-      <h3 class="font-display text-xl font-semibold text-fg mb-2 hover-accent cursor-pointer transition-colors" onclick="openArticle(${article.id})">${article.title}</h3>
+      <h3 class="font-display text-xl font-semibold text-fg mb-2 hover-accent transition-colors">${article.title}</h3>
       <p class="text-muted text-sm leading-relaxed mb-4">${article.excerpt}</p>
-      <div class="flex flex-wrap gap-2">
-        ${article.tags.map(tag => `<span class="tag text-xs px-2 py-1 rounded cursor-pointer">${tag}</span>`).join('')}
+      <div class="flex flex-wrap gap-2" onclick="event.stopPropagation()">
+        ${article.tags.map(tag => `<span class="tag text-xs px-2 py-1 rounded">${tag}</span>`).join('')}
       </div>
     </article>
   `).join('');
+  
   initTiltEffect();
   initScrollReveal();
 }
@@ -139,7 +140,7 @@ function openArticle(id) {
   // 2. 显示文章详情
   document.getElementById('article-detail').classList.remove('hidden');
 
-  // 3. 渲染内容 (只渲染标题和正文)
+  // 3. 渲染内容
   document.getElementById('detail-title').textContent = article.title;
   document.getElementById('detail-content').innerHTML = article.content;
 
