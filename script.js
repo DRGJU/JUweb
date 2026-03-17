@@ -104,7 +104,6 @@ function renderArticles(page) {
   const paginatedArticles = articles.slice(start, end);
   if(articleCountEl) articleCountEl.textContent = `共 ${articles.length} 篇`;
 
-  // 修改：整个卡片添加点击事件， cursor-pointer 类移至最外层
   container.innerHTML = paginatedArticles.map((article, index) => `
     <article class="article-card p-6 reveal cursor-pointer" style="transition-delay: ${index * 0.05}s" onclick="openArticle(${article.id})">
       <div class="flex items-start justify-between gap-4 mb-3">
@@ -151,7 +150,7 @@ function openArticle(id) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 关闭文章详情
+// 关闭文章详情 (优化滚动效果)
 function closeArticle() {
   // 1. 恢复显示首页相关区域
   const heroHeader = document.querySelector('header');
@@ -164,8 +163,23 @@ function closeArticle() {
   // 2. 移除导航栏的文章页样式
   document.querySelector('nav').classList.remove('nav-article-view');
 
-  // 3. 滚动回文章列表位置
+  // 3. 优化：平滑滚动到文章列表区域
   document.getElementById('articles').scrollIntoView({ behavior: 'smooth' });
+}
+
+// 新增：点击导航栏 Logo 返回首页
+function goHome(event) {
+  event.preventDefault(); // 阻止默认锚点跳转
+
+  const articleDetail = document.getElementById('article-detail');
+  
+  // 如果当前在文章详情页，则关闭文章
+  if (!articleDetail.classList.contains('hidden')) {
+    closeArticle();
+  } else {
+    // 如果在首页，滚动到顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 function renderPagination() {
@@ -253,6 +267,20 @@ function initThemeToggle() {
       document.documentElement.removeAttribute('data-theme');
     }
     updateThemeIcons();
+  });
+}
+
+function initScrollReveal() {
+  if (observer) observer.disconnect();
+  observer = new IntersectionObserver((entries) => {
+      isDark = !isDark;
+      if (isDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      updateThemeIcons();
+    }
   });
 }
 
