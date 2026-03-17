@@ -12,7 +12,6 @@
   
   /* 浅色模式专用变量 - 深色风格 */
   --nav-bg: rgba(0, 0, 0, 0.4);
-  --section-dark-bg: #2D4A3E; /* 使用主题深绿色 */
 }
 
 [data-theme="dark"] {
@@ -27,9 +26,7 @@
   --glass-bg: rgba(30, 30, 30, 0.6);
   --glass-border: rgba(255, 255, 255, 0.1);
   
-  /* 暗色模式保持原样 */
   --nav-bg: rgba(26, 26, 26, 0.8);
-  --section-dark-bg: #242424;
 }
 
 * {
@@ -117,36 +114,18 @@ nav {
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-nav .text-fg {
-  color: #ffffff;
-}
+nav .text-fg { color: #ffffff; }
+nav .text-muted { color: rgba(255, 255, 255, 0.8); }
+nav .nav-link { color: rgba(255, 255, 255, 0.7); }
+nav .nav-link:hover { color: #ffffff; }
+nav .nav-link::after { background-color: #ffffff; }
 
-nav .text-muted {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-nav .nav-link {
-  color: rgba(255, 255, 255, 0.7);
-}
-nav .nav-link:hover {
-  color: #ffffff;
-}
-nav .nav-link::after {
-  background-color: #ffffff;
-}
-
-/* 导航栏主题按钮 */
 .btn-theme {
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.btn-theme:hover {
-  background-color: rgba(255, 255, 255, 0.25);
-}
-/* 确保按钮内的图标是白色的 */
-.btn-theme svg {
-  color: #ffffff;
-}
+.btn-theme:hover { background-color: rgba(255, 255, 255, 0.25); }
+.btn-theme svg { color: #ffffff; }
 
 /* 头像 */
 .hero-avatar-wrapper {
@@ -182,7 +161,6 @@ header .reveal p {
   text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* 暗色模式保持之前的逻辑 */
 [data-theme="dark"] header .reveal h1,
 [data-theme="dark"] header .reveal p {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
@@ -303,12 +281,17 @@ header .reveal p {
   .scroll-indicator { animation: none; opacity: 1; }
 }
 
-/* 关于我模块 - 浅色模式深色背景优化 */
+/* 关于我模块 - 浅色模式优化 */
+/* 背景改为与页眉相同的深色毛玻璃 */
 #about {
-  background-color: var(--section-dark-bg);
-  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* 文字颜色调整为白色 */
 #about h2 {
   color: #ffffff;
 }
@@ -323,6 +306,23 @@ header .reveal p {
 
 #about .text-muted {
   color: rgba(255, 255, 255, 0.7);
+}
+
+/* 暗色模式下关于我模块恢复原样 */
+[data-theme="dark"] #about {
+  background-color: var(--bg-alt);
+  border-top: none;
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] #about h2,
+[data-theme="dark"] #about h3 {
+  color: var(--fg);
+}
+
+[data-theme="dark"] #about p,
+[data-theme="dark"] #about .text-muted {
+  color: var(--fg-muted);
 }
 
 /* 页脚 - 浅色模式深色风格 */
@@ -368,7 +368,7 @@ footer .text-muted {
     border-bottom: 1px solid var(--border);
   }
   nav .text-fg, nav .text-muted, nav .nav-link {
-    color: var(--fg); /* 恢复深色文字 */
+    color: var(--fg);
   }
   nav .nav-link::after {
     background-color: var(--accent);
@@ -388,8 +388,12 @@ footer .text-muted {
     text-shadow: none;
   }
   
-  /* 移动端关于我和页脚保持深色风格 */
-  #about, footer {
-    color: #ffffff;
+  /* 移动端关于我恢复浅色背景适配 (因为没有视频背景) */
+  #about {
+    background-color: var(--bg-alt);
+    backdrop-filter: none;
   }
+  
+  #about h2, #about h3 { color: var(--fg); }
+  #about p, #about .text-muted { color: var(--fg-muted); }
 }
