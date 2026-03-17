@@ -71,7 +71,6 @@ nav .nav-link { color: rgba(255, 255, 255, 0.7); }
 nav .nav-link:hover { color: #ffffff; }
 nav .nav-link::after { background-color: #ffffff; }
 
-/* 主题切换按钮样式 */
 .btn-theme {
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -213,6 +212,82 @@ header .reveal p {
   transform: translateY(0);
 }
 
+/* 文章正文排版样式 */
+.custom-prose {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--fg);
+}
+
+.custom-prose h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--fg);
+}
+
+.custom-prose h3 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+  color: var(--fg);
+}
+
+.custom-prose p {
+  margin-bottom: 1.5rem;
+}
+
+.custom-prose ul, .custom-prose ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.custom-prose li {
+  margin-bottom: 0.5rem;
+}
+
+.custom-prose strong {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.custom-prose code {
+  background-color: var(--bg-alt);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: var(--accent);
+  font-family: monospace;
+}
+
+.custom-prose pre {
+  background-color: #282c34; /* 代码块保持深色背景 */
+  color: #abb2bf;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.custom-prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.custom-prose blockquote {
+  border-left: 4px solid var(--accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
 /* 分页 */
 .pagination-container { display: flex; justify-content: center; align-items: center; margin-top: 3rem; gap: 0.5rem; }
 .pagination-btn {
@@ -272,8 +347,6 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   nav { background: rgba(255, 255, 255, 0.9); border-bottom: 1px solid var(--border); }
   nav .text-fg, nav .text-muted, nav .nav-link { color: var(--fg); }
   nav .nav-link::after { background-color: var(--accent); }
-  
-  /* 移动端按钮样式恢复 */
   nav .btn-theme { background-color: var(--bg-alt); border: 1px solid var(--border); }
   nav .btn-theme svg { color: var(--fg); }
 

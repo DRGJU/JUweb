@@ -36,7 +36,6 @@
           <a href="#" class="nav-link text-sm">归档</a>
         </div>
         
-        <!-- 恢复主题切换按钮 -->
         <button id="themeToggle" class="btn-theme w-9 h-9 rounded-full flex items-center justify-center" aria-label="切换主题">
           <svg class="w-4 h-4 text-fg sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -52,8 +51,6 @@
   <!-- Hero 区域 -->
   <header class="h-screen flex flex-col justify-center items-center relative px-6">
     <div class="max-w-4xl mx-auto text-center">
-      
-      <!-- 头像区域 (移除了点击切换ID) -->
       <div class="reveal mb-8" style="transition-delay: 0.1s;">
         <div class="hero-avatar-wrapper mx-auto">
           <img src="./touxiang.png" alt="博主头像" class="hero-avatar"/>
@@ -82,7 +79,7 @@
     </div>
   </header>
 
-  <!-- 文章列表 -->
+  <!-- 文章列表视图 -->
   <main id="articles" class="px-6 pb-20">
     <div class="max-w-4xl mx-auto">
       <div class="reveal">
@@ -95,6 +92,34 @@
       <div id="pagination" class="pagination-container"></div>
     </div>
   </main>
+
+  <!-- 文章详情视图 (新增) -->
+  <section id="article-detail" class="px-6 pb-20 hidden pt-24">
+    <div class="max-w-3xl mx-auto">
+      <!-- 返回按钮 -->
+      <button onclick="closeArticle()" class="flex items-center gap-2 text-muted hover:text-accent mb-8 transition-colors group">
+        <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>返回列表</span>
+      </button>
+
+      <!-- 文章头部 -->
+      <header class="mb-10">
+        <h1 id="detail-title" class="font-display text-4xl sm:text-5xl font-semibold text-fg leading-tight mb-4"></h1>
+        <div class="flex items-center gap-4 text-sm text-muted">
+          <span id="detail-date"></span>
+          <span>·</span>
+          <span id="detail-readtime"></span>
+        </div>
+      </header>
+
+      <!-- 文章正文 -->
+      <article id="detail-content" class="prose custom-prose">
+        <!--内容由 JS 渲染 -->
+      </article>
+    </div>
+  </section>
 
   <!-- 关于我 -->
   <section id="about" class="py-12 px-6">

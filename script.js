@@ -1,4 +1,4 @@
-// 文章数据 (新增一篇 Python 入门教程)
+// 文章数据 (增加了 content 字段)
 const articles = [
   {
     id: 1,
@@ -7,7 +7,65 @@ const articles = [
     date: '2024-03-10',
     category: '技术',
     tags: ['Python', '入门教程', '编程基础'],
-    readTime: '15 分钟'
+    readTime: '15 分钟',
+    content: `
+      <p>Python 是一门简洁优雅、功能强大的编程语言。无论你是编程新手还是想学习一门新语言的开发者，Python 都是一个非常棒的选择。</p>
+      
+      <h2>1. 为什么选择 Python？</h2>
+      <p>Python 以其高可读性和简洁的语法著称，它允许开发者用更少的代码行表达概念。以下是 Python 的一些主要优势：</p>
+      <ul>
+        <li><strong>易于学习：</strong>Python 的语法非常接近英语，使得初学者能够快速上手。</li>
+        <li><strong>丰富的库：</strong>拥有庞大的标准库和第三方库，涵盖 Web 开发、数据分析、人工智能等领域。</li>
+        <li><strong>社区活跃：</strong>庞大的社区意味着你遇到的问题很容易找到解决方案。</li>
+      </ul>
+
+      <h2>2. 环境搭建</h2>
+      <p>在开始编写代码之前，我们需要先安装 Python。</p>
+      <ol>
+        <li>访问 <strong>python.org</strong> 下载最新版本的 Python。</li>
+        <li>运行安装程序，记得勾选 <strong>"Add Python to PATH"</strong>。</li>
+        <li>打开终端（Terminal 或 CMD），输入 <code>python --version</code> 验证安装。</li>
+      </ol>
+
+      <h2>3. Hello World</h2>
+      <p>学习新语言的第一步，永远是向世界问好。在 Python 中，只需一行代码：</p>
+      <pre><code>print("Hello, World!")</code></pre>
+
+      <h2>4. 变量与数据类型</h2>
+      <p>Python 是动态类型语言，不需要显式声明变量类型。</p>
+      <pre><code># 数字
+age = 25
+price = 19.99
+
+# 字符串
+name = "Alice"
+
+# 布尔值
+is_student = True</code></pre>
+
+      <h2>5. 流程控制</h2>
+      <p>Python 使用缩进来表示代码块，而不是大括号。</p>
+      <pre><code># 条件判断
+if age >= 18:
+    print("成年人")
+else:
+    print("未成年人")
+
+# 循环
+for i in range(5):
+    print(i)</code></pre>
+
+      <h2>6. 函数</h2>
+      <p>函数是组织好的、可重复使用的代码块。</p>
+      <pre><code>def greet(name):
+    return f"Hello, {name}!"
+
+message = greet("Bob")
+print(message)  # 输出: Hello, Bob!</code></pre>
+
+      <h2>结语</h2>
+      <p>Python 的世界非常广阔。掌握了这些基础后，你可以尝试学习文件操作、面向对象编程，或者探索 Web 开发、数据科学等有趣的方向。保持好奇心，多敲代码！</p>
+    `
   }
 ];
 
@@ -20,7 +78,6 @@ function renderArticles(page) {
   const container = document.getElementById('articleList');
   if (!container) return;
   
-  // 如果文章为空，显示空状态提示
   if (articles.length === 0) {
     if(articleCountEl) articleCountEl.textContent = '暂无文章';
     container.innerHTML = `
@@ -46,7 +103,8 @@ function renderArticles(page) {
         </div>
         <span class="text-xs text-muted whitespace-nowrap">${article.readTime}</span>
       </div>
-      <h3 class="font-display text-xl font-semibold text-fg mb-2 hover-accent cursor-pointer transition-colors">${article.title}</h3>
+      <!-- 修改：添加 onclick 事件 -->
+      <h3 class="font-display text-xl font-semibold text-fg mb-2 hover-accent cursor-pointer transition-colors" onclick="openArticle(${article.id})">${article.title}</h3>
       <p class="text-muted text-sm leading-relaxed mb-4">${article.excerpt}</p>
       <div class="flex flex-wrap gap-2">
         ${article.tags.map(tag => `<span class="tag text-xs px-2 py-1 rounded cursor-pointer">${tag}</span>`).join('')}
@@ -55,6 +113,36 @@ function renderArticles(page) {
   `).join('');
   initTiltEffect();
   initScrollReveal();
+}
+
+// 新增：打开文章详情
+function openArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+
+  // 1. 隐藏列表，显示详情
+  document.getElementById('articles').classList.add('hidden');
+  document.getElementById('about').classList.add('hidden'); // 隐藏关于我
+  document.getElementById('article-detail').classList.remove('hidden');
+
+  // 2. 渲染内容
+  document.getElementById('detail-title').textContent = article.title;
+  document.getElementById('detail-date').textContent = article.date;
+  document.getElementById('detail-readtime').textContent = article.readTime;
+  document.getElementById('detail-content').innerHTML = article.content;
+
+  // 3. 滚动到顶部
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 新增：关闭文章详情
+function closeArticle() {
+  document.getElementById('article-detail').classList.add('hidden');
+  document.getElementById('articles').classList.remove('hidden');
+  document.getElementById('about').classList.remove('hidden'); // 显示关于我
+  
+  // 滚动回文章列表位置（可选）
+  document.getElementById('articles').scrollIntoView({ behavior: 'smooth' });
 }
 
 function renderPagination() {
@@ -115,7 +203,6 @@ function initVideoBackground() {
   }
 }
 
-// 恢复经典的按钮切换逻辑
 function initThemeToggle() {
   const themeToggle = document.getElementById('themeToggle');
   const sunIcon = document.querySelector('.sun-icon');
