@@ -1,5 +1,15 @@
-// 文章数据 (已清空)
-const articles = [];
+// 文章数据 (新增一篇 Python 入门教程)
+const articles = [
+  {
+    id: 1,
+    title: 'Python 入门教程：从零开始掌握 Python 基础',
+    excerpt: 'Python 是一门简洁优雅、功能强大的编程语言，非常适合作为第一门编程语言。本文将从环境搭建讲起，带你逐步掌握变量、数据类型、流程控制、函数等核心语法，为后续深入学习打下坚实基础。',
+    date: '2024-03-10',
+    category: '技术',
+    tags: ['Python', '入门教程', '编程基础'],
+    readTime: '15 分钟'
+  }
+];
 
 const ITEMS_PER_PAGE = 7;
 let currentPage = 1;
