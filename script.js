@@ -1,10 +1,22 @@
+// =========================
+// 辅助函数：获取当前格式化日期
+// =========================
+function getCurrentDate() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要+1
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`; // 格式: 2024-05-21
+}
+
 // 文章数据
 const articles = [
   {
     id: 1,
     title: 'Python 入门教程：从零开始掌握 Python 基础',
     excerpt: 'Python 是一门简洁优雅、功能强大的编程语言，非常适合作为第一门编程语言。本文将从环境搭建讲起，带你逐步掌握变量、数据类型、流程控制、函数等核心语法，为后续深入学习打下坚实基础。',
-    date: '2024-03-10',
+    // 使用函数自动获取当前日期
+    date: getCurrentDate(), 
     category: '技术',
     tags: ['Python', '入门教程', '编程基础'],
     readTime: '15 分钟',
@@ -132,7 +144,7 @@ function openArticle(id) {
 
   // 4. 渲染内容
   document.getElementById('detail-title').textContent = article.title;
-  document.getElementById('detail-date').textContent = article.date;
+  document.getElementById('detail-date').textContent = article.date; // 这里会自动使用新的日期格式
   document.getElementById('detail-readtime').textContent = article.readTime;
   document.getElementById('detail-content').innerHTML = article.content;
 
