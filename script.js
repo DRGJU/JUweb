@@ -18,7 +18,6 @@ const articles = [
     date: getCurrentDate(),
     category: '技术',
     tags: ['Python', '入门教程', '编程基础'],
-    readTime: '15 分钟',
     content: `
       <p>Python 是一门简洁优雅、功能强大的编程语言。无论你是编程新手还是想学习一门新语言的开发者，Python 都是一个非常棒的选择。</p>
       
@@ -105,6 +104,7 @@ function renderArticles(page) {
   const paginatedArticles = articles.slice(start, end);
   if(articleCountEl) articleCountEl.textContent = `共 ${articles.length} 篇`;
 
+  // 修改：去掉了右上角的 readTime 显示
   container.innerHTML = paginatedArticles.map((article, index) => `
     <article class="article-card p-6 reveal" style="transition-delay: ${index * 0.05}s">
       <div class="flex items-start justify-between gap-4 mb-3">
@@ -112,7 +112,6 @@ function renderArticles(page) {
           <span class="text-xs font-medium text-accent bg-alt px-2 py-1 rounded">${article.category}</span>
           <span class="text-xs text-muted">${article.date}</span>
         </div>
-        <span class="text-xs text-muted whitespace-nowrap">${article.readTime}</span>
       </div>
       <h3 class="font-display text-xl font-semibold text-fg mb-2 hover-accent cursor-pointer transition-colors" onclick="openArticle(${article.id})">${article.title}</h3>
       <p class="text-muted text-sm leading-relaxed mb-4">${article.excerpt}</p>
@@ -140,13 +139,11 @@ function openArticle(id) {
   // 2. 显示文章详情
   document.getElementById('article-detail').classList.remove('hidden');
 
-  // 3. 渲染内容
+  // 3. 渲染内容 (只渲染标题和正文)
   document.getElementById('detail-title').textContent = article.title;
-  document.getElementById('detail-date').textContent = article.date;
-  document.getElementById('detail-readtime').textContent = article.readTime;
   document.getElementById('detail-content').innerHTML = article.content;
 
-  // 4. 【新增】切换导航栏样式为文章页模式
+  // 4. 切换导航栏样式为文章页模式
   document.querySelector('nav').classList.add('nav-article-view');
 
   // 5. 滚动到顶部
@@ -163,7 +160,7 @@ function closeArticle() {
   document.getElementById('articles').classList.remove('hidden');
   document.getElementById('about').classList.remove('hidden');
 
-  // 2. 【新增】移除导航栏的文章页样式，恢复默认
+  // 2. 移除导航栏的文章页样式
   document.querySelector('nav').classList.remove('nav-article-view');
 
   // 3. 滚动回文章列表位置

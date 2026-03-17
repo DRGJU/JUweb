@@ -59,9 +59,7 @@ body {
 .border-theme { border-color: var(--border); }
 .hover-accent:hover { color: var(--accent); }
 
-/* ========================= */
-/* 导航栏样式 */
-/* ========================= */
+/* 导航栏 */
 nav {
   background: var(--nav-bg);
   backdrop-filter: blur(12px);
@@ -70,14 +68,12 @@ nav {
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-/* 默认首页样式 (透明背景+白色文字) */
 nav .text-fg { color: #ffffff; }
 nav .text-muted { color: rgba(255, 255, 255, 0.8); }
 nav .nav-link { color: rgba(255, 255, 255, 0.7); }
 nav .nav-link:hover { color: #ffffff; }
 nav .nav-link::after { background-color: #ffffff; }
 
-/* 文章页导航栏样式 (JS控制添加此类) */
 nav.nav-article-view {
   background: rgba(255, 255, 255, 0.85);
   border-color: var(--border);
@@ -89,7 +85,6 @@ nav.nav-article-view .nav-link { color: var(--fg-muted); }
 nav.nav-article-view .nav-link:hover { color: var(--fg); }
 nav.nav-article-view .nav-link::after { background-color: var(--accent); }
 
-/* 暗色模式下文章页导航栏 */
 [data-theme="dark"] nav.nav-article-view {
   background: rgba(26, 26, 26, 0.9);
   border-color: var(--border);
@@ -98,9 +93,7 @@ nav.nav-article-view .nav-link::after { background-color: var(--accent); }
 [data-theme="dark"] nav.nav-article-view .nav-link { color: var(--fg-muted); }
 [data-theme="dark"] nav.nav-article-view .nav-link:hover { color: var(--fg); }
 
-/* ========================= */
 /* 右下角悬浮主题按钮 */
-/* ========================= */
 .theme-fab {
   position: fixed;
   bottom: 2rem;
@@ -428,7 +421,6 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   nav .text-fg, nav .text-muted, nav .nav-link { color: var(--fg); }
   nav .nav-link::after { background-color: var(--accent); }
   
-  /* 移动端强制导航栏显示为浅色背景模式，保证可读性 */
   nav.nav-article-view {
     background: rgba(255, 255, 255, 0.95);
   }
