@@ -129,30 +129,24 @@ function openArticle(id) {
   const article = articles.find(a => a.id === id);
   if (!article) return;
 
-  // 1. 隐藏首页相关区域
   const heroHeader = document.querySelector('header');
   if (heroHeader) heroHeader.classList.add('hidden');
 
   document.getElementById('articles').classList.add('hidden');
   document.getElementById('about').classList.add('hidden');
   
-  // 2. 显示文章详情
   document.getElementById('article-detail').classList.remove('hidden');
 
-  // 3. 渲染内容
   document.getElementById('detail-title').textContent = article.title;
   document.getElementById('detail-content').innerHTML = article.content;
 
-  // 4. 切换导航栏样式为文章页模式
   document.querySelector('nav').classList.add('nav-article-view');
 
-  // 5. 滚动到顶部
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 关闭文章详情 (优化滚动效果)
+// 关闭文章详情
 function closeArticle() {
-  // 1. 恢复显示首页相关区域
   const heroHeader = document.querySelector('header');
   if (heroHeader) heroHeader.classList.remove('hidden');
 
@@ -160,24 +154,20 @@ function closeArticle() {
   document.getElementById('articles').classList.remove('hidden');
   document.getElementById('about').classList.remove('hidden');
 
-  // 2. 移除导航栏的文章页样式
   document.querySelector('nav').classList.remove('nav-article-view');
 
-  // 3. 优化：平滑滚动到文章列表区域
   document.getElementById('articles').scrollIntoView({ behavior: 'smooth' });
 }
 
-// 新增：点击导航栏 Logo 返回首页
+// 点击导航栏 Logo 返回首页
 function goHome(event) {
-  event.preventDefault(); // 阻止默认锚点跳转
+  event.preventDefault();
 
   const articleDetail = document.getElementById('article-detail');
   
-  // 如果当前在文章详情页，则关闭文章
   if (!articleDetail.classList.contains('hidden')) {
     closeArticle();
   } else {
-    // 如果在首页，滚动到顶部
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
@@ -267,20 +257,6 @@ function initThemeToggle() {
       document.documentElement.removeAttribute('data-theme');
     }
     updateThemeIcons();
-  });
-}
-
-function initScrollReveal() {
-  if (observer) observer.disconnect();
-  observer = new IntersectionObserver((entries) => {
-      isDark = !isDark;
-      if (isDark) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
-      updateThemeIcons();
-    }
   });
 }
 
