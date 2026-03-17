@@ -1,5 +1,18 @@
-// 文章数据 (已清空)
-const articles = [];
+// 文章数据
+const articles = [
+  { id: 1, title: '重新理解 JavaScript 闭包', excerpt: '闭包是 JavaScript 中最基础也最重要的概念之一。本文从实际场景出发，重新审视闭包的本质与应用。', date: '2024-01-15', category: '技术', tags: ['JavaScript', '前端'], readTime: '8 分钟' },
+  { id: 2, title: '设计系统的构建思考', excerpt: '一个好的设计系统不仅是组件库，更是一种设计语言。分享我在构建团队设计系统时的思考与实践。', date: '2024-01-08', category: '设计', tags: ['设计系统', 'UI'], readTime: '12 分钟' },
+  { id: 3, title: '阅读的碎片化与深度', excerpt: '在这个信息爆炸的时代，如何在碎片化阅读中保持深度思考？这是我近期的一些探索。', date: '2024-01-02', category: '随笔', tags: ['阅读', '思考'], readTime: '5 分钟' },
+  { id: 4, title: 'CSS 容器查询实战指南', excerpt: '容器查询终于来了！这篇文章带你从零开始，掌握这一革命性的 CSS 特性。', date: '2023-12-20', category: '技术', tags: ['CSS', '前端'], readTime: '10 分钟' },
+  { id: 5, title: '远程工作两年后的反思', excerpt: '远程工作改变了我的生活方式，也让我对"工作"本身有了新的理解。', date: '2023-12-12', category: '随笔', tags: ['远程工作', '生活'], readTime: '7 分钟' },
+  { id: 6, title: '从零搭建个人博客的技术选型', excerpt: '分享这个博客的技术架构：为什么选择静态生成，为什么不用框架，以及性能优化的心得。', date: '2023-12-01', category: '技术', tags: ['博客', '架构'], readTime: '9 分钟' },
+  { id: 7, title: 'TypeScript 类型体操心得', excerpt: '深入理解 TypeScript 的高级类型系统，通过实际案例掌握类型推导与条件类型。', date: '2023-11-25', category: '技术', tags: ['TypeScript', '前端'], readTime: '15 分钟' },
+  { id: 8, title: '极简主义生活实践', excerpt: '减少物质的拥有，增加精神的富足。我是如何开始极简生活，并从中获益的。', date: '2023-11-18', category: '随笔', tags: ['生活', '极简'], readTime: '6 分钟' },
+  { id: 9, title: 'Node.js 性能优化全攻略', excerpt: '从内存泄漏到 CPU 瓶颈，全面解析 Node.js 后端服务的性能优化策略。', date: '2023-11-10', category: '技术', tags: ['Node.js', '后端'], readTime: '18 分钟' },
+  { id: 10, title: '色彩心理学在 UI 设计中的应用', excerpt: '颜色不仅仅是视觉元素，它还能影响用户的情绪和行为决策。', date: '2023-11-02', category: '设计', tags: ['UI', '心理学'], readTime: '8 分钟' },
+  { id: 11, title: '我的 2023 年度书单', excerpt: '整理了今年读过的几本好书，涵盖技术、文学与个人成长领域。', date: '2023-10-20', category: '随笔', tags: ['阅读', '书单'], readTime: '5 分钟' },
+  { id: 12, title: 'React Server Components 入门', excerpt: '深入解读 React Server Components 的工作原理及其对前端架构的影响。', date: '2023-10-10', category: '技术', tags: ['React', '前端'], readTime: '12 分钟' }
+];
 
 const ITEMS_PER_PAGE = 7;
 let currentPage = 1;
@@ -9,18 +22,6 @@ const articleCountEl = document.getElementById('articleCount');
 function renderArticles(page) {
   const container = document.getElementById('articleList');
   if (!container) return;
-  
-  if (articles.length === 0) {
-    if(articleCountEl) articleCountEl.textContent = '暂无文章';
-    container.innerHTML = `
-      <div class="text-center py-20 text-muted">
-        <p class="text-lg mb-2">还没有文章</p>
-        <p class="text-sm">敬请期待...</p>
-      </div>
-    `;
-    return;
-  }
-
   const start = (page - 1) * ITEMS_PER_PAGE;
   const end = start + ITEMS_PER_PAGE;
   const paginatedArticles = articles.slice(start, end);
@@ -104,58 +105,20 @@ function initVideoBackground() {
   }
 }
 
-// 核心修改：从头像向外扩散的主题切换
 function initThemeToggle() {
-  const avatar = document.getElementById('avatarTrigger');
-  const layer = document.getElementById('theme-transition-layer');
-  
-  if (!avatar || !layer) return;
-
-  let isAnimating = false;
-
-  avatar.addEventListener('click', (e) => {
-    if (isAnimating) return;
-    isAnimating = true;
-
-    // 1. 获取头像中心坐标
-    const rect = avatar.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-
-    // 2. 判断当前主题
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    
-    // 3. 设置遮罩层颜色为【目标主题色】
-    // 如果当前是亮 -> 切换为暗 -> 遮罩层设为暗色
-    const targetBgColor = isDark ? '#FAF8F5' : '#1A1A1A';
-    layer.style.backgroundColor = targetBgColor;
-
-    // 4. 设置起始状态：从头像中心开始，半径为0
-    layer.style.visibility = 'visible';
-    // 注意：这里必须先设置起始状态，浏览器需要一帧来渲染这个初始状态
-    layer.style.clipPath = `circle(0% at ${x}px ${y}px)`;
-    
-    // 强制重绘
-    layer.getBoundingClientRect();
-
-    // 5. 执行扩散动画：半径扩大到覆盖整个屏幕 (150% 足够覆盖)
-    layer.style.clipPath = `circle(150% at ${x}px ${y}px)`;
-
-    // 6. 使用 setTimeout 等待动画结束 (CSS 中定义的 0.8s)
-    setTimeout(() => {
-      // 6.1 动画结束，真实切换 DOM 主题
-      if (isDark) {
-        document.documentElement.removeAttribute('data-theme');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-
-      // 6.2 立即隐藏遮罩层，并重置其状态（用户看不到重置过程）
-      layer.style.visibility = 'hidden';
-      layer.style.clipPath = 'circle(0% at 50% 50%)'; // 重置回默认值，方便下次使用
-
-      isAnimating = false;
-    }, 800); // 这里的时间要和 CSS transition 时间保持一致
+  const themeToggle = document.getElementById('themeToggle');
+  const sunIcon = document.querySelector('.sun-icon');
+  const moonIcon = document.querySelector('.moon-icon');
+  if (!themeToggle || !sunIcon || !moonIcon) return;
+  let isDark = false;
+  function updateThemeIcons() {
+    if (isDark) { sunIcon.classList.add('hidden'); moonIcon.classList.remove('hidden'); } 
+    else { sunIcon.classList.remove('hidden'); moonIcon.classList.add('hidden'); }
+  }
+  themeToggle.addEventListener('click', () => {
+    isDark = !isDark;
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
+    updateThemeIcons();
   });
 }
 
