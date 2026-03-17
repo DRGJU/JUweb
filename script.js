@@ -105,7 +105,7 @@ function initVideoBackground() {
   }
 }
 
-// 新的主题切换逻辑：从头像扩散
+// 修正后的主题切换逻辑
 function initThemeToggle() {
   const avatar = document.getElementById('avatarTrigger');
   const layer = document.getElementById('theme-transition-layer');
@@ -115,6 +115,7 @@ function initThemeToggle() {
   let isAnimating = false;
 
   avatar.addEventListener('click', (e) => {
+    // 防止动画过程中重复点击
     if (isAnimating) return;
     isAnimating = true;
 
@@ -123,46 +124,58 @@ function initThemeToggle() {
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    // 2. 判断当前主题，决定遮罩层颜色
+    // 2. 判断当前主题
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     
-    // 如果当前是深色，即将切换为浅色，遮罩层背景设为浅色
-    if (isDark) {
-      layer.classList.remove('dark-mode-bg');
-    } else {
-      // 如果当前是浅色，即将切换为深色，遮罩层背景设为深色
-      layer.classList.add('dark-mode-bg');
-    }
+    // 3. 设置遮罩层颜色 (即将变成的主题色)
+    // 如果当前是深色，即将变成浅色，遮罩层背景设为浅色
+    // 如果当前是浅色，即将变成深色，遮罩层背景设为深色
+    const targetBgColor = isDark ? '#FAF8F5' : '#1A1A1A';
+    layer.style.backgroundColor = targetBgColor;
 
-    // 3. 设置 clip-path 的中心点
-    layer.style.clipPath = `circle(0% at ${x}px ${y}px)`;
+    // 4. 设置起始状态：从头像位置开始的 0 半径圆
+    // 必须使用内联样式直接控制，以确保坐标准确
+    layer.style.clipPath = `circle(0px at ${x}px ${y}px)`;
+    
+    // 5. 显示遮罩层
+    layer.style.visibility = 'visible';
+    
+    // 6. 强制浏览器重绘，确保起始状态已渲染
+    layer.offsetHeight;
 
-    // 4. 强制重绘，确保初始状态生效
-    layer.getBoundingClientRect();
+    // 7. 设置目标状态：扩散到足够大的半径
+    // 使用 150vmax 确保覆盖整个屏幕
+    layer.style.clipPath = `circle(150vmax at ${x}px ${y}px)`;
 
-    // 5. 激活动画类
-    layer.classList.add('is-active');
+    // 8. 监听过渡结束事件
+    const handleEnd = (e) => {
+      // 确保只监听 clip-path 的过渡
+      if (e.propertyName !== 'clip-path' && e.propertyName !== 'transform') return;
 
-    // 6. 监听动画结束
-    layer.addEventListener('transitionend', function handler() {
-      // 移除监听器，避免重复触发
-      layer.removeEventListener('transitionend', handler);
-
-      // 切换真实的主题属性
+      // 切换真实主题
       if (isDark) {
         document.documentElement.removeAttribute('data-theme');
       } else {
         document.documentElement.setAttribute('data-theme', 'dark');
       }
 
-      // 重置动画层
-      layer.classList.remove('is-active');
-      // 注意：虽然移除了 is-active，clip-path 会变回 0%，但因为 visibility 有 delay，所以不会闪现
-      // 但这里我们需要立即重置，防止挡住点击，但视觉上要保持新主题色
-      // CSS 中 transition 包含了 visibility，所以这里直接重置即可
-      
+      // 重置遮罩层状态
+      layer.style.visibility = 'hidden';
+      // 延迟重置 clip-path，避免闪烁
+      setTimeout(() => {
+         layer.style.clipPath = 'circle(0px at 50% 50%)';
+      }, 50);
+
+      // 移除监听器并解锁点击
+      layer.removeEventListener('transitionend', handleEnd);
+      // 兼容 webkit 浏览器
+      layer.removeEventListener('webkitTransitionEnd', handleEnd);
       isAnimating = false;
-    });
+    };
+
+    // 添加监听器
+    layer.addEventListener('transitionend', handleEnd);
+    layer.addEventListener('webkitTransitionEnd', handleEnd);
   });
 }
 
