@@ -23,7 +23,7 @@
   <!-- 背景纹理 -->
   <div class="texture-overlay"></div>
 
-  <!-- 导航栏 -->
+  <!-- 导航栏 (移除了按钮) -->
   <nav class="fixed top-0 left-0 right-0 z-50 border-b border-theme">
     <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
       <a href="#" class="font-display text-2xl font-semibold text-fg">墨迹</a>
@@ -35,15 +35,6 @@
           <a href="#about" class="nav-link text-sm">关于</a>
           <a href="#" class="nav-link text-sm">归档</a>
         </div>
-        
-        <button id="themeToggle" class="btn-theme w-9 h-9 rounded-full flex items-center justify-center" aria-label="切换主题">
-          <svg class="w-4 h-4 text-fg sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-          </svg>
-          <svg class="w-4 h-4 text-fg moon-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-          </svg>
-        </button>
       </div>
     </div>
   </nav>
@@ -93,31 +84,27 @@
     </div>
   </main>
 
-  <!-- 文章详情视图 (新增) -->
+  <!-- 文章详情视图 -->
   <section id="article-detail" class="px-6 pb-20 hidden pt-24">
     <div class="max-w-3xl mx-auto">
-      <!-- 返回按钮 -->
-      <button onclick="closeArticle()" class="flex items-center gap-2 text-muted hover:text-accent mb-8 transition-colors group">
+      <button onclick="closeArticle()" class="flex items-center gap-2 text-muted hover:text-accent mb-6 transition-colors group">
         <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
         </svg>
         <span>返回列表</span>
       </button>
 
-      <!-- 文章头部 -->
-      <header class="mb-10">
-        <h1 id="detail-title" class="font-display text-4xl sm:text-5xl font-semibold text-fg leading-tight mb-4"></h1>
-        <div class="flex items-center gap-4 text-sm text-muted">
-          <span id="detail-date"></span>
-          <span>·</span>
-          <span id="detail-readtime"></span>
-        </div>
-      </header>
-
-      <!-- 文章正文 -->
-      <article id="detail-content" class="prose custom-prose">
-        <!--内容由 JS 渲染 -->
-      </article>
+      <div class="article-detail-container">
+        <header class="mb-8 pb-6 border-b border-theme">
+          <h1 id="detail-title" class="font-display text-3xl sm:text-4xl font-semibold text-fg leading-tight mb-3"></h1>
+          <div class="flex items-center gap-4 text-sm text-muted">
+            <span id="detail-date"></span>
+            <span>·</span>
+            <span id="detail-readtime"></span>
+          </div>
+        </header>
+        <article id="detail-content" class="prose custom-prose"></article>
+      </div>
     </div>
   </section>
 
@@ -157,6 +144,16 @@
       <p>用文字丈量世界</p>
     </div>
   </footer>
+
+  <!-- 主题切换按钮 (移至右下角) -->
+  <button id="themeToggle" class="theme-fab" aria-label="切换主题">
+    <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+    </svg>
+    <svg class="moon-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+    </svg>
+  </button>
 
   <script src="./script.js"></script>
 </body>

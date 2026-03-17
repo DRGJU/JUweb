@@ -71,13 +71,54 @@ nav .nav-link { color: rgba(255, 255, 255, 0.7); }
 nav .nav-link:hover { color: #ffffff; }
 nav .nav-link::after { background-color: #ffffff; }
 
-.btn-theme {
-  background-color: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+/* ========================= */
+/* 右下角悬浮主题按钮 */
+/* ========================= */
+.theme-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  z-index: 9999;
+  
+  /* 毛玻璃效果 */
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  
+  /* 布局 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  
+  /* 过渡动画 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.btn-theme:hover { background-color: rgba(255, 255, 255, 0.25); }
-.btn-theme svg { color: #ffffff; }
+
+.theme-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.theme-fab svg {
+  width: 22px;
+  height: 22px;
+  color: var(--fg);
+  transition: color 0.3s ease;
+}
+
+/* 暗模式下按钮样式微调 */
+[data-theme="dark"] .theme-fab {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .theme-fab:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
 
 /* 头像 */
 .hero-avatar-wrapper {
@@ -264,7 +305,7 @@ header .reveal p {
 }
 
 .custom-prose pre {
-  background-color: #282c34; /* 代码块保持深色背景 */
+  background-color: #282c34;
   color: #abb2bf;
   padding: 1rem;
   border-radius: 8px;
@@ -288,9 +329,7 @@ header .reveal p {
   font-style: italic;
 }
 
-/* ========================= */
-/* 文章详情页毛玻璃效果 (新增) */
-/* ========================= */
+/* 文章详情页毛玻璃效果 */
 .article-detail-container {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -365,8 +404,6 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   nav { background: rgba(255, 255, 255, 0.9); border-bottom: 1px solid var(--border); }
   nav .text-fg, nav .text-muted, nav .nav-link { color: var(--fg); }
   nav .nav-link::after { background-color: var(--accent); }
-  nav .btn-theme { background-color: var(--bg-alt); border: 1px solid var(--border); }
-  nav .btn-theme svg { color: var(--fg); }
 
   header .reveal h1, header .reveal p { color: var(--fg); text-shadow: none; }
   
@@ -374,12 +411,19 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   #about h2, #about h3 { color: var(--fg); }
   #about p, #about .text-muted { color: var(--fg-muted); }
 
-  /* 移动端文章详情取消毛玻璃以保证可读性 */
   .article-detail-container {
     background: var(--card) !important;
     backdrop-filter: none !important;
     border: 1px solid var(--border);
     padding: 1.5rem;
     border-radius: 16px;
+  }
+
+  /* 移动端悬浮按钮位置调整 */
+  .theme-fab {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 46px;
+    height: 46px;
   }
 }
