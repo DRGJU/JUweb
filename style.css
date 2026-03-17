@@ -9,6 +9,10 @@
   --border: #E8E4DE;
   --glass-bg: rgba(255, 255, 255, 0.65);
   --glass-border: rgba(255, 255, 255, 0.5);
+  
+  /* 浅色模式专用变量 - 深色风格 */
+  --nav-bg: rgba(0, 0, 0, 0.4);
+  --section-dark-bg: #2D4A3E; /* 使用主题深绿色 */
 }
 
 [data-theme="dark"] {
@@ -22,6 +26,10 @@
   --border: #333333;
   --glass-bg: rgba(30, 30, 30, 0.6);
   --glass-border: rgba(255, 255, 255, 0.1);
+  
+  /* 暗色模式保持原样 */
+  --nav-bg: rgba(26, 26, 26, 0.8);
+  --section-dark-bg: #242424;
 }
 
 * {
@@ -46,16 +54,16 @@ body {
   font-family: 'Cormorant Garamond', serif;
 }
 
+/* 基础工具类 */
 .bg-body { background-color: var(--bg); }
 .bg-alt { background-color: var(--bg-alt); }
-.bg-card { background-color: var(--card); }
 .text-fg { color: var(--fg); }
 .text-muted { color: var(--fg-muted); }
 .text-accent { color: var(--accent); }
 .border-theme { border-color: var(--border); }
 .hover-accent:hover { color: var(--accent); }
 
-/* 视频背景容器 */
+/* 视频背景 */
 .video-background {
   position: fixed;
   top: 0;
@@ -79,31 +87,19 @@ body {
   object-fit: cover;
 }
 
-/* 视频遮罩层 */
 .video-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    to bottom,
-    rgba(250, 248, 245, 0) 0%,    
-    rgba(250, 248, 245, 0) 80%,   
-    rgba(250, 248, 245, 0.6) 100% 
-  );
+  background: linear-gradient( to bottom, rgba(250, 248, 245, 0) 0%, rgba(250, 248, 245, 0) 80%, rgba(250, 248, 245, 0.6) 100% );
 }
 
 [data-theme="dark"] .video-overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(26, 26, 26, 0.3) 0%,
-    rgba(26, 26, 26, 0.5) 50%,
-    rgba(26, 26, 26, 0.7) 100%
-  );
+  background: linear-gradient( to bottom, rgba(26, 26, 26, 0.3) 0%, rgba(26, 26, 26, 0.5) 50%, rgba(26, 26, 26, 0.7) 100% );
 }
 
-/* 背景纹理 */
 .texture-overlay {
   position: fixed;
   inset: 0;
@@ -113,30 +109,62 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* 头像容器 */
+/* 导航栏 - 浅色模式深色风格 */
+nav {
+  background: var(--nav-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+nav .text-fg {
+  color: #ffffff;
+}
+
+nav .text-muted {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+nav .nav-link {
+  color: rgba(255, 255, 255, 0.7);
+}
+nav .nav-link:hover {
+  color: #ffffff;
+}
+nav .nav-link::after {
+  background-color: #ffffff;
+}
+
+/* 导航栏主题按钮 */
+.btn-theme {
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-theme:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+/* 确保按钮内的图标是白色的 */
+.btn-theme svg {
+  color: #ffffff;
+}
+
+/* 头像 */
 .hero-avatar-wrapper {
   position: relative;
   display: inline-block;
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  box-shadow: 
-    0 8px 24px rgba(45, 74, 62, 0.25),
-    0 0 0 4px var(--bg),
-    0 0 0 5px var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border: 4px solid rgba(255, 255, 255, 0.3);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   background-color: var(--bg-alt);
   overflow: hidden;
-  backdrop-filter: blur(4px); 
-  -webkit-backdrop-filter: blur(4px);
 }
 
 .hero-avatar-wrapper:hover {
   transform: scale(1.05);
-  box-shadow: 
-    0 12px 32px rgba(45, 74, 62, 0.35),
-    0 0 0 4px var(--bg),
-    0 0 0 5px var(--accent);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .hero-avatar {
@@ -147,12 +175,14 @@ body {
   display: block;
 }
 
-/* Hero 文字 */
+/* 首页文字 - 浅色模式白色 */
 header .reveal h1,
 header .reveal p {
-  text-shadow: none;
+  color: #ffffff;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* 暗色模式保持之前的逻辑 */
 [data-theme="dark"] header .reveal h1,
 [data-theme="dark"] header .reveal p {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
@@ -162,12 +192,10 @@ header .reveal p {
 .article-card {
   transform-style: preserve-3d;
   will-change: transform;
-  
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s ease, background 0.3s ease;
@@ -202,7 +230,7 @@ header .reveal p {
   border-color: var(--accent);
 }
 
-/* 动画与交互 */
+/* 动画 */
 .reveal {
   opacity: 0;
   transform: translateY(40px);
@@ -214,33 +242,7 @@ header .reveal p {
   transform: translateY(0);
 }
 
-.nav-link {
-  position: relative;
-  color: var(--fg-muted);
-  transition: color 0.2s ease;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background-color: var(--accent);
-  transition: width 0.3s ease;
-}
-
-.nav-link:hover { color: var(--fg); }
-.nav-link:hover::after { width: 100%; }
-
-.btn-theme {
-  background-color: var(--bg-alt);
-  border: 1px solid var(--border);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-.btn-theme:hover { border-color: var(--accent); }
-
+/* 分页 */
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -283,8 +285,11 @@ header .reveal p {
   cursor: not-allowed;
 }
 
+/* 滚动提示 */
 .scroll-indicator {
   animation: fadeInUp 1s ease 0.5s backwards;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 @keyframes fadeInUp {
@@ -298,49 +303,93 @@ header .reveal p {
   .scroll-indicator { animation: none; opacity: 1; }
 }
 
+/* 关于我模块 - 浅色模式深色背景优化 */
+#about {
+  background-color: var(--section-dark-bg);
+  color: #ffffff;
+}
+
+#about h2 {
+  color: #ffffff;
+}
+
+#about p {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+#about h3 {
+  color: #ffffff;
+}
+
+#about .text-muted {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* 页脚 - 浅色模式深色风格 */
+footer {
+  background-color: #1A1A1A;
+  border-top: none;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+footer .text-muted {
+  color: rgba(255, 255, 255, 0.6);
+}
+
 /* ========================= */
 /* 移动端性能优化 */
 /* ========================= */
 @media (max-width: 640px) {
-  /* 1. 彻底移除视频背景 */
-  .video-background {
-    display: none !important;
-  }
+  .video-background { display: none !important; }
+  body { background: linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%); }
+  header { background: transparent; }
+  .texture-overlay { display: none; }
   
-  /* 2. 移动端使用纯色/渐变背景代替视频 */
-  body {
-    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
-  }
-  header {
-    background: transparent; /* 继承 body 背景 */
-  }
-
-  /* 3. 关闭纹理叠加，减少 GPU 合成层 */
-  .texture-overlay {
-    display: none;
-  }
-  
-  /* 4. 禁用毛玻璃效果，使用实心背景 */
   .article-card {
     background: var(--card) !important;
     backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
     border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03); /* 简化阴影 */
   }
   
-  /* 5. 简化头像样式 */
   .hero-avatar-wrapper {
     width: 110px;
     height: 110px;
-    backdrop-filter: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
   
-  /* 6. 优化分页按钮 */
   .pagination-btn {
     min-width: 36px;
     height: 36px;
     font-size: 13px;
+  }
+
+  /* 移动端导航栏恢复浅色背景适配 */
+  nav {
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .text-fg, nav .text-muted, nav .nav-link {
+    color: var(--fg); /* 恢复深色文字 */
+  }
+  nav .nav-link::after {
+    background-color: var(--accent);
+  }
+  nav .btn-theme {
+    background-color: var(--bg-alt);
+    border: 1px solid var(--border);
+  }
+  nav .btn-theme svg {
+    color: var(--fg);
+  }
+
+  /* 移动端首页文字恢复深色 */
+  header .reveal h1,
+  header .reveal p {
+    color: var(--fg);
+    text-shadow: none;
+  }
+  
+  /* 移动端关于我和页脚保持深色风格 */
+  #about, footer {
+    color: #ffffff;
   }
 }
