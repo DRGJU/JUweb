@@ -264,7 +264,7 @@ header .reveal p {
 }
 
 .custom-prose pre {
-  background-color: #282c34;
+  background-color: #282c34; /* 代码块保持深色背景 */
   color: #abb2bf;
   padding: 1rem;
   border-radius: 8px;
@@ -286,6 +286,24 @@ header .reveal p {
   margin: 1.5rem 0;
   color: var(--fg-muted);
   font-style: italic;
+}
+
+/* ========================= */
+/* 文章详情页毛玻璃效果 (新增) */
+/* ========================= */
+.article-detail-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  margin-top: 1rem;
+}
+
+[data-theme="dark"] .article-detail-container {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 /* 分页 */
@@ -334,24 +352,6 @@ header .reveal p {
 footer { background-color: #1A1A1A; border-top: none; color: rgba(255, 255, 255, 0.6); }
 footer .text-muted { color: rgba(255, 255, 255, 0.6); }
 
-/* ========================= */
-/* 文章详情页毛玻璃效果 */
-/* ========================= */
-.article-detail-container {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  padding: 2.5rem;
-  margin-top: 1rem;
-}
-
-[data-theme="dark"] .article-detail-container {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
 /* 移动端适配 */
 @media (max-width: 640px) {
   .video-background { display: none !important; }
@@ -374,7 +374,7 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   #about h2, #about h3 { color: var(--fg); }
   #about p, #about .text-muted { color: var(--fg-muted); }
 
-  /* 移动端文章详情适配 */
+  /* 移动端文章详情取消毛玻璃以保证可读性 */
   .article-detail-container {
     background: var(--card) !important;
     backdrop-filter: none !important;
