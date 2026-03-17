@@ -10,6 +10,7 @@ function renderArticles(page) {
   const container = document.getElementById('articleList');
   if (!container) return;
   
+  // 如果文章为空，显示空状态提示
   if (articles.length === 0) {
     if(articleCountEl) articleCountEl.textContent = '暂无文章';
     container.innerHTML = `
