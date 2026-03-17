@@ -9,8 +9,6 @@
   --border: #E8E4DE;
   --glass-bg: rgba(255, 255, 255, 0.65);
   --glass-border: rgba(255, 255, 255, 0.5);
-  
-  /* 浅色模式专用变量 - 深色风格 */
   --nav-bg: rgba(0, 0, 0, 0.4);
 }
 
@@ -25,7 +23,6 @@
   --border: #333333;
   --glass-bg: rgba(30, 30, 30, 0.6);
   --glass-border: rgba(255, 255, 255, 0.1);
-  
   --nav-bg: rgba(26, 26, 26, 0.8);
 }
 
@@ -59,6 +56,40 @@ body {
 .text-accent { color: var(--accent); }
 .border-theme { border-color: var(--border); }
 .hover-accent:hover { color: var(--accent); }
+
+/* 主题切换动画层 */
+#theme-transition-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none; /* 确保不阻挡点击 */
+  visibility: hidden;
+  
+  /* 初始状态：圆形半径为0 */
+  clip-path: circle(0% at 50% 50%);
+  
+  /* 默认背景为浅色模式颜色 */
+  background-color: #FAF8F5;
+  
+  /* 动画过渡 */
+  transition: clip-path 0.8s ease-in-out, visibility 0s linear 0.8s;
+}
+
+/* 动画激活状态 */
+#theme-transition-layer.is-active {
+  visibility: visible;
+  /* 扩散到足够大的半径覆盖全屏 */
+  clip-path: circle(150% at 50% 50%);
+  transition: clip-path 0.8s ease-in-out;
+}
+
+/* 暗色模式下，遮罩层背景色也要变 */
+#theme-transition-layer.dark-mode-bg {
+  background-color: #1A1A1A;
+}
 
 /* 视频背景 */
 .video-background {
@@ -120,14 +151,7 @@ nav .nav-link { color: rgba(255, 255, 255, 0.7); }
 nav .nav-link:hover { color: #ffffff; }
 nav .nav-link::after { background-color: #ffffff; }
 
-.btn-theme {
-  background-color: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-.btn-theme:hover { background-color: rgba(255, 255, 255, 0.25); }
-.btn-theme svg { color: #ffffff; }
-
-/* 头像 */
+/* 头像 - 增加点击提示 */
 .hero-avatar-wrapper {
   position: relative;
   display: inline-block;
@@ -139,11 +163,13 @@ nav .nav-link::after { background-color: #ffffff; }
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   background-color: var(--bg-alt);
   overflow: hidden;
+  cursor: pointer; /* 鼠标变手型 */
 }
 
 .hero-avatar-wrapper:hover {
   transform: scale(1.05);
   border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 }
 
 .hero-avatar {
@@ -279,10 +305,10 @@ header .reveal p {
   .reveal { opacity: 1; transform: none; transition: none; }
   .article-card { transition: none; }
   .scroll-indicator { animation: none; opacity: 1; }
+  #theme-transition-layer { display: none; }
 }
 
 /* 关于我模块 - 浅色模式优化 */
-/* 背景改为与页眉相同的深色毛玻璃 */
 #about {
   background-color: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(12px);
@@ -291,22 +317,10 @@ header .reveal p {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 文字颜色调整为白色 */
-#about h2 {
-  color: #ffffff;
-}
-
-#about p {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-#about h3 {
-  color: #ffffff;
-}
-
-#about .text-muted {
-  color: rgba(255, 255, 255, 0.7);
-}
+#about h2 { color: #ffffff; }
+#about p { color: rgba(255, 255, 255, 0.85); }
+#about h3 { color: #ffffff; }
+#about .text-muted { color: rgba(255, 255, 255, 0.7); }
 
 /* 暗色模式下关于我模块恢复原样 */
 [data-theme="dark"] #about {
@@ -316,14 +330,10 @@ header .reveal p {
 }
 
 [data-theme="dark"] #about h2,
-[data-theme="dark"] #about h3 {
-  color: var(--fg);
-}
+[data-theme="dark"] #about h3 { color: var(--fg); }
 
 [data-theme="dark"] #about p,
-[data-theme="dark"] #about .text-muted {
-  color: var(--fg-muted);
-}
+[data-theme="dark"] #about .text-muted { color: var(--fg-muted); }
 
 /* 页脚 - 浅色模式深色风格 */
 footer {
@@ -332,9 +342,7 @@ footer {
   color: rgba(255, 255, 255, 0.6);
 }
 
-footer .text-muted {
-  color: rgba(255, 255, 255, 0.6);
-}
+footer .text-muted { color: rgba(255, 255, 255, 0.6); }
 
 /* ========================= */
 /* 移动端性能优化 */
@@ -367,19 +375,8 @@ footer .text-muted {
     background: rgba(255, 255, 255, 0.9);
     border-bottom: 1px solid var(--border);
   }
-  nav .text-fg, nav .text-muted, nav .nav-link {
-    color: var(--fg);
-  }
-  nav .nav-link::after {
-    background-color: var(--accent);
-  }
-  nav .btn-theme {
-    background-color: var(--bg-alt);
-    border: 1px solid var(--border);
-  }
-  nav .btn-theme svg {
-    color: var(--fg);
-  }
+  nav .text-fg, nav .text-muted, nav .nav-link { color: var(--fg); }
+  nav .nav-link::after { background-color: var(--accent); }
 
   /* 移动端首页文字恢复深色 */
   header .reveal h1,
@@ -388,7 +385,7 @@ footer .text-muted {
     text-shadow: none;
   }
   
-  /* 移动端关于我恢复浅色背景适配 (因为没有视频背景) */
+  /* 移动端关于我恢复浅色背景适配 */
   #about {
     background-color: var(--bg-alt);
     backdrop-filter: none;

@@ -69,7 +69,6 @@ function changePage(page) {
 }
 
 function initTiltEffect() {
-  // 移动端跳过 3D 效果初始化
   if ('ontouchstart' in window) return;
   const cards = document.querySelectorAll('.article-card');
   cards.forEach(card => {
@@ -94,41 +93,76 @@ function initTiltEffect() {
   });
 }
 
-// 优化：移动端直接移除视频容器，不加载资源
 function initVideoBackground() {
   const videoContainer = document.querySelector('.video-background');
   if (!videoContainer) return;
-
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  
   if (isMobile) {
-    // 移动端：直接移除 DOM，节省内存和流量
     videoContainer.remove();
   } else {
-    // 桌面端：尝试播放
     const video = document.getElementById('bgVideo');
-    if (video) {
-      video.play().catch(err => {
-        console.log('视频自动播放失败:', err);
-      });
-    }
+    if (video) video.play().catch(err => console.log('视频自动播放失败:', err));
   }
 }
 
+// 新的主题切换逻辑：从头像扩散
 function initThemeToggle() {
-  const themeToggle = document.getElementById('themeToggle');
-  const sunIcon = document.querySelector('.sun-icon');
-  const moonIcon = document.querySelector('.moon-icon');
-  if (!themeToggle || !sunIcon || !moonIcon) return;
-  let isDark = false;
-  function updateThemeIcons() {
-    if (isDark) { sunIcon.classList.add('hidden'); moonIcon.classList.remove('hidden'); } 
-    else { sunIcon.classList.remove('hidden'); moonIcon.classList.add('hidden'); }
-  }
-  themeToggle.addEventListener('click', () => {
-    isDark = !isDark;
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
-    updateThemeIcons();
+  const avatar = document.getElementById('avatarTrigger');
+  const layer = document.getElementById('theme-transition-layer');
+  
+  if (!avatar || !layer) return;
+
+  let isAnimating = false;
+
+  avatar.addEventListener('click', (e) => {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    // 1. 获取头像中心坐标
+    const rect = avatar.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+
+    // 2. 判断当前主题，决定遮罩层颜色
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    
+    // 如果当前是深色，即将切换为浅色，遮罩层背景设为浅色
+    if (isDark) {
+      layer.classList.remove('dark-mode-bg');
+    } else {
+      // 如果当前是浅色，即将切换为深色，遮罩层背景设为深色
+      layer.classList.add('dark-mode-bg');
+    }
+
+    // 3. 设置 clip-path 的中心点
+    layer.style.clipPath = `circle(0% at ${x}px ${y}px)`;
+
+    // 4. 强制重绘，确保初始状态生效
+    layer.getBoundingClientRect();
+
+    // 5. 激活动画类
+    layer.classList.add('is-active');
+
+    // 6. 监听动画结束
+    layer.addEventListener('transitionend', function handler() {
+      // 移除监听器，避免重复触发
+      layer.removeEventListener('transitionend', handler);
+
+      // 切换真实的主题属性
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+
+      // 重置动画层
+      layer.classList.remove('is-active');
+      // 注意：虽然移除了 is-active，clip-path 会变回 0%，但因为 visibility 有 delay，所以不会闪现
+      // 但这里我们需要立即重置，防止挡住点击，但视觉上要保持新主题色
+      // CSS 中 transition 包含了 visibility，所以这里直接重置即可
+      
+      isAnimating = false;
+    });
   });
 }
 

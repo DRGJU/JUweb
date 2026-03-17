@@ -4,16 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>墨迹 | 个人博客</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="min-h-screen">
+
+  <!-- 主题切换动画遮罩层 -->
+  <div id="theme-transition-layer"></div>
+
   <!-- 视频背景 -->
   <div class="video-background">
-    <video id="bgVideo" autoplay loop muted playsinline poster="./poster">
+    <video 
+      id="bgVideo"
+      autoplay 
+      loop 
+      muted 
+      playsinline
+      poster="./poster.jpg"
+    >
       <source src="./bg.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
@@ -34,15 +51,6 @@
           <a href="#about" class="nav-link text-sm">关于</a>
           <a href="#" class="nav-link text-sm">归档</a>
         </div>
-        
-        <button id="themeToggle" class="btn-theme w-9 h-9 rounded-full flex items-center justify-center" aria-label="切换主题">
-          <svg class="w-4 h-4 text-fg sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-          </svg>
-          <svg class="w-4 h-4 text-fg moon-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-          </svg>
-        </button>
       </div>
     </div>
   </nav>
@@ -50,9 +58,15 @@
   <!-- Hero 区域 -->
   <header class="h-screen flex flex-col justify-center items-center relative px-6">
     <div class="max-w-4xl mx-auto text-center">
+      
+      <!-- 头像区域 (作为切换触发器) -->
       <div class="reveal mb-8" style="transition-delay: 0.1s;">
-        <div class="hero-avatar-wrapper mx-auto">
-          <img src="./touxiang.png" alt="博主头像" class="hero-avatar"/>
+        <div class="hero-avatar-wrapper mx-auto" id="avatarTrigger" title="点击切换主题">
+          <img 
+            src="./touxiang.png" 
+            alt="博主头像" 
+            class="hero-avatar"
+          />
         </div>
       </div>
 
@@ -68,6 +82,7 @@
       </div>
     </div>
 
+    <!-- 滚动提示 -->
     <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 scroll-indicator">
       <div class="flex flex-col items-center gap-2 text-muted cursor-pointer" onclick="document.getElementById('articles').scrollIntoView({behavior: 'smooth'})">
         <span class="text-xs tracking-widest">向下滚动</span>
@@ -87,12 +102,17 @@
           <span class="text-muted text-sm" id="articleCount">共 12 篇</span>
         </div>
       </div>
-      <div class="space-y-6" id="articleList"></div>
+
+      <div class="space-y-6" id="articleList">
+        <!-- 文章卡片由 JS 渲染 -->
+      </div>
+
+      <!-- 分页控件 -->
       <div id="pagination" class="pagination-container"></div>
     </div>
   </main>
 
-  <!-- 关于我 (修改了 py-20 为 py-12，mb-8 为 mb-6，gap-8 为 gap-6) -->
+  <!-- 关于我 -->
   <section id="about" class="py-12 px-6">
     <div class="max-w-4xl mx-auto">
       <div class="reveal">
@@ -129,6 +149,7 @@
     </div>
   </footer>
 
+  <!-- JavaScript -->
   <script src="./script.js"></script>
 </body>
 </html>
