@@ -4,9 +4,9 @@
 function getCurrentDate() {
   const date = new Date();
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要+1
+  const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`; // 格式: 2024-05-21
+  return `${year}-${month}-${day}`;
 }
 
 // 文章数据
@@ -15,8 +15,7 @@ const articles = [
     id: 1,
     title: 'Python 入门教程：从零开始掌握 Python 基础',
     excerpt: 'Python 是一门简洁优雅、功能强大的编程语言，非常适合作为第一门编程语言。本文将从环境搭建讲起，带你逐步掌握变量、数据类型、流程控制、函数等核心语法，为后续深入学习打下坚实基础。',
-    // 使用函数自动获取当前日期
-    date: getCurrentDate(), 
+    date: getCurrentDate(),
     category: '技术',
     tags: ['Python', '入门教程', '编程基础'],
     readTime: '15 分钟',
@@ -126,46 +125,48 @@ function renderArticles(page) {
   initScrollReveal();
 }
 
-// 打开文章详情（隐藏首页）
+// 打开文章详情
 function openArticle(id) {
   const article = articles.find(a => a.id === id);
   if (!article) return;
 
-  // 1. 隐藏首页 Hero 区域
+  // 1. 隐藏首页相关区域
   const heroHeader = document.querySelector('header');
   if (heroHeader) heroHeader.classList.add('hidden');
 
-  // 2. 隐藏文章列表和关于我
   document.getElementById('articles').classList.add('hidden');
   document.getElementById('about').classList.add('hidden');
-
-  // 3. 显示文章详情
+  
+  // 2. 显示文章详情
   document.getElementById('article-detail').classList.remove('hidden');
 
-  // 4. 渲染内容
+  // 3. 渲染内容
   document.getElementById('detail-title').textContent = article.title;
-  document.getElementById('detail-date').textContent = article.date; // 这里会自动使用新的日期格式
+  document.getElementById('detail-date').textContent = article.date;
   document.getElementById('detail-readtime').textContent = article.readTime;
   document.getElementById('detail-content').innerHTML = article.content;
+
+  // 4. 【新增】切换导航栏样式为文章页模式
+  document.querySelector('nav').classList.add('nav-article-view');
 
   // 5. 滚动到顶部
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 关闭文章详情（恢复首页）
+// 关闭文章详情
 function closeArticle() {
-  // 1. 恢复显示首页 Hero 区域
+  // 1. 恢复显示首页相关区域
   const heroHeader = document.querySelector('header');
   if (heroHeader) heroHeader.classList.remove('hidden');
 
-  // 2. 隐藏文章详情
   document.getElementById('article-detail').classList.add('hidden');
-
-  // 3. 恢复显示文章列表和关于我
   document.getElementById('articles').classList.remove('hidden');
   document.getElementById('about').classList.remove('hidden');
 
-  // 4. 滚动回文章列表位置
+  // 2. 【新增】移除导航栏的文章页样式，恢复默认
+  document.querySelector('nav').classList.remove('nav-article-view');
+
+  // 3. 滚动回文章列表位置
   document.getElementById('articles').scrollIntoView({ behavior: 'smooth' });
 }
 

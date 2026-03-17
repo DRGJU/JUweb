@@ -34,6 +34,7 @@
 
 html {
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
@@ -42,6 +43,7 @@ body {
   color: var(--fg);
   transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
+  min-height: 100%;
 }
 
 .font-display {
@@ -57,19 +59,44 @@ body {
 .border-theme { border-color: var(--border); }
 .hover-accent:hover { color: var(--accent); }
 
-/* 导航栏 */
+/* ========================= */
+/* 导航栏样式 */
+/* ========================= */
 nav {
   background: var(--nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-color: rgba(255, 255, 255, 0.1);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
+/* 默认首页样式 (透明背景+白色文字) */
 nav .text-fg { color: #ffffff; }
 nav .text-muted { color: rgba(255, 255, 255, 0.8); }
 nav .nav-link { color: rgba(255, 255, 255, 0.7); }
 nav .nav-link:hover { color: #ffffff; }
 nav .nav-link::after { background-color: #ffffff; }
+
+/* 文章页导航栏样式 (JS控制添加此类) */
+nav.nav-article-view {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--border);
+}
+
+nav.nav-article-view .text-fg { color: var(--fg); }
+nav.nav-article-view .text-muted { color: var(--fg-muted); }
+nav.nav-article-view .nav-link { color: var(--fg-muted); }
+nav.nav-article-view .nav-link:hover { color: var(--fg); }
+nav.nav-article-view .nav-link::after { background-color: var(--accent); }
+
+/* 暗色模式下文章页导航栏 */
+[data-theme="dark"] nav.nav-article-view {
+  background: rgba(26, 26, 26, 0.9);
+  border-color: var(--border);
+}
+[data-theme="dark"] nav.nav-article-view .text-fg { color: var(--fg); }
+[data-theme="dark"] nav.nav-article-view .nav-link { color: var(--fg-muted); }
+[data-theme="dark"] nav.nav-article-view .nav-link:hover { color: var(--fg); }
 
 /* ========================= */
 /* 右下角悬浮主题按钮 */
@@ -78,46 +105,42 @@ nav .nav-link::after { background-color: #ffffff; }
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   z-index: 9999;
-  
-  /* 毛玻璃效果 */
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  
-  /* 布局 */
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  
-  /* 过渡动画 */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
 
 .theme-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: scale(1.1) rotate(15deg);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
 }
 
 .theme-fab svg {
-  width: 22px;
-  height: 22px;
-  color: var(--fg);
+  width: 24px;
+  height: 24px;
+  color: #333333;
   transition: color 0.3s ease;
 }
 
-/* 暗模式下按钮样式微调 */
 [data-theme="dark"] .theme-fab {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  background: rgba(40, 40, 40, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
-[data-theme="dark"] .theme-fab:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+
+[data-theme="dark"] .theme-fab svg {
+  color: #E8E4DE;
 }
 
 /* 头像 */
@@ -404,6 +427,14 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   nav { background: rgba(255, 255, 255, 0.9); border-bottom: 1px solid var(--border); }
   nav .text-fg, nav .text-muted, nav .nav-link { color: var(--fg); }
   nav .nav-link::after { background-color: var(--accent); }
+  
+  /* 移动端强制导航栏显示为浅色背景模式，保证可读性 */
+  nav.nav-article-view {
+    background: rgba(255, 255, 255, 0.95);
+  }
+  [data-theme="dark"] nav.nav-article-view {
+     background: rgba(26, 26, 26, 0.95);
+  }
 
   header .reveal h1, header .reveal p { color: var(--fg); text-shadow: none; }
   
@@ -419,11 +450,10 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
     border-radius: 16px;
   }
 
-  /* 移动端悬浮按钮位置调整 */
   .theme-fab {
     bottom: 1.5rem;
     right: 1.5rem;
-    width: 46px;
-    height: 46px;
+    width: 50px;
+    height: 50px;
   }
 }
