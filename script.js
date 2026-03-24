@@ -146,8 +146,9 @@ first, *rest = [1, 2, 3, 4, 5]
 
 # 字典解包
 user = {"name": "Alice", "age": 30}
-print(f"{user['name']} is {user['age']} years old")  # 传统方式
-print(f"{user.get('name')} is {user.get('age')} years old")  # 更安全的方式
+# 注意：直接访问可能会引发KeyError if键不存在
+print(f"{user['name']} is {user['age']} years old")  # 传统方式，但可能引发KeyError
+print(f"{user.get('name')} is {user.get('age')} years old")  # 更安全的方式，键不存在时返回None
 
 # 函数参数解包
 def greet(name, age):
@@ -283,6 +284,462 @@ print(cube(5))    # 输出: 125</code></pre>
       <h2>结语</h2>
       <p>Pythonic 的编程风格不仅仅是关于使用特定的语法技巧，更是一种思维方式，强调代码的可读性、简洁性和优雅性。通过掌握这些方法和技巧，你可以写出更高效、更易维护的 Python 代码，同时也能更好地理解和欣赏 Python 语言的设计哲学。</p>
       <p>记住，Python 的魅力在于它允许你用更少的代码表达更多的思想。不断学习和实践这些技巧，你会发现 Python 编程变得越来越有趣和高效。</p>
+    `
+  },
+  {
+    id: 3,
+    title: 'Python 各数据类型的高效方法、技巧与魔法',
+    excerpt: 'Python 提供了丰富的数据类型，每种类型都有其独特的方法和技巧。本文将深入探讨 Python 中常用数据类型的高效使用方法、实用技巧和一些令人惊叹的"魔法"操作，帮助你充分发挥每种数据类型的潜力。',
+    date: getCurrentDate(),
+    category: '技术',
+    tags: ['Python', '数据类型', '技巧', '魔法'],
+    content: `
+      <p>Python 是一种动态类型语言，提供了丰富的数据类型，每种类型都有其独特的方法和特性。掌握这些数据类型的高效使用方法和技巧，可以大大提高你的编程效率和代码质量。本文将详细介绍 Python 中常用数据类型的高效方法、实用技巧和一些"魔法"操作。</p>
+
+      <h2>1. 数字类型</h2>
+      <h3>1.1 整数 (int)</h3>
+      <pre><code># 位运算技巧
+# 检查数字是否为偶数
+is_even = (x & 1) == 0
+
+# 快速计算 2 的幂
+power_of_two = 1 << n  # 相当于 2 ** n
+
+# 取模运算的替代
+remainder = x % 4
+# 对于 2 的幂，可以使用位运算
+remainder = x & 3  # 相当于 x % 4
+
+# 快速交换两个变量
+a, b = b, a
+
+# 整数除法
+# Python 3 中 // 表示整数除法
+result = 7 // 3  # 结果为 2
+
+# 绝对值
+abs(-5)  # 结果为 5
+
+# 最大值和最小值
+max(1, 2, 3)  # 结果为 3
+min(1, 2, 3)  # 结果为 1</code></pre>
+
+      <h3>1.2 浮点数 (float)</h3>
+      <pre><code># 浮点数比较
+# 避免直接比较浮点数
+import math
+def is_close(a, b, rel_tol=1e-09, abs_tol=0.0):
+    return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+# 四舍五入
+round(3.14159, 2)  # 结果为 3.14
+
+# 科学计数法
+x = 1e6  # 1000000.0
+
+# 特殊值
+import math
+math.inf  # 无穷大
+math.nan  # 非数字
+
+# 数学函数
+math.sqrt(25)  # 平方根
+math.pow(2, 3)  # 幂运算
+math.sin(math.pi/2)  # 正弦函数
+math.cos(math.pi)  # 余弦函数
+math.log(10)  # 自然对数
+math.log10(100)  # 以 10 为底的对数</code></pre>
+
+      <h2>2. 字符串 (str)</h2>
+      <pre><code># 字符串格式化
+name = "Alice"
+age = 30
+
+# f-string (Python 3.6+)
+print(f"{name} is {age} years old")
+
+# format 方法
+print("{} is {} years old".format(name, age))
+
+# 字符串方法
+# 大小写转换
+s = "Hello World"
+s.upper()  # "HELLO WORLD"
+s.lower()  # "hello world"
+s.title()  # "Hello World"
+s.capitalize()  # "Hello world"
+
+# 去除空白
+s = "  Hello World  "
+s.strip()  # "Hello World"
+s.lstrip()  # "Hello World  "
+s.rstrip()  # "  Hello World"
+
+# 分割和连接
+s = "a,b,c"
+s.split(",")  # ["a", "b", "c"]
+
+s = ["a", "b", "c"]
+",".join(s)  # "a,b,c"
+
+# 查找和替换
+s = "Hello World"
+s.find("World")  # 6
+ s.replace("World", "Python")  # "Hello Python"
+
+# 检查前缀和后缀
+s = "file.txt"
+s.startswith("file")  # True
+s.endswith(".txt")  # True
+
+# 字符串反转
+s = "Python"
+s[::-1]  # "nohtyP"
+
+# 字符串重复
+s = "Python"
+s * 3  # "PythonPythonPython"
+
+# 检查字符串内容
+"123".isdigit()  # True
+"abc".isalpha()  # True
+"abc123".isalnum()  # True
+"   ".isspace()  # True
+
+# 格式化数字
+pi = 3.1415926535
+print(f"pi = {pi:.2f}")  # pi = 3.14
+print(f"pi = {pi:.5f}")  # pi = 3.14159</code></pre>
+
+      <h2>3. 列表 (list)</h2>
+      <pre><code># 列表创建
+# 列表推导式
+numbers = [i for i in range(10)]  # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+even_numbers = [i for i in range(10) if i % 2 == 0]  # [0, 2, 4, 6, 8]
+
+# 列表方法
+# 添加元素
+lst = [1, 2, 3]
+lst.append(4)  # [1, 2, 3, 4]
+lst.extend([5, 6])  # [1, 2, 3, 4, 5, 6]
+lst.insert(0, 0)  # [0, 1, 2, 3, 4, 5, 6]
+
+# 删除元素
+lst.remove(0)  # [1, 2, 3, 4, 5, 6]
+popped = lst.pop()  # 6, lst 变为 [1, 2, 3, 4, 5]
+popped_first = lst.pop(0)  # 1, lst 变为 [2, 3, 4, 5]
+
+# 排序
+lst = [3, 1, 4, 1, 5, 9, 2, 6]
+lst.sort()  # [1, 1, 2, 3, 4, 5, 6, 9]
+lst.sort(reverse=True)  # [9, 6, 5, 4, 3, 2, 1, 1]
+
+# 反转
+lst.reverse()  # [1, 1, 2, 3, 4, 5, 6, 9]
+
+# 列表操作
+lst1 = [1, 2, 3]
+lst2 = [4, 5, 6]
+combined = lst1 + lst2  # [1, 2, 3, 4, 5, 6]
+repeated = lst1 * 3  # [1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+# 列表索引和切片
+lst = [0, 1, 2, 3, 4, 5]
+lst[0]  # 0
+lst[-1]  # 5
+lst[1:4]  # [1, 2, 3]
+lst[::2]  # [0, 2, 4]
+lst[::-1]  # [5, 4, 3, 2, 1, 0]
+
+# 列表长度
+len(lst)  # 6
+
+# 检查元素是否存在
+3 in lst  # True
+10 in lst  # False
+
+# 统计元素出现次数
+lst = [1, 2, 2, 3, 3, 3]
+lst.count(2)  # 2
+
+# 查找元素索引
+lst = [1, 2, 3, 4, 5]
+lst.index(3)  # 2
+
+# 列表的高级操作
+# 解包
+a, b, *rest = [1, 2, 3, 4, 5]  # a=1, b=2, rest=[3, 4, 5]
+
+# 列表转置（使用 zip）
+matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+transposed = list(zip(*matrix))  # [(1, 4, 7), (2, 5, 8), (3, 6, 9)]</code></pre>
+
+      <h2>4. 元组 (tuple)</h2>
+      <pre><code># 元组创建
+t = (1, 2, 3)
+t = 1, 2, 3  # 同样创建元组
+
+# 单元素元组
+t = (1,)  # 注意逗号
+
+# 元组操作
+# 索引和切片
+t = (1, 2, 3, 4, 5)
+t[0]  # 1
+t[-1]  # 5
+t[1:4]  # (2, 3, 4)
+
+# 元组长度
+len(t)  # 5
+
+# 检查元素是否存在
+3 in t  # True
+
+# 元组拼接
+t1 = (1, 2, 3)
+t2 = (4, 5, 6)
+t3 = t1 + t2  # (1, 2, 3, 4, 5, 6)
+
+# 元组重复
+t = (1, 2) * 3  # (1, 2, 1, 2, 1, 2)
+
+# 元组解包
+a, b, c = (1, 2, 3)  # a=1, b=2, c=3
+
+# 元组的不可变性
+# t[0] = 10  # 会引发 TypeError
+
+# 元组的优势
+# 1. 比列表更节省内存
+# 2. 可以作为字典键
+# 3. 可以作为集合元素
+# 4. 函数返回多个值时使用元组
+
+def get_coordinates():
+    return (10, 20)
+x, y = get_coordinates()</code></pre>
+
+      <h2>5. 字典 (dict)</h2>
+      <pre><code># 字典创建
+d = {"name": "Alice", "age": 30}
+d = dict(name="Alice", age=30)
+d = dict([("name", "Alice"), ("age", 30)])
+
+# 字典方法
+# 获取值
+d = {"name": "Alice", "age": 30}
+d["name"]  # "Alice"
+d.get("name")  # "Alice"
+d.get("address", "Unknown")  # "Unknown"（键不存在时返回默认值）
+
+# 设置值
+d["address"] = "New York"
+
+# 删除键值对
+del d["age"]
+d.pop("address")  # 返回值并删除
+
+# 清空字典
+d.clear()
+
+# 获取所有键、值、键值对
+d = {"name": "Alice", "age": 30}
+list(d.keys())  # ["name", "age"]
+list(d.values())  # ["Alice", 30]
+list(d.items())  # [("name", "Alice"), ("age", 30)]
+
+# 检查键是否存在
+"name" in d  # True
+
+# 字典推导式
+d = {i: i**2 for i in range(5)}  # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+
+# 合并字典（Python 3.5+）
+d1 = {"a": 1, "b": 2}
+d2 = {"b": 3, "c": 4}
+d3 = {**d1, **d2}  # {"a": 1, "b": 3, "c": 4}
+
+# 字典的高级操作
+# 默认字典
+from collections import defaultdict
+
+# 创建一个默认值为列表的字典
+d = defaultdict(list)
+d["fruits"].append("apple")
+d["fruits"].append("banana")  # d = {"fruits": ["apple", "banana"]}
+
+# 计数器
+from collections import Counter
+
+fruits = ["apple", "banana", "apple", "orange", "banana", "apple"]
+count = Counter(fruits)  # Counter({"apple": 3, "banana": 2, "orange": 1})
+
+# 有序字典（Python 3.7+ 中普通字典已经有序）
+from collections import OrderedDict
+
+d = OrderedDict()
+d["a"] = 1
+d["b"] = 2
+d["c"] = 3  # 保持插入顺序</code></pre>
+
+      <h2>6. 集合 (set)</h2>
+      <pre><code># 集合创建
+s = {1, 2, 3}
+s = set([1, 2, 3])
+s = set("hello")  # {'h', 'e', 'l', 'o'}
+
+# 空集合
+s = set()  # 注意：{} 创建的是空字典
+
+# 集合操作
+# 添加元素
+s = {1, 2, 3}
+s.add(4)  # {1, 2, 3, 4}
+
+# 删除元素
+s.remove(4)  # {1, 2, 3}
+s.discard(5)  # 不会引发错误
+popped = s.pop()  # 随机删除一个元素
+
+# 清空集合
+s.clear()
+
+# 集合运算
+s1 = {1, 2, 3}
+s2 = {3, 4, 5}
+
+# 并集
+s1 | s2  # {1, 2, 3, 4, 5}
+s1.union(s2)  # 同上
+
+# 交集
+s1 & s2  # {3}
+s1.intersection(s2)  # 同上
+
+# 差集
+s1 - s2  # {1, 2}
+s1.difference(s2)  # 同上
+
+# 对称差集
+s1 ^ s2  # {1, 2, 4, 5}
+s1.symmetric_difference(s2)  # 同上
+
+# 子集和超集
+s1 = {1, 2, 3}
+s2 = {1, 2}
+s2.issubset(s1)  # True
+s1.issuperset(s2)  # True
+
+# 集合推导式
+s = {i**2 for i in range(5)}  # {0, 1, 4, 9, 16}
+
+# 集合的应用
+# 去重
+lst = [1, 2, 2, 3, 3, 3]
+unique_lst = list(set(lst))  # [1, 2, 3]
+
+# 检查元素是否存在（集合的成员检查比列表快）
+s = set(range(10000))
+5000 in s  # 快速检查</code></pre>
+
+      <h2>7. 布尔值 (bool) 和 None</h2>
+      <pre><code># 布尔值
+True and False  # False
+True or False  # True
+not True  # False
+
+# 真值测试
+# 以下值在布尔上下文中被视为 False：
+# False, None, 0, 0.0, "", [], {}, set()
+
+# 其他所有值都被视为 True
+
+# None
+# None 表示"无"或"空"
+x = None
+
+# 检查 None
+if x is None:
+    print("x is None")
+
+# 注意：使用 is 而不是 == 来比较 None
+x = None
+x is None  # True
+x == None  # True，但不推荐</code></pre>
+
+      <h2>8. 高级数据类型技巧</h2>
+      <h3>8.1 链式比较</h3>
+      <pre><code># 链式比较
+x = 5
+1 < x < 10  # True
+1 <= x <= 5  # True
+
+# 等价于
+1 < x and x < 10</code></pre>
+
+      <h3>8.2 多重赋值</h3>
+      <pre><code># 多重赋值
+a, b, c = 1, 2, 3
+
+# 交换变量
+a, b = b, a
+
+# 解包
+t = (1, 2, 3)
+a, b, c = t
+
+lst = [4, 5, 6]
+a, b, c = lst</code></pre>
+
+      <h3>8.3 三元运算符</h3>
+      <pre><code># 三元运算符
+x = 10
+y = "Even" if x % 2 == 0 else "Odd"
+
+# 等价于
+if x % 2 == 0:
+    y = "Even"
+else:
+    y = "Odd"</code></pre>
+
+      <h3>8.4 字符串和列表的魔法</h3>
+      <pre><code># 字符串分割成列表
+s = "Hello World"
+list(s)  # ['H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd']
+
+# 列表连接成字符串
+lst = ['H', 'e', 'l', 'l', 'o']
+" ".join(lst)  # "H e l l o"
+
+# 列表旋转
+lst = [1, 2, 3, 4, 5]
+rotated = lst[1:] + lst[:1]  # [2, 3, 4, 5, 1]
+
+# 列表洗牌
+import random
+lst = [1, 2, 3, 4, 5]
+random.shuffle(lst)  # 随机打乱</code></pre>
+
+      <h3>8.5 字典的魔法</h3>
+      <pre><code># 字典默认值
+from collections import defaultdict
+
+# 自动创建不存在的键
+d = defaultdict(int)
+d["count"] += 1  # d = {"count": 1}
+
+# 字典按值排序
+d = {"a": 3, "b": 1, "c": 2}
+sorted_items = sorted(d.items(), key=lambda x: x[1])  # [('b', 1), ('c', 2), ('a', 3)]
+
+# 字典按键排序
+sorted_keys = sorted(d.keys())  # ['a', 'b', 'c']</code></pre>
+
+      <h2>结语</h2>
+      <p>Python 的数据类型丰富而强大，每种类型都有其独特的方法和技巧。通过掌握这些高效使用方法，你可以写出更简洁、更优雅、更高效的 Python 代码。</p>
+      <p>记住，Python 的设计哲学是"简单胜于复杂"，"可读性很重要"。在使用这些技巧时，要确保代码的可读性和可维护性，不要为了追求技巧而牺牲代码的清晰度。</p>
+      <p>不断学习和实践这些方法，你会发现 Python 编程变得越来越有趣和高效。享受 Python 的魅力吧！</p>
     `
   }
 ];
