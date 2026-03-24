@@ -136,6 +136,55 @@ nav.nav-article-view .nav-link::after { background-color: var(--accent); }
   color: #E8E4DE;
 }
 
+/* 音乐控制按钮 */
+.music-controls {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.music-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+.music-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+}
+
+.music-btn svg {
+  width: 24px;
+  height: 24px;
+  color: #333333;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .music-btn {
+  background: rgba(40, 40, 40, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .music-btn svg {
+  color: #E8E4DE;
+}
+
 /* 头像 */
 .hero-avatar-wrapper {
   position: relative;
@@ -437,6 +486,16 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   .theme-fab {
     bottom: 1.5rem;
     right: 1.5rem;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .music-controls {
+    bottom: 1.5rem;
+    left: 1.5rem;
+  }
+  
+  .music-btn {
     width: 50px;
     height: 50px;
   }

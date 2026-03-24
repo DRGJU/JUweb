@@ -58,4 +58,33 @@ document.addEventListener('DOMContentLoaded', () => {
   initThemeToggle();
   initVideoBackground();
   initScrollReveal();
+  initMusicControl();
 });
+
+function initMusicControl() {
+  const bgMusic = document.getElementById('bgMusic');
+  const playBtn = document.getElementById('playBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  
+  if (!bgMusic || !playBtn || !pauseBtn) return;
+  
+  // 播放按钮点击事件
+  playBtn.addEventListener('click', () => {
+    bgMusic.play().catch(err => console.log('音乐播放失败:', err));
+    playBtn.classList.add('hidden');
+    pauseBtn.classList.remove('hidden');
+  });
+  
+  // 暂停按钮点击事件
+  pauseBtn.addEventListener('click', () => {
+    bgMusic.pause();
+    pauseBtn.classList.add('hidden');
+    playBtn.classList.remove('hidden');
+  });
+  
+  // 音乐结束时重新播放
+  bgMusic.addEventListener('ended', () => {
+    bgMusic.currentTime = 0;
+    bgMusic.play();
+  });
+}
