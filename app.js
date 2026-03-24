@@ -43,6 +43,13 @@ new Vue({
     closeArticle() {
       this.currentArticle = null;
       this.isDetailView = false;
+      // 延迟一下，确保DOM已经更新
+      setTimeout(() => {
+        // 重新初始化滚动显示效果
+        if (typeof initScrollReveal === 'function') {
+          initScrollReveal();
+        }
+      }, 100);
     },
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
