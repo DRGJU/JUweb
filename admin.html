@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章管理 | 墨迹博客</title>
+  <script>
+    // 检查是否为管理员
+    if (localStorage.getItem('isAdmin') !== 'true') {
+      // 不是管理员，重定向到首页
+      window.location.href = 'index.html';
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col bg-body">
+  <!-- 导航栏 -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-theme bg-body">
+    <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="index.html" class="font-display text-2xl font-semibold text-fg cursor-pointer">墨迹</a>
+      <div class="flex items-center gap-8">
+        <a href="index.html" class="text-sm text-muted hover:text-accent transition-colors">博客</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主要内容区域 -->
+  <div class="flex-1 pt-24 px-6" id="admin-app">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="font-display text-3xl font-semibold text-fg mb-8">文章管理</h1>
+      
+      <!-- 文章列表 -->
+      <div class="mb-12">
+        <h2 class="font-display text-xl font-semibold text-fg mb-4">文章列表</h2>
+        <div class="space-y-4">
+          <div 
+            v-for="article in articles" 
+            :key="article.id"
+            class="p-4 border border-theme rounded-lg flex justify-between items-center"
+          >
+            <div>
+              <h3 class="font-medium text-fg">{{ article.title }}</h3>
+              <p class="text-xs text-muted">{{ article.date }} | {{ article.category }}</p>
+            </div>
+            <div class="flex gap-2">
+              <button @click="editArticle(article)" class="px-3 py-1 bg-accent text-white text-sm rounded hover:bg-accent-light transition-colors">编辑</button>
+              <button @click="deleteArticle(article.id)" class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors">删除</button>
+            </div>
+          </div>
+          <div v-if="articles.length === 0" class="text-center py-8 text-muted">
+            暂无文章
+          </div>
+        </div>
+      </div>
+      
+      <!-- 文章编辑表单 -->
+      <div class="bg-card p-6 rounded-lg shadow">
+        <h2 class="font-display text-xl font-semibold text-fg mb-4">{{ isEditing ? '编辑文章' : '添加文章' }}</h2>
+        
+        <form @submit.prevent="saveArticle">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-fg mb-1">标题</label>
+              <input 
+                v-model="form.title" 
+                type="text" 
+                class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
+                placeholder="文章标题"
+                required
+              >
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-fg mb-1">分类</label>
+              <input 
+                v-model="form.category" 
+                type="text" 
+                class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
+                placeholder="文章分类"
+                required
+              >
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-fg mb-1">标签（用逗号分隔）</label>
+            <input 
+              v-model="form.tagsInput" 
+              type="text" 
+              class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
+              placeholder="Python, 教程, 技巧"
+            >
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-fg mb-1">摘要</label>
+            <textarea 
+              v-model="form.excerpt" 
+              class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
+              rows="3"
+              placeholder="文章摘要"
+              required
+            ></textarea>
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-fg mb-1">内容</label>
+            <textarea 
+              v-model="form.content" 
+              class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
+              rows="10"
+              placeholder="文章内容（支持HTML）"
+              required
+            ></textarea>
+          </div>
+          
+          <div class="flex gap-4">
+            <button type="submit" class="px-4 py-2 bg-accent text-white rounded hover:bg-accent-light transition-colors">保存</button>
+            <button type="button" @click="resetForm" class="px-4 py-2 border border-theme rounded hover:bg-bg-alt transition-colors">重置</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="py-8 px-6 border-t border-theme mt-12">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted">
+      <p>2024 墨迹. All rights reserved.</p>
+      <p>用文字丈量世界</p>
+    </div>
+  </footer>
+
+  <script>
+    new Vue({
+      el: '#admin-app',
+      data: {
+        articles: [],
+        isEditing: false,
+        form: {
+          id: null,
+          title: '',
+          category: '',
+          tagsInput: '',
+          tags: [],
+          excerpt: '',
+          content: '',
+          date: ''
+        }
+      },
+      methods: {
+        loadArticles() {
+          const storedArticles = localStorage.getItem('blogArticles');
+          if (storedArticles) {
+            this.articles = JSON.parse(storedArticles);
+          } else {
+            // 从 JSON 文件加载
+            fetch('./data/articles.json')
+              .then(response => response.json())
+              .then(data => {
+                this.articles = data;
+                localStorage.setItem('blogArticles', JSON.stringify(data));
+              });
+          }
+        },
+        saveArticle() {
+          // 处理标签
+          this.form.tags = this.form.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
+          
+          // 设置日期
+          if (!this.form.date) {
+            const today = new Date();
+            this.form.date = today.toISOString().split('T')[0];
+          }
+          
+          if (this.isEditing) {
+            // 编辑现有文章
+            const index = this.articles.findIndex(a => a.id === this.form.id);
+            if (index !== -1) {
+              this.articles[index] = { ...this.form };
+            }
+          } else {
+            // 添加新文章
+            const newId = this.articles.length > 0 ? Math.max(...this.articles.map(a => a.id)) + 1 : 1;
+            this.form.id = newId;
+            this.articles.push({ ...this.form });
+          }
+          
+          // 保存到本地存储
+          localStorage.setItem('blogArticles', JSON.stringify(this.articles));
+          
+          // 重置表单
+          this.resetForm();
+          
+          // 重新加载文章列表
+          this.loadArticles();
+        },
+        editArticle(article) {
+          this.isEditing = true;
+          this.form = { ...article };
+          this.form.tagsInput = article.tags.join(', ');
+        },
+        deleteArticle(id) {
+          if (confirm('确定要删除这篇文章吗？')) {
+            this.articles = this.articles.filter(a => a.id !== id);
+            localStorage.setItem('blogArticles', JSON.stringify(this.articles));
+          }
+        },
+        resetForm() {
+          this.isEditing = false;
+          this.form = {
+            id: null,
+            title: '',
+            category: '',
+            tagsInput: '',
+            tags: [],
+            excerpt: '',
+            content: '',
+            date: ''
+          };
+        }
+      },
+      mounted() {
+        this.loadArticles();
+      }
+    });
+  </script>
+</body>
+</html>
