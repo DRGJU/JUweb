@@ -741,6 +741,403 @@ sorted_keys = sorted(d.keys())  # ['a', 'b', 'c']</code></pre>
       <p>记住，Python 的设计哲学是"简单胜于复杂"，"可读性很重要"。在使用这些技巧时，要确保代码的可读性和可维护性，不要为了追求技巧而牺牲代码的清晰度。</p>
       <p>不断学习和实践这些方法，你会发现 Python 编程变得越来越有趣和高效。享受 Python 的魅力吧！</p>
     `
+  },
+  {
+    id: 4,
+    title: 'Python 使用 boto3 模块操作 DynamoDB 和 S3',
+    excerpt: 'boto3 是 AWS 的官方 Python SDK，用于与 AWS 服务进行交互。本文将介绍如何使用 boto3 模块操作 DynamoDB 和 S3 这两个常用的 AWS 服务，包括基本的 CRUD 操作和常见的使用场景。',
+    date: getCurrentDate(),
+    category: '技术',
+    tags: ['Python', 'boto3', 'DynamoDB', 'S3', 'AWS'],
+    content: `
+      <p>boto3 是 AWS 的官方 Python SDK，提供了与 AWS 服务交互的完整功能。在 Python 中使用 boto3 可以轻松操作各种 AWS 服务，如 DynamoDB、S3、EC2 等。本文将重点介绍如何使用 boto3 操作 DynamoDB 和 S3 这两个常用的 AWS 服务。</p>
+
+      <h2>1. 环境准备</h2>
+      <p>首先，我们需要安装 boto3 库并配置 AWS 凭证。</p>
+      <pre><code># 安装 boto3
+pip install boto3
+
+# 配置 AWS 凭证
+# 方法 1: 使用 AWS CLI 配置
+# aws configure
+
+# 方法 2: 设置环境变量
+export AWS_ACCESS_KEY_ID=your_access_key
+export AWS_SECRET_ACCESS_KEY=your_secret_key
+export AWS_REGION=us-east-1
+
+# 方法 3: 在代码中直接设置
+import boto3
+from botocore.exceptions import NoCredentialsError
+
+# 创建 boto3 客户端
+s3 = boto3.client('s3',
+                  aws_access_key_id='your_access_key',
+                  aws_secret_access_key='your_secret_key',
+                  region_name='us-east-1')
+
+# 创建 DynamoDB 客户端
+dynamodb = boto3.client('dynamodb',
+                       aws_access_key_id='your_access_key',
+                       aws_secret_access_key='your_secret_key',
+                       region_name='us-east-1')</code></pre>
+
+      <h2>2. S3 操作</h2>
+      <h3>2.1 创建存储桶</h3>
+      <pre><code>import boto3
+
+s3 = boto3.client('s3')
+
+try:
+    # 创建存储桶
+    bucket_name = 'my-bucket-123456'  # 存储桶名称必须全局唯一
+    s3.create_bucket(Bucket=bucket_name)
+    print(f"存储桶 {bucket_name} 创建成功")
+except Exception as e:
+    print(f"创建存储桶失败: {e}")</code></pre>
+
+      <h3>2.2 上传文件</h3>
+      <pre><code>import boto3
+
+s3 = boto3.client('s3')
+
+bucket_name = 'my-bucket-123456'
+local_file = 'example.txt'
+s3_key = 'documents/example.txt'  # S3 中的文件路径
+
+try:
+    # 上传文件
+    s3.upload_file(local_file, bucket_name, s3_key)
+    print(f"文件 {local_file} 上传成功")
+except Exception as e:
+    print(f"上传文件失败: {e}")</code></pre>
+
+      <h3>2.3 下载文件</h3>
+      <pre><code>import boto3
+
+s3 = boto3.client('s3')
+
+bucket_name = 'my-bucket-123456'
+s3_key = 'documents/example.txt'
+download_path = 'downloaded_example.txt'
+
+try:
+    # 下载文件
+    s3.download_file(bucket_name, s3_key, download_path)
+    print(f"文件 {s3_key} 下载成功")
+except Exception as e:
+    print(f"下载文件失败: {e}")</code></pre>
+
+      <h3>2.4 列出存储桶中的文件</h3>
+      <pre><code>import boto3
+
+s3 = boto3.client('s3')
+
+bucket_name = 'my-bucket-123456'
+
+try:
+    # 列出存储桶中的文件
+    response = s3.list_objects_v2(Bucket=bucket_name)
+    
+    if 'Contents' in response:
+        print(f"存储桶 {bucket_name} 中的文件:")
+        for item in response['Contents']:
+            print(f"- {item['Key']} (大小: {item['Size']} 字节)")
+    else:
+        print(f"存储桶 {bucket_name} 为空")
+except Exception as e:
+    print(f"列出文件失败: {e}")</code></pre>
+
+      <h3>2.5 删除文件</h3>
+      <pre><code>import boto3
+
+s3 = boto3.client('s3')
+
+bucket_name = 'my-bucket-123456'
+s3_key = 'documents/example.txt'
+
+try:
+    # 删除文件
+    s3.delete_object(Bucket=bucket_name, Key=s3_key)
+    print(f"文件 {s3_key} 删除成功")
+except Exception as e:
+    print(f"删除文件失败: {e}")</code></pre>
+
+      <h3>2.6 生成预签名 URL</h3>
+      <pre><code>import boto3
+from datetime import datetime, timedelta
+
+s3 = boto3.client('s3')
+
+bucket_name = 'my-bucket-123456'
+s3_key = 'documents/example.txt'
+
+# 设置 URL 过期时间（例如 1 小时）
+expiration = datetime.now() + timedelta(hours=1)
+
+try:
+    # 生成预签名 URL
+    presigned_url = s3.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': bucket_name, 'Key': s3_key},
+        ExpiresIn=3600  # 过期时间（秒）
+    )
+    print(f"预签名 URL: {presigned_url}")
+except Exception as e:
+    print(f"生成预签名 URL 失败: {e}")</code></pre>
+
+      <h2>3. DynamoDB 操作</h2>
+      <h3>3.1 创建表</h3>
+      <pre><code>import boto3
+
+dynamodb = boto3.client('dynamodb')
+
+table_name = 'users'
+
+try:
+    # 创建表
+    response = dynamodb.create_table(
+        TableName=table_name,
+        KeySchema=[
+            {'AttributeName': 'id', 'KeyType': 'HASH'}  # 分区键
+        ],
+        AttributeDefinitions=[
+            {'AttributeName': 'id', 'AttributeType': 'N'}
+        ],
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 5,
+            'WriteCapacityUnits': 5
+        }
+    )
+    print(f"表 {table_name} 创建成功")
+except Exception as e:
+    print(f"创建表失败: {e}")</code></pre>
+
+      <h3>3.2 插入数据</h3>
+      <pre><code>import boto3
+
+# 使用资源 API 更方便
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('users')
+
+try:
+    # 插入数据
+    response = table.put_item(
+        Item={
+            'id': 1,
+            'name': 'Alice',
+            'age': 30,
+            'email': 'alice@example.com'
+        }
+    )
+    print("数据插入成功")
+except Exception as e:
+    print(f"插入数据失败: {e}")</code></pre>
+
+      <h3>3.3 查询数据</h3>
+      <pre><code>import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('users')
+
+try:
+    # 根据主键查询
+    response = table.get_item(
+        Key={'id': 1}
+    )
+    
+    if 'Item' in response:
+        print("查询结果:")
+        print(response['Item'])
+    else:
+        print("未找到数据")
+except Exception as e:
+    print(f"查询数据失败: {e}")</code></pre>
+
+      <h3>3.4 更新数据</h3>
+      <pre><code>import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('users')
+
+try:
+    # 更新数据
+    response = table.update_item(
+        Key={'id': 1},
+        UpdateExpression='SET age = :val1, email = :val2',
+        ExpressionAttributeValues={
+            ':val1': 31,
+            ':val2': 'alice.new@example.com'
+        },
+        ReturnValues='UPDATED_NEW'
+    )
+    print("数据更新成功")
+    print(f"更新的值: {response['Attributes']}")
+except Exception as e:
+    print(f"更新数据失败: {e}")</code></pre>
+
+      <h3>3.5 删除数据</h3>
+      <pre><code>import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('users')
+
+try:
+    # 删除数据
+    response = table.delete_item(
+        Key={'id': 1}
+    )
+    print("数据删除成功")
+except Exception as e:
+    print(f"删除数据失败: {e}")</code></pre>
+
+      <h3>3.6 扫描表</h3>
+      <pre><code>import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('users')
+
+try:
+    # 扫描整个表
+    response = table.scan()
+    
+    items = response['Items']
+    print(f"表中有 {len(items)} 条数据:")
+    for item in items:
+        print(item)
+        
+    # 处理分页
+    while 'LastEvaluatedKey' in response:
+        response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        items.extend(response['Items'])
+        for item in response['Items']:
+            print(item)
+            
+except Exception as e:
+    print(f"扫描表失败: {e}")</code></pre>
+
+      <h2>4. 高级操作</h2>
+      <h3>4.1 S3 批量操作</h3>
+      <pre><code>import boto3
+from concurrent.futures import ThreadPoolExecutor
+
+s3 = boto3.client('s3')
+bucket_name = 'my-bucket-123456'
+
+# 批量上传文件
+def upload_file(file_path, key):
+    try:
+        s3.upload_file(file_path, bucket_name, key)
+        print(f"上传成功: {key}")
+    except Exception as e:
+        print(f"上传失败 {key}: {e}")
+
+# 要上传的文件列表
+files = [
+    ('file1.txt', 'documents/file1.txt'),
+    ('file2.txt', 'documents/file2.txt'),
+    ('file3.txt', 'documents/file3.txt')
+]
+
+# 使用线程池批量上传
+with ThreadPoolExecutor(max_workers=5) as executor:
+    executor.map(lambda x: upload_file(x[0], x[1]), files)</code></pre>
+
+      <h3>4.2 DynamoDB 批量写入</h3>
+      <pre><code>import boto3
+from boto3.dynamodb.conditions import Key
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('users')
+
+# 批量写入数据
+try:
+    with table.batch_writer() as batch:
+        batch.put_item(Item={'id': 2, 'name': 'Bob', 'age': 25, 'email': 'bob@example.com'})
+        batch.put_item(Item={'id': 3, 'name': 'Charlie', 'age': 35, 'email': 'charlie@example.com'})
+        batch.put_item(Item={'id': 4, 'name': 'David', 'age': 40, 'email': 'david@example.com'})
+    print("批量写入成功")
+except Exception as e:
+    print(f"批量写入失败: {e}")</code></pre>
+
+      <h3>4.3 使用 DynamoDB 查询条件</h3>
+      <pre><code>import boto3
+from boto3.dynamodb.conditions import Key, Attr
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('users')
+
+# 创建全局二级索引（如果还没有）
+# 注意：需要在创建表时定义索引
+
+# 使用索引查询
+try:
+    # 假设我们有一个按年龄排序的索引
+    response = table.query(
+        IndexName='AgeIndex',
+        KeyConditionExpression=Key('age').eq(30)
+    )
+    
+    print("查询结果:")
+    for item in response['Items']:
+        print(item)
+        
+except Exception as e:
+    print(f"查询失败: {e}")</code></pre>
+
+      <h2>5. 最佳实践</h2>
+      <h3>5.1 错误处理</h3>
+      <pre><code>import boto3
+from botocore.exceptions import ClientError
+
+s3 = boto3.client('s3')
+
+try:
+    response = s3.get_object(Bucket='my-bucket', Key='non-existent-file.txt')
+except ClientError as e:
+    if e.response['Error']['Code'] == 'NoSuchKey':
+        print("文件不存在")
+    elif e.response['Error']['Code'] == 'NoSuchBucket':
+        print("存储桶不存在")
+    else:
+        print(f"发生错误: {e}")</code></pre>
+
+      <h3>5.2 使用上下文管理器</h3>
+      <pre><code>import boto3
+
+s3 = boto3.client('s3')
+
+bucket_name = 'my-bucket-123456'
+key = 'documents/example.txt'
+
+# 下载文件并处理
+try:
+    with open('downloaded_file.txt', 'wb') as f:
+        s3.download_fileobj(bucket_name, key, f)
+    print("文件下载成功")
+except Exception as e:
+    print(f"下载失败: {e}")</code></pre>
+
+      <h3>5.3 配置重试策略</h3>
+      <pre><code>import boto3
+from botocore.config import Config
+
+# 配置重试策略
+config = Config(
+    retries={
+        'max_attempts': 10,
+        'mode': 'standard'
+    }
+)
+
+s3 = boto3.client('s3', config=config)
+dynamodb = boto3.client('dynamodb', config=config)</code></pre>
+
+      <h2>结语</h2>
+      <p>boto3 是一个功能强大的库，提供了与 AWS 服务交互的完整能力。本文介绍了使用 boto3 操作 S3 和 DynamoDB 的常用方法，包括基本的 CRUD 操作和一些高级技巧。</p>
+      <p>在实际使用中，你可能需要根据具体的业务需求进行调整和扩展。AWS 提供了详细的文档和示例，你可以参考官方文档来了解更多高级功能和最佳实践。</p>
+      <p>记住，在生产环境中使用 AWS 服务时，要注意安全性、成本控制和性能优化。合理使用 boto3 可以帮助你构建可靠、高效的云应用。</p>
+    `
   }
 ];
 
