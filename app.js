@@ -7,7 +7,8 @@ new Vue({
     itemsPerPage: 7,
     currentArticle: null,
     isDetailView: false,
-    isAdmin: false
+    isAdmin: false,
+    currentYear: new Date().getFullYear()
   },
   computed: {
     paginatedArticles() {
