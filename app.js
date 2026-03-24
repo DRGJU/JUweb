@@ -6,7 +6,8 @@ new Vue({
     currentPage: 1,
     itemsPerPage: 7,
     currentArticle: null,
-    isDetailView: false
+    isDetailView: false,
+    isAdmin: false
   },
   computed: {
     paginatedArticles() {
@@ -65,5 +66,7 @@ new Vue({
   },
   mounted() {
     this.loadArticles();
+    // 检查是否为管理员
+    this.isAdmin = localStorage.getItem('isAdmin') === 'true';
   }
 });

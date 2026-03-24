@@ -32,7 +32,7 @@
       
       <!-- 导航链接 -->
       <div class="flex items-center gap-8">
-        <a href="admin.html" class="text-sm text-muted hover:text-accent transition-colors">管理</a>
+        <a href="admin.html" v-if="isAdmin" class="text-sm text-muted hover:text-accent transition-colors">管理</a>
       </div>
     </div>
   </nav>
