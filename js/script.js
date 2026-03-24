@@ -154,41 +154,7 @@ function initPixelTrail() {
   });
 }
 
-// 打字机效果
-function initTypewriter() {
-  const typewriter = document.querySelector('.typewriter');
-  if (!typewriter) return;
-  
-  const texts = ['记录思考', '沉淀生活', '技术探索', '生活感悟'];
-  let textIndex = 0;
-  let charIndex = 0;
-  const typingSpeed = 150;
-  const erasingSpeed = 100;
-  const delayBetweenTexts = 2000;
-  
-  function type() {
-    if (charIndex < texts[textIndex].length) {
-      typewriter.textContent += texts[textIndex].charAt(charIndex);
-      charIndex++;
-      setTimeout(type, typingSpeed);
-    } else {
-      setTimeout(erase, delayBetweenTexts);
-    }
-  }
-  
-  function erase() {
-    if (charIndex > 0) {
-      typewriter.textContent = texts[textIndex].substring(0, charIndex - 1);
-      charIndex--;
-      setTimeout(erase, erasingSpeed);
-    } else {
-      textIndex = (textIndex + 1) % texts.length;
-      setTimeout(type, typingSpeed + 1000);
-    }
-  }
-  
-  type();
-}
+
 
 // 粒子动画
 function initParticleAnimation() {
@@ -297,6 +263,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initClickEffect();
   initRippleEffect();
   initPixelTrail();
-  initTypewriter();
   initParticleAnimation();
 });
