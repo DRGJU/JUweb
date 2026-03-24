@@ -1,15 +1,17 @@
 :root {
-  --bg: #1A1A1A;
-  --bg-alt: #242424;
-  --fg: #E8E4DE;
-  --fg-muted: #9A9A9A;
-  --accent: #5B9A7A;
-  --accent-light: #7BC49E;
-  --card: #222222;
-  --border: #333333;
-  --glass-bg: rgba(30, 30, 30, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --nav-bg: rgba(26, 26, 26, 0.8);
+  --bg: #1A1A1A !important;
+  --bg-alt: #242424 !important;
+  --fg: #E8E4DE !important;
+  --fg-muted: #9A9A9A !important;
+  --accent: #5B9A7A !important;
+  --accent-light: #7BC49E !important;
+  --card: #222222 !important;
+  --border: #333333 !important;
+  --glass-bg: rgba(30, 30, 30, 0.6) !important;
+  --glass-border: rgba(255, 255, 255, 0.1) !important;
+  --nav-bg: rgba(26, 26, 26, 0.8) !important;
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
 }
 
 
@@ -28,8 +30,8 @@ html {
 
 body {
   font-family: 'Noto Sans SC', sans-serif;
-  background-color: var(--bg);
-  color: var(--fg);
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
   transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
   min-height: 100%;
