@@ -10,35 +10,7 @@ function initVideoBackground() {
   }
 }
 
-function initThemeToggle() {
-  const themeToggle = document.getElementById('themeToggle');
-  const sunIcon = document.querySelector('.sun-icon');
-  const moonIcon = document.querySelector('.moon-icon');
-  
-  if (!themeToggle || !sunIcon || !moonIcon) return;
-  
-  let isDark = false;
 
-  function updateThemeIcons() {
-    if (isDark) {
-      sunIcon.classList.add('hidden');
-      moonIcon.classList.remove('hidden');
-    } else {
-      sunIcon.classList.remove('hidden');
-      moonIcon.classList.add('hidden');
-    }
-  }
-
-  themeToggle.addEventListener('click', () => {
-    isDark = !isDark;
-    if (isDark) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
-    updateThemeIcons();
-  });
-}
 
 function initScrollReveal() {
   let observer = null;
@@ -55,7 +27,6 @@ function initScrollReveal() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initThemeToggle();
   initVideoBackground();
   initScrollReveal();
   initMusicControl();
