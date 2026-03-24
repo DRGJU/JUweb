@@ -21,6 +21,11 @@
     <div class="video-overlay"></div>
   </div>
 
+  <!-- 粒子动画 -->
+  <div class="hero-particle">
+    <canvas id="particle-canvas"></canvas>
+  </div>
+
   <!-- 背景纹理 -->
   <div class="texture-overlay"></div>
 
@@ -43,20 +48,38 @@
     <header class="h-screen flex flex-col justify-center items-center relative px-6" v-if="!isDetailView">
       <div class="max-w-4xl mx-auto text-center">
         <div class="reveal mb-8" style="transition-delay: 0.1s;">
-          <div class="hero-avatar-wrapper mx-auto">
-            <img src="../media/touxiang.png" alt="博主头像" class="hero-avatar"/>
+          <div class="cube-section">
+            <div class="cube-container">
+              <div class="cube-face cube-front">
+                <img src="../media/touxiang.png" alt="博主头像"/>
+              </div>
+              <div class="cube-face cube-back">
+                <img src="../media/touxiang.png" alt="博主头像"/>
+              </div>
+              <div class="cube-face cube-right">
+                <img src="../media/touxiang.png" alt="博主头像"/>
+              </div>
+              <div class="cube-face cube-left">
+                <img src="../media/touxiang.png" alt="博主头像"/>
+              </div>
+              <div class="cube-face cube-top">
+                <img src="../media/touxiang.png" alt="博主头像"/>
+              </div>
+              <div class="cube-face cube-bottom">
+                <img src="../media/touxiang.png" alt="博主头像"/>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="reveal" style="transition-delay: 0.2s;">
-          <p class="text-muted text-sm tracking-widest uppercase mb-4">个人博客</p>
-          <h1 class="font-display text-5xl sm:text-6xl md:text-7xl font-semibold text-fg leading-tight mb-6">
-            记录思考<br>沉淀生活
-          </h1>
-          <p class="text-muted text-lg max-w-xl mx-auto leading-relaxed">
-            这里是笔墨流淌的地方，记录技术探索与生活感悟。<br>
-            愿每一篇文章都能带来一丝启发。
-          </p>
+        <div class="typewriter-section">
+          <div class="typewriter">
+            记录思考
+            <span class="cursor"></span>
+          </div>
+          <div class="typing-hints">
+            沉淀生活，记录技术探索与生活感悟
+          </div>
         </div>
       </div>
 

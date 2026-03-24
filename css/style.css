@@ -549,6 +549,46 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   }
 }
 
+/* 打字机效果 */
+.typewriter-section {
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.typewriter {
+  font-size: 3em;
+  font-weight: bold;
+  color: #4CAF50;
+  text-align: center;
+  min-height: 80px;
+  margin-bottom: 20px;
+}
+
+.cursor {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--accent);
+  margin-left: 5px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.typing-hints {
+  color: var(--fg-muted);
+  font-size: 1.2em;
+}
+
 /* 点击特效 */
 .click-effect {
   position: absolute;
@@ -569,6 +609,120 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
     transform: scale(4);
     opacity: 0;
   }
+}
+
+/* 点击涟漪特效 */
+.click-ripple {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #ffe66d;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: rippleExpand 0.6s ease-out forwards;
+  z-index: 9999;
+  transform: scale(0);
+  opacity: 1;
+}
+
+/* 涟漪扩散动画 */
+@keyframes rippleExpand {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* 可选：自定义涟漪颜色变体 */
+.click-ripple.color-1 { border-color: #ffe66d; }  /* 黄色 - 默认 */
+.click-ripple.color-2 { border-color: #ff6b6b; }  /* 红色 */
+.click-ripple.color-3 { border-color: #4ecdc4; }  /* 青色 */
+.click-ripple.color-4 { border-color: #fff; }     /* 白色 */
+
+/* 可选：调整涟漪大小 */
+.click-ripple.small  { width: 30px; height: 30px; border-width: 2px; }
+.click-ripple.medium { width: 40px; height: 40px; border-width: 3px; }  /* 默认 */
+.click-ripple.large  { width: 60px; height: 60px; border-width: 4px; }
+
+/* 可选：调整动画速度 */
+.click-ripple.fast   { animation-duration: 0.4s; }
+.click-ripple.normal { animation-duration: 0.6s; }  /* 默认 */
+.click-ripple.slow   { animation-duration: 1s; }
+
+/* 可选：添加发光效果 */
+.click-ripple.glow {
+  box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+/* 粒子动画 */
+.hero-particle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+}
+
+#particle-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* 3D旋转展示 */
+.cube-section {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+}
+
+.cube-container {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: rotateCube 10s infinite linear;
+}
+
+.cube-face {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 3px solid #4ecdc4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(78, 205, 196, 0.1);
+  backdrop-filter: blur(5px);
+  overflow: hidden;
+}
+
+.cube-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0 !important;
+}
+
+.cube-front { transform: rotateY(0deg) translateZ(100px); }
+.cube-back { transform: rotateY(180deg) translateZ(100px); }
+.cube-right { transform: rotateY(90deg) translateZ(100px); }
+.cube-left { transform: rotateY(-90deg) translateZ(100px); }
+.cube-top { transform: rotateX(90deg) translateZ(100px); }
+.cube-bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+@keyframes rotateCube {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
 }
 
 /* 点击涟漪动画 */
@@ -593,19 +747,28 @@ footer .text-muted { color: rgba(255, 255, 255, 0.6); }
   }
 }
 
-/* 像素光标轨迹 */
-.pixel-trail {
+/* 像素光标轨迹效果 */
+.pixel-cursor-trail {
   position: fixed;
-  width: 4px;
-  height: 4px;
-  background-color: var(--accent);
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  z-index: 9998;
-  opacity: 0.7;
-  transition: opacity 0.5s ease;
+  z-index: 9999;
 }
 
-.pixel-trail.fade {
-  opacity: 0;
+.pixel-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ff6b6b;
+  border: 2px solid #fff;
+  pointer-events: none;
+  animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: scale(0) rotate(45deg);
+  }
 }
