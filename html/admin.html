@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="../css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
 </head>
 <body class="min-h-screen flex flex-col bg-body">
@@ -159,7 +159,7 @@
             this.articles = JSON.parse(storedArticles);
           } else {
             // 从 JSON 文件加载
-            fetch('articles.json')
+            fetch('../data/articles.json')
               .then(response => response.json())
               .then(data => {
                 this.articles = data;

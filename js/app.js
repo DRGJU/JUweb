@@ -29,7 +29,7 @@ new Vue({
         this.articles = JSON.parse(storedArticles);
       } else {
         // 如果本地存储没有，从 JSON 文件加载
-        fetch('articles.json')
+        fetch('../data/articles.json')
           .then(response => response.json())
           .then(data => {
             this.articles = data;
