@@ -289,7 +289,10 @@ function initParticleAnimation() {
         if (distance < maxDistance) {
           const opacity = 1 - (distance / maxDistance);
           ctx.beginPath();
-          ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+          // 检查是否为暗黑模式
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          // 在暗黑模式下使用更亮的颜色，在浅色模式下使用白色
+          ctx.strokeStyle = isDark ? `rgba(200, 200, 200, ${opacity})` : `rgba(255, 255, 255, ${opacity})`;
           ctx.lineWidth = 0.5;
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(p2.x, p2.y);

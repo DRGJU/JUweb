@@ -132,7 +132,7 @@ nav.nav-article-view .nav-link::after { background-color: var(--accent); }
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  z-index: 9999;
+  z-index: 99999; /* 增加z-index确保在所有元素上面 */
   background: rgba(255, 255, 255, 0.85);
   border: 2px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
