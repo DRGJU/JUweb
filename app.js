@@ -8,7 +8,8 @@ new Vue({
     currentArticle: null,
     isDetailView: false,
     isAdmin: false,
-    currentYear: new Date().getFullYear()
+    currentYear: new Date().getFullYear(),
+    currentDate: new Date().toISOString().split('T')[0]
   },
   computed: {
     paginatedArticles() {
