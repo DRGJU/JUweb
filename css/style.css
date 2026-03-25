@@ -753,8 +753,9 @@ footer .text-muted { color: var(--fg-muted); }
   justify-content: center;
   align-items: center;
   z-index: 40;
-  padding: 20px;
-  margin-top: 80px;
+  padding: 10px 20px;
+  margin-top: 20px;
+  margin-bottom: -20px;
   pointer-events: none;
 }
 
