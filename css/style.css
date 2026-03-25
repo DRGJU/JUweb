@@ -755,8 +755,9 @@ footer .text-muted { color: var(--fg-muted); }
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 40;
+  z-index: 100;
   padding: 10px;
+  pointer-events: none;
 }
 
 /* 霓虹文字 */
