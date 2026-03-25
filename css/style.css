@@ -754,8 +754,7 @@ footer .text-muted { color: var(--fg-muted); }
   align-items: center;
   z-index: 40;
   padding: 10px 20px;
-  margin-top: 20px;
-  margin-bottom: -20px;
+  margin-bottom: 20px;
   pointer-events: none;
 }
 
