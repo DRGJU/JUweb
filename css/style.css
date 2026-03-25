@@ -593,55 +593,108 @@ footer .text-muted { color: var(--fg-muted); }
   z-index: 1;
 }
 
-/* 3D旋转展示 */
-.cube-section {
-  width: 100%;
-  height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  perspective: 1000px;
-}
-
-.cube-container {
+/* 全息投影头像效果 */
+.avatar-hologram {
   width: 200px;
   height: 200px;
+  border-radius: 50%;
   position: relative;
-  transform-style: preserve-3d;
-  animation: rotateCube 10s infinite linear;
-}
-
-.cube-face {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  border: 3px solid #4ecdc4;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(78, 205, 196, 0.1);
-  backdrop-filter: blur(5px);
+  margin: 0 auto;
   overflow: hidden;
 }
 
-.cube-face img {
+.avatar-hologram img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 0 !important;
+  border-radius: 50%;
+  filter: hue-rotate(0deg) contrast(1.2);
+  animation: hologramFlicker 0.2s infinite;
 }
 
-.cube-front { transform: rotateY(0deg) translateZ(100px); }
-.cube-back { transform: rotateY(180deg) translateZ(100px); }
-.cube-right { transform: rotateY(90deg) translateZ(100px); }
-.cube-left { transform: rotateY(-90deg) translateZ(100px); }
-.cube-top { transform: rotateX(90deg) translateZ(100px); }
-.cube-bottom { transform: rotateX(-90deg) translateZ(100px); }
+.avatar-hologram::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 217, 255, 0.1) 0px,
+    rgba(0, 217, 255, 0.1) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 3;
+}
 
-@keyframes rotateCube {
-  0% { transform: rotateX(0deg) rotateY(0deg); }
-  100% { transform: rotateX(360deg) rotateY(360deg); }
+.avatar-hologram::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  right: 0;
+  bottom: -50%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 217, 255, 0.2) 50%,
+    transparent 100%
+  );
+  animation: hologramScan 3s linear infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+
+@keyframes hologramFlicker {
+  0%, 100% { opacity: 1; filter: hue-rotate(0deg); }
+  50% { opacity: 0.95; filter: hue-rotate(10deg); }
+}
+
+@keyframes hologramScan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* 旋转光环效果 */
+.avatar-ring {
+  position: relative;
+}
+
+.ring-outer {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #00d9ff;
+  border-right-color: #00ff88;
+  animation: ringRotate 2s linear infinite;
+  z-index: 5;
+}
+
+.ring-inner {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-bottom-color: #ff6b6b;
+  border-left-color: #a855f7;
+  animation: ringRotate 3s linear infinite reverse;
+  z-index: 5;
+}
+
+@keyframes ringRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* 点击涟漪动画 */
@@ -694,59 +747,37 @@ footer .text-muted { color: var(--fg-muted); }
 
 /* 赛博朋克霓虹文字效果 */
 .cyber-container {
-  position: relative;
-  min-height: 300px;
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  margin-top: 20px;
-  padding: 20px;
-}
-
-/* 扫描线效果 */
-.cyber-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 255, 255, 0.02) 50%,
-    transparent 100%
-  );
-  animation: scanline 8s linear infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+  z-index: 40;
+  padding: 10px;
 }
 
 /* 霓虹文字 */
 .cyber-title {
   position: relative;
-  font-size: clamp(3em, 10vw, 6em);
+  font-size: 6em;
   font-weight: 900;
-  letter-spacing: -4px;
+  letter-spacing: 6px;
   color: #fff;
   text-transform: uppercase;
   z-index: 10;
   
-  /* 多层霓虹光晕 */
+  /* 多层霓虹光晕 - 增强效果 */
   text-shadow:
-    0 0 5px #fff,
     0 0 10px #fff,
-    0 0 20px #00f5ff,
+    0 0 20px #fff,
     0 0 40px #00f5ff,
     0 0 80px #00f5ff,
-    0 0 120px #00f5ff;
+    0 0 120px #00f5ff,
+    0 0 160px #00f5ff,
+    0 0 200px #00f5ff;
   
   animation: flicker 3s infinite alternate;
 }
@@ -754,12 +785,13 @@ footer .text-muted { color: var(--fg-muted); }
 @keyframes flicker {
   0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
     text-shadow:
-      0 0 5px #fff,
       0 0 10px #fff,
-      0 0 20px #00f5ff,
+      0 0 20px #fff,
       0 0 40px #00f5ff,
       0 0 80px #00f5ff,
-      0 0 120px #00f5ff;
+      0 0 120px #00f5ff,
+      0 0 160px #00f5ff,
+      0 0 200px #00f5ff;
   }
   20%, 24%, 55% {
     text-shadow: none;
