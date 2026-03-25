@@ -758,6 +758,25 @@ footer .text-muted { color: var(--fg-muted); }
   pointer-events: none;
 }
 
+/* 粒子文字特效 */
+.particle-text-container {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  margin-top: 20px;
+  z-index: 30;
+  overflow: hidden;
+}
+
+#particle-text-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 /* 霓虹文字 */
 .cyber-title {
   position: relative;

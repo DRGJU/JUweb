@@ -258,10 +258,108 @@ function initParticleAnimation() {
   });
 }
 
+// 粒子文字特效
+function initParticleText() {
+  const ptCanvas = document.getElementById('particle-text-canvas');
+  if (!ptCanvas) return;
+  
+  const ptCtx = ptCanvas.getContext('2d');
+  let ptW, ptH, ptParticles = [], ptText = 'CODE', ptMouse = {x:null, y:null};
+
+  function resizeParticleText() {
+    ptW = ptCanvas.width = ptCanvas.offsetWidth;
+    ptH = ptCanvas.height = ptCanvas.offsetHeight;
+    createParticleText();
+  }
+
+  function createParticleText() {
+    ptParticles = [];
+    const fontSize = Math.min(ptW, ptH) * 0.7;
+    ptCtx.font = `900 ${fontSize}px Arial`;
+    ptCtx.fillStyle = '#fff';
+    ptCtx.textAlign = 'center';
+    ptCtx.textBaseline = 'middle';
+    
+    // 绘制文字获取像素数据
+    ptCtx.fillText(ptText, ptW/2, ptH/2);
+    const data = ptCtx.getImageData(0, 0, ptW, ptH).data;
+    ptCtx.clearRect(0, 0, ptW, ptH);
+    
+    // 从像素数据创建粒子
+    const gap = 4;
+    for (let y = 0; y < ptH; y += gap) {
+      for (let x = 0; x < ptW; x += gap) {
+        const index = (y * ptW + x) * 4;
+        if (data[index + 3] > 128) {
+          ptParticles.push({
+            x: x, y: y,
+            originX: x, originY: y,
+            vx: 0, vy: 0,
+            size: Math.random() * 2 + 1,
+            hue: Math.random() * 60 + 280
+          });
+        }
+      }
+    }
+  }
+
+  function animateParticleText() {
+    ptCtx.clearRect(0, 0, ptW, ptH);
+    
+    ptParticles.forEach(p => {
+      // 鼠标交互
+      if (ptMouse.x !== null) {
+        const dx = ptMouse.x - p.x;
+        const dy = ptMouse.y - p.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 80) {
+          const force = (80 - dist) / 80;
+          p.vx -= dx * force * 0.03;
+          p.vy -= dy * force * 0.03;
+        }
+      }
+      
+      // 回归原位
+      const dx = p.originX - p.x;
+      const dy = p.originY - p.y;
+      p.vx += dx * 0.03;
+      p.vy += dy * 0.03;
+      
+      // 阻尼
+      p.vx *= 0.92;
+      p.vy *= 0.92;
+      
+      p.x += p.vx;
+      p.y += p.vy;
+      
+      ptCtx.fillStyle = `hsla(${p.hue}, 80%, 70%, 0.9)`;
+      ptCtx.beginPath();
+      ptCtx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ptCtx.fill();
+    });
+    requestAnimationFrame(animateParticleText);
+  }
+
+  // 鼠标移动事件
+  window.addEventListener('mousemove', (e) => {
+    const rect = ptCanvas.getBoundingClientRect();
+    ptMouse.x = e.clientX - rect.left;
+    ptMouse.y = e.clientY - rect.top;
+  });
+
+  // 窗口大小变化时调整画布大小
+  window.addEventListener('resize', resizeParticleText);
+
+  // 初始化
+  resizeParticleText();
+  animateParticleText();
+}
+
 // 在DOM加载完成后初始化所有效果
 document.addEventListener('DOMContentLoaded', () => {
   initClickEffect();
   initRippleEffect();
   initPixelTrail();
   initParticleAnimation();
+  initParticleText();
 });
