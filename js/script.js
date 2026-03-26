@@ -30,6 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initVideoBackground();
   initScrollReveal();
   initMusicControl();
+  initClickEffect();
+  initRippleEffect();
+  initAdvancedCursorEffect();
+  initMagneticEffect();
+  initParticleAnimation();
+  initParticleText();
 });
 
 function initMusicControl() {
@@ -127,30 +133,227 @@ function initRippleEffect() {
   });
 }
 
-// 像素光标轨迹
-function initPixelTrail() {
-  const pixelContainer = document.createElement('div');
-  pixelContainer.classList.add('pixel-cursor-trail');
-  document.body.appendChild(pixelContainer);
-  
-  // 定义多种颜色
-  const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffcc5c', '#ff9ff3', '#54a0ff', '#5f27cd'];
-  
-  document.addEventListener('mousemove', (e) => {
-    const pixel = document.createElement('div');
-    pixel.classList.add('pixel-dot');
-    pixel.style.left = (e.clientX - 4) + 'px';
-    pixel.style.top = (e.clientY - 4) + 'px';
-    
-    // 随机选择一种颜色
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    pixel.style.background = randomColor;
-    
-    pixelContainer.appendChild(pixel);
-    
-    setTimeout(() => {
-      pixel.remove();
-    }, 1000);
+// 星光拖尾效果 + 点击粒子爆发 + 光环跟随 + 磁吸效果
+function initAdvancedCursorEffect() {
+  console.log('[Cursor Effect] Initializing...');
+
+  // 移动端禁用
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile) {
+    console.log('[Cursor Effect] Mobile detected, disabling...');
+    return;
+  }
+
+  // 创建 Canvas
+  const canvas = document.createElement('canvas');
+  canvas.id = 'cursor-canvas';
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;overflow:hidden;';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  console.log('[Cursor Effect] Canvas created');
+
+  // 颜色
+  const colors = ['#00f5ff', '#a855f7', '#ec4899', '#ffffff'];
+  const glowRGB = [
+    '0, 245, 255',
+    '168, 85, 247',
+    '236, 72, 153'
+  ];
+
+  // 数据
+  const trail = [];
+  const bursts = [];
+  const MAX_TRAIL = 80;
+  const MAX_BURST = 150;
+
+  // 状态
+  let mouseX = -100, mouseY = -100;
+  let isActive = false;
+  let glowPhase = 0;
+
+  // 检查鼠标是否在视口内
+  function isMouseInViewport() {
+    return mouseX >= 0 && mouseX <= window.innerWidth && mouseY >= 0 && mouseY <= window.innerHeight;
+  }
+
+  // 主动画
+  function draw() {
+    // 检查鼠标是否在视口内
+    const shouldShowEffects = isActive && isMouseInViewport();
+
+    // 清除
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 添加新轨迹点
+    if (shouldShowEffects) {
+      trail.push({ x: mouseX, y: mouseY, life: 1 });
+      if (trail.length > MAX_TRAIL) trail.shift();
+    }
+
+    // 绘制轨迹
+    for (let i = trail.length - 1; i >= 0; i--) {
+      const p = trail[i];
+      p.life -= 0.02;
+      if (p.life <= 0) { trail.splice(i, 1); continue; }
+
+      const colorIdx = Math.floor((1 - p.life) * 3) % 3;
+      const size = (10 + p.life * 3) * p.life;
+      const alpha = p.life;
+
+      // 发光
+      const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 2.5);
+      grd.addColorStop(0, `rgba(${glowRGB[colorIdx]}, ${alpha * 0.6})`);
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, size * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      // 核心
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+      ctx.fillStyle = colors[colorIdx];
+      ctx.globalAlpha = alpha;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // 绘制爆发粒子
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const b = bursts[i];
+      b.x += b.vx;
+      b.y += b.vy;
+      b.vx *= 0.95;
+      b.vy *= 0.95;
+      b.life -= 0.025;
+      if (b.life <= 0) { bursts.splice(i, 1); continue; }
+
+      const size = b.size * b.life;
+      const grd = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, size * 2);
+      grd.addColorStop(0, `rgba(${glowRGB[b.colorIdx]}, ${b.life * 0.8})`);
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, size * 2, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, size, 0, Math.PI * 2);
+      ctx.fillStyle = colors[b.colorIdx];
+      ctx.globalAlpha = b.life;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // 绘制光环 - 仅当鼠标在视口内时
+    if (shouldShowEffects) {
+      glowPhase += 0.05;
+      const breathe = (Math.sin(glowPhase) + 1) / 2 * 0.4 + 0.4;
+
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, 60 + i * 20, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${glowRGB[i]}, ${breathe * (0.5 - i * 0.15)})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      const innerGrd = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 50);
+      innerGrd.addColorStop(0, `rgba(0, 245, 255, ${breathe * 0.5})`);
+      innerGrd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath();
+      ctx.arc(mouseX, mouseY, 50, 0, Math.PI * 2);
+      ctx.fillStyle = innerGrd;
+      ctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  // 事件
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    isActive = true;
+  });
+
+  window.addEventListener('mouseleave', () => {
+    isActive = false;
+  });
+
+  window.addEventListener('mouseenter', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    isActive = true;
+  });
+
+  // 当鼠标移动到窗口边界时也检测
+  window.addEventListener('mouseout', (e) => {
+    if (!e.relatedTarget || e.relatedTarget === document.documentElement) {
+      isActive = false;
+    }
+  });
+
+  window.addEventListener('click', (e) => {
+    const count = 15 + Math.floor(Math.random() * 10);
+    for (let i = 0; i < count; i++) {
+      bursts.push({
+        x: e.clientX,
+        y: e.clientY,
+        vx: (Math.random() - 0.5) * 16,
+        vy: (Math.random() - 0.5) * 16,
+        size: 5 + Math.random() * 7,
+        colorIdx: Math.floor(Math.random() * 3),
+        life: 1
+      });
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  // 页面可见性变化时重置状态
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      isActive = false;
+    }
+  });
+
+  console.log('[Cursor Effect] Starting...');
+  draw();
+}
+
+// 磁吸效果
+function initMagneticEffect() {
+  const magneticElements = document.querySelectorAll('a, button, .article-card, .tag, .pagination-btn');
+
+  magneticElements.forEach(el => {
+    el.addEventListener('mousemove', (e) => {
+      const rect = el.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const dx = e.clientX - centerX;
+      const dy = e.clientY - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 100) {
+        const force = (100 - distance) / 100;
+        const moveX = dx * force * 0.3;
+        const moveY = dy * force * 0.3;
+        el.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        el.style.transition = 'transform 0.1s ease-out';
+      }
+    });
+
+    el.addEventListener('mouseleave', () => {
+      el.style.transform = 'translate(0, 0)';
+      el.style.transition = 'transform 0.3s ease-out';
+    });
   });
 }
 
@@ -257,15 +460,6 @@ function initParticleAnimation() {
     canvas.height = window.innerHeight;
   });
 }
-
-// 在DOM加载完成后初始化所有效果
-document.addEventListener('DOMContentLoaded', () => {
-  initClickEffect();
-  initRippleEffect();
-  initPixelTrail();
-  initParticleAnimation();
-  initParticleText();
-});
 
 // 粒子文字特效
 function initParticleText() {
