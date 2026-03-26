@@ -57,13 +57,137 @@ body, html {
 }
 
 nav {
-  background: var(--nav-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-color: rgba(255, 255, 255, 0.1);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  transition: all 0.4s ease;
   margin: 0;
   padding: 0;
+  position: relative;
+}
+
+nav:hover,
+nav.scrolled {
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+/* 全息投影 Logo 效果 */
+.holo-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 
+    0 0 10px rgba(0, 217, 255, 0.8),
+    0 0 20px rgba(0, 217, 255, 0.6),
+    0 0 30px rgba(0, 217, 255, 0.4),
+    0 0 40px rgba(0, 217, 255, 0.2);
+  animation: holoPulse 3s ease-in-out infinite;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.holo-logo::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: rgba(0, 217, 255, 0.5);
+  filter: blur(8px);
+  opacity: 0.7;
+  animation: holoGlitch 2s infinite;
+  pointer-events: none;
+}
+
+.holo-logo::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  top: -1px;
+  color: rgba(255, 0, 80, 0.4);
+  filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.holo-logo:hover {
+  transform: rotateY(15deg) rotateX(10deg) scale(1.05);
+  text-shadow: 
+    0 0 15px rgba(0, 217, 255, 1),
+    0 0 30px rgba(0, 217, 255, 0.8),
+    0 0 45px rgba(0, 217, 255, 0.6),
+    0 0 60px rgba(0, 217, 255, 0.4);
+}
+
+.holo-logo:hover::after {
+  opacity: 1;
+}
+
+@keyframes holoPulse {
+  0%, 100% {
+    filter: brightness(1);
+    transform: translateZ(0);
+  }
+  50% {
+    filter: brightness(1.2);
+    transform: translateZ(20px);
+  }
+}
+
+@keyframes holoGlitch {
+  0%, 90%, 100% {
+    transform: translate(0);
+  }
+  92% {
+    transform: translate(-2px, 1px);
+  }
+  94% {
+    transform: translate(2px, -1px);
+  }
+  96% {
+    transform: translate(-1px, 2px);
+  }
+  98% {
+    transform: translate(1px, -2px);
+  }
+}
+
+/* 导航菜单项 */
+.nav-link {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00d9ff, transparent);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px #00d9ff;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+}
+
+.nav-link:hover::after {
+  width: 100%;
 }
 
 .font-display {
@@ -106,47 +230,6 @@ nav.nav-article-view .nav-link:hover { color: var(--fg); }
 nav.nav-article-view .nav-link::after { background-color: var(--accent); }
 
 
-
-
-
-/* 音乐控制按钮 */
-.music-controls {
-  position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.music-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
-}
-
-.music-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
-}
-
-.music-btn svg {
-  width: 24px;
-  height: 24px;
-  color: #333333;
-  transition: color 0.3s ease;
-}
 
 
 
@@ -438,16 +521,6 @@ footer .text-muted { color: var(--fg-muted); }
   .theme-fab {
     bottom: 1.5rem;
     right: 1.5rem;
-    width: 50px;
-    height: 50px;
-  }
-  
-  .music-controls {
-    bottom: 1.5rem;
-    left: 1.5rem;
-  }
-  
-  .music-btn {
     width: 50px;
     height: 50px;
   }
