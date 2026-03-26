@@ -1,5 +1,3 @@
-(css/style.css is a source file, and there are no build artifacts, dependencies, or temporary files in the changes)
+(index.html is a source file, so no need to add anything to .gitignore)
 
-```css
-
-```
+# No changes needed - index.html is a source file
