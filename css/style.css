@@ -865,22 +865,22 @@ footer .text-muted { color: var(--fg-muted); }
 /* ========== 全息系统状态监控仪（左侧） ========== */
 .holo-monitor {
   position: fixed;
-  left: 20px;
+  left: 30px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 40;
+  z-index: 100;
   width: 220px;
   pointer-events: none;
 }
 
 .holo-frame {
-  background: rgba(10, 20, 30, 0.75);
-  border: 1px solid rgba(0, 217, 255, 0.3);
+  background: rgba(10, 20, 30, 0.85);
+  border: 1px solid rgba(0, 217, 255, 0.4);
   border-radius: 12px;
   padding: 16px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 0 30px rgba(0, 217, 255, 0.1), inset 0 0 20px rgba(0, 217, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 40px rgba(0, 217, 255, 0.15), inset 0 0 25px rgba(0, 217, 255, 0.08);
   animation: holoFloat 6s ease-in-out infinite;
   pointer-events: auto;
   position: relative;
@@ -1022,22 +1022,22 @@ footer .text-muted { color: var(--fg-muted); }
 /* ========== 神经链接工具箱（右侧） ========== */
 .neuro-tools {
   position: fixed;
-  right: 20px;
+  right: 30px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 40;
+  z-index: 100;
   width: 80px;
   pointer-events: none;
 }
 
 .neuro-frame {
-  background: rgba(20, 10, 30, 0.75);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: rgba(20, 10, 30, 0.85);
+  border: 1px solid rgba(168, 85, 247, 0.4);
   border-radius: 12px;
   padding: 16px 12px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 0 30px rgba(168, 85, 247, 0.1), inset 0 0 20px rgba(168, 85, 247, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.15), inset 0 0 25px rgba(168, 85, 247, 0.08);
   animation: neuroFloat 6s ease-in-out infinite;
   pointer-events: auto;
   position: relative;
