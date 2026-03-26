@@ -357,6 +357,8 @@ header .reveal p {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   padding: 2.5rem;
   margin-top: 1rem;
+  max-width: 900px;
+  width: 100%;
 }
 
 
@@ -753,8 +755,8 @@ footer .text-muted { color: var(--fg-muted); }
   justify-content: center;
   align-items: center;
   z-index: 40;
-  padding: 10px 20px;
-  margin-bottom: 20px;
+  padding: 20px;
+  margin-bottom: 30px;
   pointer-events: none;
 }
 
@@ -762,10 +764,11 @@ footer .text-muted { color: var(--fg-muted); }
 .particle-text-container {
   position: relative;
   width: 100%;
-  height: 150px;
-  margin-top: 20px;
+  max-width: 100%;
+  height: 200px;
+  margin: 20px auto 0;
   z-index: 30;
-  overflow: hidden;
+  overflow: visible;
 }
 
 #particle-text-canvas {
@@ -780,14 +783,13 @@ footer .text-muted { color: var(--fg-muted); }
 /* 霓虹文字 */
 .cyber-title {
   position: relative;
-  font-size: 6em;
+  font-size: clamp(2.5rem, 10vw, 5rem);
   font-weight: 900;
-  letter-spacing: 6px;
+  letter-spacing: clamp(3px, 1vw, 8px);
   color: #fff;
   text-transform: uppercase;
   z-index: 10;
   
-  /* 多层霓虹光晕 - 增强效果 */
   text-shadow:
     0 0 10px #fff,
     0 0 20px #fff,

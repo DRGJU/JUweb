@@ -258,6 +258,15 @@ function initParticleAnimation() {
   });
 }
 
+// 在DOM加载完成后初始化所有效果
+document.addEventListener('DOMContentLoaded', () => {
+  initClickEffect();
+  initRippleEffect();
+  initPixelTrail();
+  initParticleAnimation();
+  initParticleText();
+});
+
 // 粒子文字特效
 function initParticleText() {
   const ptCanvas = document.getElementById('particle-text-canvas');
@@ -267,26 +276,41 @@ function initParticleText() {
   let ptW, ptH, ptParticles = [], ptText = 'CODE', ptMouse = {x:null, y:null};
 
   function resizeParticleText() {
-    ptW = ptCanvas.width = ptCanvas.offsetWidth;
-    ptH = ptCanvas.height = ptCanvas.offsetHeight;
+    const container = ptCanvas.parentElement;
+    ptW = ptCanvas.width = container.offsetWidth;
+    ptH = ptCanvas.height = container.offsetHeight;
     createParticleText();
   }
 
   function createParticleText() {
     ptParticles = [];
-    const fontSize = Math.min(ptW, ptH) * 0.7;
+    const centerX = ptW / 2;
+    const centerY = ptH / 2;
+    
+    const maxTextWidth = ptW * 0.9;
+    const maxTextHeight = ptH * 0.85;
+    
+    let fontSize = Math.min(ptW, ptH) * 0.4;
     ptCtx.font = `900 ${fontSize}px Arial`;
+    let metrics = ptCtx.measureText(ptText);
+    let textWidth = metrics.width;
+    
+    while ((textWidth > maxTextWidth || fontSize > maxTextHeight) && fontSize > 10) {
+      fontSize -= 2;
+      ptCtx.font = `900 ${fontSize}px Arial`;
+      metrics = ptCtx.measureText(ptText);
+      textWidth = metrics.width;
+    }
+    
     ptCtx.fillStyle = '#fff';
     ptCtx.textAlign = 'center';
     ptCtx.textBaseline = 'middle';
+    ptCtx.fillText(ptText, centerX, centerY);
     
-    // 绘制文字获取像素数据
-    ptCtx.fillText(ptText, ptW/2, ptH/2);
     const data = ptCtx.getImageData(0, 0, ptW, ptH).data;
     ptCtx.clearRect(0, 0, ptW, ptH);
     
-    // 从像素数据创建粒子
-    const gap = 4;
+    const gap = 3;
     for (let y = 0; y < ptH; y += gap) {
       for (let x = 0; x < ptW; x += gap) {
         const index = (y * ptW + x) * 4;
@@ -307,7 +331,6 @@ function initParticleText() {
     ptCtx.clearRect(0, 0, ptW, ptH);
     
     ptParticles.forEach(p => {
-      // 鼠标交互
       if (ptMouse.x !== null) {
         const dx = ptMouse.x - p.x;
         const dy = ptMouse.y - p.y;
@@ -319,13 +342,11 @@ function initParticleText() {
         }
       }
       
-      // 回归原位
       const dx = p.originX - p.x;
       const dy = p.originY - p.y;
       p.vx += dx * 0.03;
       p.vy += dy * 0.03;
       
-      // 阻尼
       p.vx *= 0.92;
       p.vy *= 0.92;
       
@@ -340,26 +361,14 @@ function initParticleText() {
     requestAnimationFrame(animateParticleText);
   }
 
-  // 鼠标移动事件
   window.addEventListener('mousemove', (e) => {
     const rect = ptCanvas.getBoundingClientRect();
     ptMouse.x = e.clientX - rect.left;
     ptMouse.y = e.clientY - rect.top;
   });
 
-  // 窗口大小变化时调整画布大小
   window.addEventListener('resize', resizeParticleText);
 
-  // 初始化
   resizeParticleText();
   animateParticleText();
 }
-
-// 在DOM加载完成后初始化所有效果
-document.addEventListener('DOMContentLoaded', () => {
-  initClickEffect();
-  initRippleEffect();
-  initPixelTrail();
-  initParticleAnimation();
-  initParticleText();
-});
