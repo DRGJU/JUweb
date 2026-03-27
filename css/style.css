@@ -67,12 +67,175 @@ nav {
   position: relative;
 }
 
-nav:hover,
 nav.scrolled {
-  background: rgba(26, 26, 26, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+  background: rgba(26, 26, 26, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(34, 211, 238, 0.3) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(34, 211, 238, 0.1);
+}
+
+/* 导航项悬停效果 - 科技故障风 */
+.nav-item-glitch {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 扫光效果 */
+.scan-light {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scan-active {
+  animation: scanMove 0.6s ease-out;
+}
+
+@keyframes scanMove {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* 故障装饰线动画 */
+.glitch-line {
+  animation: glitchLinePulse 3s ease-in-out infinite;
+}
+
+@keyframes glitchLinePulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleX(0.95);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scaleX(1.05);
+  }
+}
+
+/* 文字故障效果 - 增强版 */
+.glitch-text {
+  display: inline-block;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.glitch-text::before {
+  color: rgba(34, 211, 238, 0.7);
+  text-shadow: 2px 0 rgba(255, 0, 80, 0.5);
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  transform: translate(-2px, 0);
+}
+
+.glitch-text::after {
+  color: rgba(255, 0, 80, 0.7);
+  text-shadow: -2px 0 rgba(34, 211, 238, 0.5);
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  transform: translate(2px, 0);
+}
+
+.nav-item-glitch:hover .glitch-text {
+  animation: textGlitchEnhanced 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.nav-item-glitch:hover .glitch-text::before,
+.nav-item-glitch:hover .glitch-text::after {
+  opacity: 1;
+  animation: glitchShift 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+@keyframes textGlitchEnhanced {
+  0%, 100% { 
+    transform: translateX(0);
+    filter: hue-rotate(0deg);
+  }
+  20% { 
+    transform: translateX(-3px);
+    filter: hue-rotate(30deg);
+  }
+  40% { 
+    transform: translateX(3px);
+    filter: hue-rotate(-30deg);
+  }
+  60% { 
+    transform: translateX(-2px);
+    filter: hue-rotate(15deg);
+  }
+  80% { 
+    transform: translateX(2px);
+    filter: hue-rotate(-15deg);
+  }
+}
+
+@keyframes glitchShift {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2px, 1px);
+  }
+  50% {
+    transform: translate(2px, -1px);
+  }
+  75% {
+    transform: translate(-1px, 2px);
+  }
+}
+
+/* 旧版导航样式保留兼容 */
+.nav-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.nav-item:hover::before {
+  left: 100%;
+}
+
+.nav-item span {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.nav-item:hover span {
+  animation: textGlitch 0.3s ease;
+}
+
+@keyframes textGlitch {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
 }
 
 /* 全息投影 Logo 效果 */

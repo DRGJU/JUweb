@@ -12,7 +12,15 @@ new Vue({
     currentDate: new Date().toISOString().split('T')[0],
     showBackToTop: false,
     isPlaying: false,
-    isDark: true
+    isDark: true,
+    mobileMenuOpen: false,
+    activeTab: 'home',
+    isScrolled: false,
+    navItems: [
+      { id: 'home', name: '首页' },
+      { id: 'articles', name: '文章' },
+      { id: 'about', name: '关于' }
+    ]
   },
   computed: {
     paginatedArticles() {
@@ -92,6 +100,54 @@ new Vue({
         document.documentElement.classList.remove('dark');
         localStorage.setItem('theme', 'light');
       }
+    },
+    handleNavClick(item) {
+      this.activeTab = item.id;
+      if (item.id === 'home') {
+        this.goHome();
+      } else if (item.id === 'articles') {
+        if (this.isDetailView) {
+          this.closeArticle();
+        }
+        // 滚动到文章区域
+        const articlesSection = document.querySelector('#articles-section');
+        if (articlesSection) {
+          articlesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else if (item.id === 'about') {
+        if (this.isDetailView) {
+          this.closeArticle();
+        }
+        // 滚动到关于区域
+        const aboutSection = document.querySelector('#about-section');
+        if (aboutSection) {
+          aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    },
+    moveScanLight(event) {
+      const scanlight = document.getElementById('nav-scanlight');
+      if (!scanlight) return;
+      
+      const target = event.currentTarget;
+      const rect = target.getBoundingClientRect();
+      const parentRect = target.parentElement.getBoundingClientRect();
+      
+      scanlight.style.width = `${rect.width}px`;
+      scanlight.style.height = `${rect.height}px`;
+      scanlight.style.left = `${rect.left - parentRect.left}px`;
+      scanlight.style.top = `${rect.top - parentRect.top}px`;
+      scanlight.style.opacity = '1';
+      
+      // 触发扫光动画
+      scanlight.classList.add('scan-active');
+    },
+    resetScanLight() {
+      const scanlight = document.getElementById('nav-scanlight');
+      if (!scanlight) return;
+      scanlight.style.opacity = '0';
+      scanlight.style.width = '0';
+      scanlight.classList.remove('scan-active');
     }
   },
   mounted() {
@@ -99,9 +155,10 @@ new Vue({
     // 检查是否为管理员
     this.isAdmin = localStorage.getItem('isAdmin') === 'true';
     
-    // 监听滚动，控制回到顶部按钮显示
+    // 监听滚动，控制回到顶部按钮显示和导航栏样式
     window.addEventListener('scroll', () => {
       this.showBackToTop = window.scrollY > 300;
+      this.isScrolled = window.scrollY > 50;
     });
     
     // 初始化主题

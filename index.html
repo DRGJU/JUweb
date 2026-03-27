@@ -33,16 +33,96 @@
   <div class="flex-1 relative" id="app">
 
     <!-- 导航栏 -->
-    <nav class="fixed top-0 left-0 right-0 z-50">
-      <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-        <!-- 点击墨迹返回首页/顶部 -->
-        <a href="#" @click.prevent="goHome" class="holo-logo" data-text="墨迹">墨迹</a>
-        
-        <!-- 导航链接 -->
-        <div class="flex items-center gap-8">
-          <a href="admin.html" v-if="isAdmin" class="text-sm nav-link">管理</a>
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-white/10" 
+         :class="{ 'scrolled': isScrolled }">
+      <!-- 背景层：用于流光效果 -->
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-xl"></div>
+      
+      <!-- 科技故障装饰线 -->
+      <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50 glitch-line"></div>
+      
+      <!-- 容器 -->
+      <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="flex items-center justify-between h-20 transition-all duration-300" :class="{ 'h-16': isScrolled }">
+          
+          <!-- Logo 区域 - 故障效果 -->
+          <div class="flex-shrink-0 cursor-pointer group" @click="goHome">
+            <div class="relative overflow-hidden">
+              <span class="text-2xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 glitch-text" data-text="墨迹 JUweb">
+                墨迹 <span class="text-xs align-top text-cyan-300">JUweb</span>
+              </span>
+              <!-- Logo 下的光效 -->
+              <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 transition-all duration-300 group-hover:w-full shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+              <!-- 故障装饰点 -->
+              <div class="absolute -top-1 -right-1 w-1 h-1 bg-cyan-400 animate-ping opacity-0 group-hover:opacity-100"></div>
+            </div>
+          </div>
+
+          <!-- 桌面端菜单 -->
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-1 relative">
+              <!-- 动态扫光背景块 -->
+              <div id="nav-scanlight" class="absolute top-0 left-0 h-full w-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent rounded-lg transition-all duration-500 ease-out opacity-0 pointer-events-none scan-light"></div>
+              
+              <a v-for="(item, index) in navItems" :key="item.name"
+                 @click="handleNavClick(item)"
+                 @mouseenter="moveScanLight($event)"
+                 @mouseleave="resetScanLight"
+                 class="nav-item-glitch relative px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer group overflow-hidden"
+                 :class="activeTab === item.id ? 'text-cyan-400' : 'text-gray-300 hover:text-white'">
+                
+                <!-- 故障文字效果容器 -->
+                <span class="relative z-10 inline-block">
+                  <span class="glitch-text" :data-text="item.name">{{ item.name }}</span>
+                </span>
+                
+                <!-- 底部渐变指示器 -->
+                <span class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full group-hover:left-0 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
+                      :class="activeTab === item.id ? 'w-full left-0' : ''"></span>
+                
+                <!-- 角落装饰 -->
+                <span class="absolute top-0 right-0 w-0 h-0 border-t-2 border-r-2 border-cyan-400/0 transition-all duration-300 group-hover:border-cyan-400/50 group-hover:w-2 group-hover:h-2"></span>
+                <span class="absolute bottom-0 left-0 w-0 h-0 border-b-2 border-l-2 border-purple-400/0 transition-all duration-300 group-hover:border-purple-400/50 group-hover:w-2 group-hover:h-2"></span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 移动端菜单按钮 -->
+          <div class="-mr-2 flex md:hidden">
+            <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10 focus:outline-none transition-all group">
+              <svg class="h-6 w-6 transform group-hover:rotate-90 transition-transform duration-300" :class="{'hidden': mobileMenuOpen}" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg class="h-6 w-6 transform group-hover:-rotate-90 transition-transform duration-300" :class="{'hidden': !mobileMenuOpen}" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
+
+      <!-- 移动端下拉菜单 -->
+      <transition enter-active-class="transition ease-out duration-200"
+                  enter-from-class="opacity-0 -translate-y-2"
+                  enter-to-class="opacity-100 translate-y-0"
+                  leave-active-class="transition ease-in duration-150"
+                  leave-from-class="opacity-100 translate-y-0"
+                  leave-to-class="opacity-0 -translate-y-2">
+        <div v-show="mobileMenuOpen" class="md:hidden absolute w-full bg-black/95 backdrop-blur-xl border-b border-cyan-500/30 shadow-2xl overflow-hidden">
+          <!-- 移动端菜单顶部装饰线 -->
+          <div class="h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a v-for="item in navItems" :key="item.name"
+               @click="handleNavClick(item); mobileMenuOpen = false"
+               class="block px-4 py-4 rounded-md text-base font-medium text-gray-300 hover:text-cyan-400 hover:bg-cyan-500/10 border-l-2 border-transparent hover:border-cyan-400 transition-all duration-300 group">
+              <span class="glitch-text" :data-text="item.name">{{ item.name }}</span>
+            </a>
+          </div>
+          <!-- 移动端菜单底部装饰线 -->
+          <div class="h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
+        </div>
+      </transition>
     </nav>
     
     <!-- Hero 区域 -->
@@ -78,7 +158,7 @@
     </header>
 
     <!-- 文章列表视图 -->
-    <main id="articles" class="px-6 pb-20" v-if="!isDetailView">
+    <main id="articles-section" class="px-6 pb-20" v-if="!isDetailView">
       <div class="max-w-4xl mx-auto">
         <div class="reveal">
           <div class="flex items-center justify-between mb-10">
@@ -163,7 +243,7 @@
     </section>
 
     <!-- 关于我 -->
-    <section id="about" class="py-12 px-6" v-if="!isDetailView">
+    <section id="about-section" class="py-12 px-6" v-if="!isDetailView">
       <div class="max-w-4xl mx-auto">
         <div class="reveal">
           <h2 class="font-display text-xl font-semibold text-fg mb-6">关于我</h2>
