@@ -166,7 +166,7 @@
       </div>
 
       <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 scroll-indicator">
-        <div class="flex flex-col items-center gap-2 text-muted cursor-pointer" @click="document.getElementById('articles').scrollIntoView({behavior: 'smooth'})"><!-- 点击导航栏 Logo 返回首页 -->
+        <div class="flex flex-col items-center gap-2 text-muted cursor-pointer" @click="document.getElementById('articles-section').scrollIntoView({behavior: 'smooth'})">
           <span class="text-xs tracking-widest">向下滚动</span>
           <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
@@ -296,8 +296,8 @@
         <p>{{ currentYear }} 墨迹. All rights reserved.</p>
         <p>用文字丈量世界</p>
       </div>
-
     </footer>
+    
     <!-- 右侧固定工具栏 -->
     <div class="fixed right-6 bottom-10 z-50 flex flex-col gap-3">
       <!-- 回到顶部按钮 -->
@@ -332,7 +332,6 @@
         <div v-if="isPlaying" class="absolute inset-0 rounded-full border-2 border-accent animate-ping"></div>
       </div>
     </div>
-    </footer>
   </div>
 
 

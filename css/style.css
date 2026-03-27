@@ -360,10 +360,12 @@ nav.scrolled {
 /* 基础工具类 */
 .bg-body { background-color: var(--bg); }
 .bg-alt { background-color: var(--bg-alt); }
+.bg-glass { background-color: var(--glass-bg); }
 .text-fg { color: var(--fg); }
 .text-muted { color: var(--fg-muted); }
 .text-accent { color: var(--accent); }
 .border-theme { border-color: var(--border); }
+.border-glass-border { border-color: var(--glass-border); }
 .hover-accent:hover { color: var(--accent); }
 
 /* 导航栏 */
