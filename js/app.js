@@ -12,7 +12,6 @@ new Vue({
     currentDate: new Date().toISOString().split('T')[0],
     showBackToTop: false,
     isPlaying: false,
-    isDark: true,
     mobileMenuOpen: false,
     activeTab: 'home',
     isScrolled: false,
@@ -91,16 +90,6 @@ new Vue({
         this.isPlaying = true;
       }
     },
-    toggleTheme() {
-      this.isDark = !this.isDark;
-      if (this.isDark) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      }
-    },
     handleNavClick(item) {
       this.activeTab = item.id;
       if (item.id === 'home') {
@@ -160,13 +149,6 @@ new Vue({
       this.showBackToTop = window.scrollY > 300;
       this.isScrolled = window.scrollY > 50;
     });
-    
-    // 初始化主题
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-      this.isDark = false;
-      document.documentElement.classList.remove('dark');
-    }
     
     // 初始化音乐状态
     const bgMusic = document.getElementById('bgMusic');

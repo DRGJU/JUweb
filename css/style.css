@@ -681,13 +681,6 @@ footer .text-muted { color: var(--fg-muted); }
     border-radius: 16px;
   }
 
-  .theme-fab {
-    bottom: 1.5rem;
-    right: 1.5rem;
-    width: 50px;
-    height: 50px;
-  }
-}
 
 /* 小屏幕适配（不隐藏背景和毛玻璃效果） */
 @media (max-width: 768px) {
