@@ -46,66 +46,6 @@
     <div class="absolute bottom-0 left-16 right-16 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent bottom-line"></div>
   </div>
 
-  <!-- 【新增】全息数据流侧边栏 (方案一) -->
-  <div class="fixed left-0 top-0 bottom-0 w-16 z-30 hidden md:block" id="data-stream-left">
-    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent data-stream-bg"></div>
-    <div class="absolute inset-y-0 left-2 w-px bg-cyan-500/20"></div>
-    <div class="data-stream-content text-[10px] font-mono text-cyan-500/60 overflow-hidden leading-3" id="data-left"></div>
-  </div>
-  <div class="fixed right-0 top-0 bottom-0 w-16 z-30 hidden md:block" id="data-stream-right">
-    <div class="absolute inset-0 bg-gradient-to-l from-black/80 to-transparent data-stream-bg"></div>
-    <div class="absolute inset-y-0 right-2 w-px bg-purple-500/20"></div>
-    <div class="data-stream-content text-[10px] font-mono text-purple-500/60 overflow-hidden leading-3 text-right" id="data-right"></div>
-  </div>
-
-  <!-- 【新增】磁吸式功能浮岛 (方案二) -->
-  <div class="fixed left-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4" id="magnetic-left">
-    <div class="magnetic-island group cursor-pointer" data-speed="0.15">
-      <div class="island-core">
-        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-        </svg>
-      </div>
-      <div class="island-label">
-        <span class="text-xs text-cyan-300">系统状态</span>
-        <div class="text-[10px] text-cyan-400/70">运行正常</div>
-      </div>
-    </div>
-    <div class="magnetic-island group cursor-pointer" data-speed="0.12">
-      <div class="island-core">
-        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-        </svg>
-      </div>
-      <div class="island-label">
-        <span class="text-xs text-blue-300">能量</span>
-        <div class="text-[10px] text-blue-400/70">98%</div>
-      </div>
-    </div>
-  </div>
-  <div class="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4" id="magnetic-right">
-    <div class="magnetic-island group cursor-pointer" @click="scrollToTop" data-speed="0.15">
-      <div class="island-core">
-        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
-        </svg>
-      </div>
-      <div class="island-label">
-        <span class="text-xs text-purple-300">返回顶部</span>
-      </div>
-    </div>
-    <div class="magnetic-island group cursor-pointer" @click="toggleTheme" data-speed="0.12">
-      <div class="island-core">
-        <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-        </svg>
-      </div>
-      <div class="island-label">
-        <span class="text-xs text-pink-300">主题</span>
-        <div class="text-[10px] text-pink-400/70">{{ isDark ? '暗黑' : '明亮' }}</div>
-      </div>
-    </div>
-  </div>
 
   <!-- 主要内容区域 -->
   <div class="flex-1 relative" id="app">
