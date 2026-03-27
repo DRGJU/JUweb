@@ -584,3 +584,92 @@ function toggleParticles() {
   }
 }
 
+// ========== 【新增】左右两侧特效逻辑 ==========
+
+// 1. 数据流内容生成
+function generateDataStream(elementId, type) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  
+  let content = '';
+  const lines = 50;
+  
+  for (let i = 0; i < lines; i++) {
+    if (type === 'binary') {
+      // 二进制代码流
+      for (let j = 0; j < 20; j++) {
+        content += Math.random() > 0.5 ? '1' : '0';
+      }
+      content += '\n';
+    } else if (type === 'hex') {
+      // 十六进制哈希值
+      content += '0x';
+      for (let j = 0; j < 8; j++) {
+        content += Math.floor(Math.random() * 16).toString(16).toUpperCase();
+      }
+      content += '\n';
+    }
+  }
+  
+  element.textContent = content;
+}
+
+// 2. 磁吸效果
+function initMagneticEffect() {
+  const islands = document.querySelectorAll('.magnetic-island');
+  
+  islands.forEach(island => {
+    const speed = parseFloat(island.getAttribute('data-speed')) || 0.1;
+    
+    island.addEventListener('mousemove', (e) => {
+      const rect = island.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      const deltaX = e.clientX - centerX;
+      const deltaY = e.clientY - centerY;
+      
+      const moveX = deltaX * speed;
+      const moveY = deltaY * speed;
+      
+      island.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    });
+    
+    island.addEventListener('mouseleave', () => {
+      island.style.transform = 'translate(0, 0)';
+    });
+  });
+}
+
+// 3. 滚动视差效果（线框）
+function initFrameParallax() {
+  const frame = document.getElementById('holo-frame');
+  if (!frame) return;
+  
+  window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const corners = frame.querySelectorAll('.corner-decor');
+    
+    corners.forEach((corner, index) => {
+      const speed = 0.05 + (index * 0.02);
+      const offset = scrolled * speed;
+      corner.style.transform = `translateY(${offset}px)`;
+    });
+  });
+}
+
+// 初始化所有特效
+document.addEventListener('DOMContentLoaded', () => {
+  // 生成数据流
+  generateDataStream('data-left', 'binary');
+  generateDataStream('data-right', 'hex');
+  
+  // 初始化磁吸效果
+  setTimeout(() => {
+    initMagneticEffect();
+  }, 100);
+  
+  // 初始化视差效果
+  initFrameParallax();
+});
+
