@@ -12,68 +12,17 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
 </head>
 <body class="min-h-screen flex flex-col">
-
-  <!-- 视频背景 -->
-  <div class="video-background">
-    <video id="bgVideo" autoplay loop muted playsinline poster="./media/poster.jpg">
-      <source src="./media/bg.mp4" type="video/mp4">
-    </video>
-    <div class="video-overlay"></div>
-  </div>
-
-  <!-- 粒子动画 -->
-  <div class="hero-particle">
-    <canvas id="particle-canvas"></canvas>
-  </div>
-
-  <!-- 背景纹理 -->
-  <div class="texture-overlay"></div>
-
-  <!-- 主要内容区域 -->
   <div class="flex-1 relative" id="app">
-
-    <!-- 导航栏 -->
     <nav class="fixed top-0 left-0 right-0 z-50 border-b border-theme">
       <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-        <!-- 点击墨迹返回首页/顶部 -->
         <a href="#" @click.prevent="goHome" class="font-display text-2xl font-semibold text-fg cursor-pointer">墨迹</a>
-
-        <!-- 导航链接 -->
         <div class="flex items-center gap-8">
           <a href="admin.html" v-if="isAdmin" class="text-sm text-muted hover:text-accent transition-colors">管理</a>
         </div>
       </div>
     </nav>
 
-    <!-- Hero 区域 -->
-    <header class="h-screen flex flex-col justify-center items-center relative px-6" v-if="!isDetailView">
-      <div class="max-w-4xl mx-auto text-center">
-        <!-- 霓虹标题 -->
-        <div class="cyber-container">
-          <h1 class="cyber-title" data-text="CODE">CODE</h1>
-        </div>
-
-        <div class="reveal mb-8" style="transition-delay: 0.1s;">
-          <div class="avatar-hologram avatar-ring">
-            <img src="./media/touxiang.png" alt="博主头像"/>
-            <div class="ring-outer"></div>
-            <div class="ring-inner"></div>
-          </div>
-        </div>
-
-        <!-- 粒子文字特效 -->
-        <div class="particle-text-container">
-          <canvas id="particle-text-canvas"></canvas>
-        </div>
-      </div>
-
-      <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 scroll-indicator">
-        <div class="flex flex-col items-center gap-2 text-muted cursor-pointer" @click="document.getElementById('articles').scrollIntoView({behavior: 'smooth'})"><!-- 点击导航栏 Logo 返回首页 --></div>
-      </div>
-    </header>
-
-    <!-- 文章列表视图 -->
-    <main id="articles" class="px-6 pb-20" v-if="!isDetailView">
+    <main id="articles" class="px-6 pb-20 pt-24" v-if="!isDetailView">
       <div class="max-w-4xl mx-auto">
         <div class="reveal">
           <div class="flex items-center justify-between mb-10">
@@ -81,6 +30,7 @@
             <span class="text-muted text-sm">共 {{ articles.length }} 篇</span>
           </div>
         </div>
+
         <div class="space-y-6">
           <article
             v-for="(article, index) in paginatedArticles"
@@ -106,6 +56,7 @@
             </div>
           </article>
         </div>
+
         <div class="pagination-container" v-if="totalPages > 1">
           <button
             class="pagination-btn"
@@ -138,7 +89,6 @@
       </div>
     </main>
 
-    <!-- 文章详情视图 -->
     <section id="article-detail" class="px-6 pb-20 pt-24" v-if="isDetailView">
       <div class="max-w-4xl mx-auto">
         <button @click="closeArticle" class="flex items-center gap-2 text-muted hover:text-accent mb-6 transition-colors group">
@@ -157,7 +107,6 @@
       </div>
     </section>
 
-    <!-- 关于我 -->
     <section id="about" class="py-12 px-6" v-if="!isDetailView">
       <div class="max-w-4xl mx-auto">
         <div class="reveal">
@@ -187,7 +136,7 @@
         </div>
       </div>
     </section>
-    <!-- 页脚 -->
+
     <footer class="py-8 px-6 border-t border-theme">
       <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted">
         <p>{{ currentYear }} 墨迹. All rights reserved.</p>
@@ -196,14 +145,10 @@
     </footer>
   </div>
 
-
-
-  <!-- 背景音乐 -->
   <audio id="bgMusic" src="./media/bgyy.mp3" loop>
     您的浏览器不支持音频元素。
   </audio>
 
-  <!-- 音乐控制按钮 -->
   <div class="music-controls">
     <button id="playBtn" class="music-btn" aria-label="播放音乐">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
