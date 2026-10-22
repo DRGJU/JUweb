@@ -1,4 +1,25 @@
 // app.js
+const BLOG_STORAGE_KEY = 'blogArticles';
+const ADMIN_STORAGE_KEY = 'isAdmin';
+
+function safeStorageGet(key, fallback = null) {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value;
+  } catch (error) {
+    console.warn(`读取 localStorage[${key}] 失败:`, error);
+    return fallback;
+  }
+}
+
+function safeStorageSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    console.warn(`写入 localStorage[${key}] 失败:`, error);
+  }
+}
+
 new Vue({
   el: '#app',
   data: {
@@ -9,7 +30,11 @@ new Vue({
     isDetailView: false,
     isAdmin: false,
     currentYear: new Date().getFullYear(),
-    currentDate: new Date().toISOString().split('T')[0]
+    currentDate: new Date().toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
   },
   computed: {
     paginatedArticles() {
@@ -18,41 +43,49 @@ new Vue({
       return this.articles.slice(start, end);
     },
     totalPages() {
-      return Math.ceil(this.articles.length / this.itemsPerPage);
+      return Math.max(1, Math.ceil(this.articles.length / this.itemsPerPage));
     }
   },
   methods: {
-    loadArticles() {
-      // 首先尝试从本地存储加载
-      const storedArticles = localStorage.getItem('blogArticles');
-      if (storedArticles) {
-        this.articles = JSON.parse(storedArticles);
-      } else {
-        // 如果本地存储没有，从 JSON 文件加载
-        fetch('./data/articles.json')
-          .then(response => response.json())
-          .then(data => {
-            this.articles = data;
-            // 保存到本地存储
-            localStorage.setItem('blogArticles', JSON.stringify(data));
-          });
+    async loadArticles() {
+      try {
+        const storedArticles = safeStorageGet(BLOG_STORAGE_KEY);
+        if (storedArticles) {
+          const parsed = JSON.parse(storedArticles);
+          this.articles = Array.isArray(parsed) ? parsed : [];
+          return;
+        }
+
+        const response = await fetch('./data/articles.json', { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`加载文章失败: ${response.status}`);
+        }
+
+        const data = await response.json();
+        this.articles = Array.isArray(data) ? data : [];
+        safeStorageSet(BLOG_STORAGE_KEY, JSON.stringify(this.articles));
+      } catch (error) {
+        console.error('loadArticles error:', error);
+        this.articles = [];
       }
     },
     openArticle(id) {
-      this.currentArticle = this.articles.find(a => a.id === id);
+      const article = this.articles.find(item => item.id === id);
+      if (!article) return;
+
+      this.currentArticle = article;
       this.isDetailView = true;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     closeArticle() {
       this.currentArticle = null;
       this.isDetailView = false;
-      // 延迟一下，确保DOM已经更新
-      setTimeout(() => {
-        // 重新初始化滚动显示效果
-        if (typeof initScrollReveal === 'function') {
-          initScrollReveal();
+
+      window.setTimeout(() => {
+        if (typeof window.initScrollReveal === 'function') {
+          window.initScrollReveal();
         }
-      }, 100);
+      }, 16);
     },
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
@@ -68,7 +101,6 @@ new Vue({
   },
   mounted() {
     this.loadArticles();
-    // 检查是否为管理员
-    this.isAdmin = localStorage.getItem('isAdmin') === 'true';
+    this.isAdmin = safeStorageGet(ADMIN_STORAGE_KEY) === 'true';
   }
 });
