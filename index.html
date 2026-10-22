@@ -31,100 +31,20 @@
 
   <!-- 主要内容区域 -->
   <div class="flex-1 relative" id="app">
-    <!-- 左侧：全息系统状态监控仪 -->
-    <aside class="holo-monitor hidden lg:block">
-      <div class="holo-frame">
-        <div class="holo-header">
-          <span class="holo-title">SYSTEM STATUS</span>
-          <div class="holo-indicator"></div>
-        </div>
-        <div class="holo-content">
-          <div class="holo-item">
-            <span class="holo-label">TIME</span>
-            <span class="holo-value" id="holo-time">00:00:00</span>
-          </div>
-          <div class="holo-item">
-            <span class="holo-label">FPS</span>
-            <span class="holo-value" id="holo-fps">60</span>
-          </div>
-          <div class="holo-item">
-            <span class="holo-label">MOUSE</span>
-            <span class="holo-value" id="holo-mouse">X: 0 Y: 0</span>
-          </div>
-          <div class="holo-item">
-            <span class="holo-label">SCROLL</span>
-            <div class="holo-bar-container">
-              <div class="holo-bar" id="holo-scroll"></div>
-            </div>
-          </div>
-          <canvas id="holo-waveform" width="200" height="60"></canvas>
-        </div>
-        <div class="holo-footer">
-          <span class="holo-status">ONLINE</span>
-        </div>
-      </div>
-    </aside>
-
-    <!-- 右侧：神经链接工具箱 -->
-    <aside class="neuro-tools hidden lg:block">
-      <div class="neuro-frame">
-        <div class="neuro-header">
-          <span class="neuro-title">NEURAL TOOLS</span>
-          <div class="neuro-indicator"></div>
-        </div>
-        <div class="neuro-content">
-          <button class="neuro-btn" id="immersive-mode-btn" title="沉浸式阅读">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-          </button>
-          <button class="neuro-btn" id="theme-toggle-btn" title="主题切换">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-          </button>
-          <button class="neuro-btn" id="back-to-top-btn" title="回到顶部">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-            </svg>
-          </button>
-          <button class="neuro-btn" id="particle-toggle-btn" title="粒子开关">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-          </button>
-          <button class="neuro-btn" id="music-quick-toggle" title="音乐开关">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-            </svg>
-          </button>
-        </div>
-        <div class="neuro-footer">
-          <div class="neuro-progress-ring">
-            <svg viewBox="0 0 36 36">
-              <path class="neuro-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-              <path class="neuro-ring-fill" id="reading-progress" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-            </svg>
-          </div>
-          <span class="neuro-percent" id="scroll-percent">0%</span>
-        </div>
-      </div>
-    </aside>
 
     <!-- 导航栏 -->
     <nav class="fixed top-0 left-0 right-0 z-50 border-b border-theme">
       <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
         <!-- 点击墨迹返回首页/顶部 -->
         <a href="#" @click.prevent="goHome" class="font-display text-2xl font-semibold text-fg cursor-pointer">墨迹</a>
-        
+
         <!-- 导航链接 -->
         <div class="flex items-center gap-8">
           <a href="admin.html" v-if="isAdmin" class="text-sm text-muted hover:text-accent transition-colors">管理</a>
         </div>
       </div>
     </nav>
-    
+
     <!-- Hero 区域 -->
     <header class="h-screen flex flex-col justify-center items-center relative px-6" v-if="!isDetailView">
       <div class="max-w-4xl mx-auto text-center">
@@ -148,12 +68,7 @@
       </div>
 
       <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 scroll-indicator">
-        <div class="flex flex-col items-center gap-2 text-muted cursor-pointer" @click="document.getElementById('articles').scrollIntoView({behavior: 'smooth'})"><!-- 点击导航栏 Logo 返回首页 -->
-          <span class="text-xs tracking-widest">向下滚动</span>
-          <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-          </svg>
-        </div>
+        <div class="flex flex-col items-center gap-2 text-muted cursor-pointer" @click="document.getElementById('articles').scrollIntoView({behavior: 'smooth'})"><!-- 点击导航栏 Logo 返回首页 --></div>
       </div>
     </header>
 
@@ -167,10 +82,10 @@
           </div>
         </div>
         <div class="space-y-6">
-          <article 
-            v-for="(article, index) in paginatedArticles" 
+          <article
+            v-for="(article, index) in paginatedArticles"
             :key="article.id"
-            class="article-card p-6 reveal cursor-pointer" 
+            class="article-card p-6 reveal cursor-pointer"
             :style="{ transitionDelay: index * 0.05 + 's' }"
             @click="openArticle(article.id)"
           >
@@ -183,8 +98,8 @@
             <h3 class="font-display text-xl font-semibold text-fg mb-2 hover-accent transition-colors">{{ article.title }}</h3>
             <p class="text-muted text-sm leading-relaxed mb-4">{{ article.excerpt }}</p>
             <div class="flex flex-wrap gap-2" @click.stop>
-              <span 
-                v-for="tag in article.tags" 
+              <span
+                v-for="tag in article.tags"
                 :key="tag"
                 class="tag text-xs px-2 py-1 rounded"
               >{{ tag }}</span>
@@ -192,27 +107,27 @@
           </article>
         </div>
         <div class="pagination-container" v-if="totalPages > 1">
-          <button 
-            class="pagination-btn" 
-            @click="changePage(currentPage - 1)" 
+          <button
+            class="pagination-btn"
+            @click="changePage(currentPage - 1)"
             :disabled="currentPage === 1"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
           </button>
-          <button 
-            v-for="page in totalPages" 
+          <button
+            v-for="page in totalPages"
             :key="page"
-            class="pagination-btn" 
+            class="pagination-btn"
             :class="{ active: currentPage === page }"
             @click="changePage(page)"
           >
             {{ page }}
           </button>
-          <button 
-            class="pagination-btn" 
-            @click="changePage(currentPage + 1)" 
+          <button
+            class="pagination-btn"
+            @click="changePage(currentPage + 1)"
             :disabled="currentPage === totalPages"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +178,7 @@
               <div class="space-y-1 text-xs text-muted">
                 <a href="https://github.com/DRGJU" target="_blank" class="flex items-center gap-2 hover:text-accent transition-colors">
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.333-.914-.12-.914.09-.914.125 0 .13.06.835.399 1.161 1.646 2.793 1.999 2.793 1.999 1.704 1.05 3.646 1.11 3.646 1.11.09.028.111-.032.111-.032.111-.482.376-1.018.827-1.547-.138-.018-.611-.177-1.128-.367-.038-.018-.118-.078-.118-.078-.001 0-.001-.004-.001-.005-.548-.334-1.343-.486-2.373-.486C7.528 14.626 6.1 17.359 6.1 17.359c.708.648 1.727.913 2.646.894.48.039.842.049 1.151.049.712 0 1.338-.078 1.909-.298.406-.16.754-.42.914-.684.233-.35.379-.773.379-1.305 0-.018-.001-.037-.002-.056.928-.208 1.947-.349 2.778-.349 1.227 0 2.001.097 2.393.301.603.32 1.385.694 2.179 1.347.907-.8 1.818-1.628 2.476-2.405-.336-.184-.76-.425-1.305-.773-.514-.33-1.312-.634-2.309-.904.326-.649.986-1.306 2.102-1.787 1.13-.49 2.461-.112 3.589.678-1.37-.448-3.035-.68-4.734-.68-5.567 0-10.2 4.38-10.2 9.847 0 4.849 3.298 8.9 7.646 9.799.163.026.298.019.452-.02.146-.04.405-.109.63-.211C11.935 22.79 11.633 23 12 23c.486 0 .953-.188 1.318-.527.35-.324.569-.776.569-1.284v-1.348c0-.548-.437-.96-.958-.978C7.937 19.149 4.5 15.23 4.5 10.351c0-2.683 1.147-5.271 3.125-7.036.094-.09.214-.153.359-.15.146.003.278.056.374.17C8.854 3.626 10.233 3.5 11.666 3.5c6.265 0 10.397 4.098 10.397 11.173 0 .703-.04 1.612-.186 2.717.677.585 1.293 1.215 1.916 1.881.599-.633 1.114-1.304 1.553-2.011.938-1.51 1.394-3.187 1.394-4.925C26.614 4.22 20.503 0 12 0Z"/>
                   </svg>
                 </a>
               </div>
