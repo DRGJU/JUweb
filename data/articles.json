@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "updatedAt": "2026-11-11",
   "articles": [
     {
@@ -71,6 +71,20 @@
         "Oh My Posh"
       ],
       "content": "<p>Windows 11 自带的 <strong>Windows Terminal</strong> 远比老式 cmd 黑框强大：多标签页、GPU 加速渲染、亚克力透明背景，还能自由更换字体与配色。本文带你一步步把默认终端美化成一个赏心悦目的工作台。</p>\n\n<h2>1. 为什么要从 cmd 换到 Windows Terminal</h2>\n<p>旧版命令提示符（cmd）只能单窗口、字体丑、不可定制。Windows Terminal 是微软官方开源的现代终端，支持：</p>\n<ul>\n  <li><strong>多标签 / 多窗格：</strong>一个窗口里同时跑 PowerShell、WSL、cmd。</li>\n  <li><strong>等宽 Nerd 字体：</strong>正确显示各种图标与连字。</li>\n  <li><strong>亚克力与透明度：</strong>让终端融入桌面壁纸。</li>\n  <li><strong>完整配色方案：</strong>一键切换 Catppuccin、Tokyo Night 等主题。</li>\n</ul>\n\n<h2>2. 第一步：安装并设为默认</h2>\n<p>Windows 11 已自带 Windows Terminal；若没有，用 winget 安装：</p>\n<pre><code>winget install --id Microsoft.WindowsTerminal -e</code></pre>\n<p>安装后在「设置 → 系统 → 面向开发人员」中，把<strong>终端</strong>的默认改为 Windows Terminal。</p>\n\n<h2>3. 第二步：换上等宽 Nerd 字体</h2>\n<p>很多图标（如 git 分支符号）需要 Nerd Font 才能显示，普通 Consolas 会变成豆腐块。推荐：</p>\n<ul>\n  <li><strong>Cascadia Code NF</strong>（微软官方，连字优雅）</li>\n  <li><strong>Fira Code NF</strong>（程序员最爱，连字丰富）</li>\n</ul>\n<p>从 <a href=\"https://www.nerdfonts.com\" title=\"Nerd Fonts 官网\">Nerd Fonts 官网</a> 下载安装后，打开终端设置（<code>Ctrl + ,</code>）→ 外观 → 字体，选择 <code>CascadiaCode NF</code>。</p>\n\n<h2>4. 第三步：配色方案与主题</h2>\n<p>Windows Terminal 内置几十种配色，也可导入社区主题。打开设置 → 配色方案，挑一款喜欢的，例如 <strong>Catppuccin Mocha</strong> 或 <strong>Tokyo Night</strong>。想全局统一，可在 <code>settings.json</code> 的 <code>profiles.defaults</code> 里指定：</p>\n<pre><code>{\n  \"profiles\": {\n    \"defaults\": {\n      \"font\": { \"face\": \"CascadiaCode NF\", \"size\": 11 },\n      \"colorScheme\": \"Catppuccin Mocha\"\n    }\n  }\n}</code></pre>\n\n<h2>5. 第四步：亚克力背景与透明度</h2>\n<p>让终端半透明、透出桌面，是最容易出效果的一步：</p>\n<pre><code>{\n  \"profiles\": {\n    \"defaults\": {\n      \"useAcrylic\": true,\n      \"acrylicOpacity\": 0.85,\n      \"background\": \"#1e1e2e\"\n    }\n  }\n}</code></pre>\n<p><code>acrylicOpacity</code> 越接近 1 越不透明；调到 <code>0.7</code> 左右能隐约看到壁纸，质感最佳。</p>\n\n<h2>6. 第五步：用 Oh My Posh 美化提示符</h2>\n<p><strong>Oh My Posh</strong> 能把 PowerShell / bash / zsh 的提示符变成带 Git 状态、路径、耗时等信息的炫酷状态栏。</p>\n<h3>6.1 安装</h3>\n<pre><code>winget install JanDeDobbeleer.OhMyPosh -e\noh-my-posh font install</code></pre>\n<h3>6.2 应用主题</h3>\n<p>在 PowerShell 中执行（主题路径可在 <code>$env:POSH_THEMES_PATH</code> 查看）：</p>\n<pre><code>oh-my-posh init pwsh --config \"$env:POSH_THEMES_PATH\\catppuccin.omp.json\" | Invoke-Expression</code></pre>\n<h3>6.3 写入 $PROFILE 持久化</h3>\n<p>让每次启动自动加载：</p>\n<pre><code>notepad $PROFILE</code></pre>\n<p>在打开的文件里加入上面那条 <code>oh-my-posh init ...</code> 命令并保存即可。</p>\n\n<h2>7. 一份可直接用的 settings.json</h2>\n<p>把下面内容合并进 Windows Terminal 的 <code>settings.json</code>（设置 → 打开 JSON 文件），即可同时拥有字体、配色、透明背景：</p>\n<pre><code>{\n  \"profiles\": {\n    \"defaults\": {\n      \"font\": { \"face\": \"CascadiaCode NF\", \"size\": 11 },\n      \"colorScheme\": \"Catppuccin Mocha\",\n      \"useAcrylic\": true,\n      \"acrylicOpacity\": 0.82,\n      \"background\": \"#1e1e2e\",\n      \"cursorShape\": \"filledBox\"\n    }\n  },\n  \"schemes\": [\n    {\n      \"name\": \"Catppuccin Mocha\",\n      \"background\": \"#1e1e2e\",\n      \"foreground\": \"#cdd6f4\",\n      \"cursorColor\": \"#f5e0dc\",\n      \"black\": \"#45475a\",\n      \"red\": \"#f38ba8\",\n      \"green\": \"#a6e3a1\",\n      \"yellow\": \"#f9e2af\",\n      \"blue\": \"#89b4fa\",\n      \"purple\": \"#cba6f7\",\n      \"white\": \"#bac2de\"\n    }\n  ]\n}</code></pre>\n\n<h2>结语</h2>\n<p>到这里，你的 Windows 11 终端已经拥有了 Nerd 字体、协调配色、亚克力背景和精致的 Oh My Posh 提示符。一个好看的终端不仅能提升心情，也能让日常的命令行工作更顺手。继续探索主题与配置，把它调成属于你自己的样子吧。</p>"
+    },
+    {
+      "id": 6,
+      "title": "从零到通关：我做的 Python 游戏化学习平台",
+      "excerpt": "简要介绍我做的另一个项目——浏览器里的 Python 游戏化学习平台：30 个关卡、6 大阶段、5 种答题模式，纯前端、打开即玩。",
+      "date": "2026-11-11",
+      "category": "技术",
+      "tags": [
+        "Python",
+        "游戏化学习",
+        "项目",
+        "前端"
+      ],
+      "content": "<p>除了这个博客，我最近还做了一个小项目：一个<strong>浏览器里的 Python 游戏化学习平台</strong>。打开网页就能玩，把 Python 语法拆成 30 个关卡，边写边闯关，不用装环境、不用登录。</p>\n\n<h2>它是什么</h2>\n<p>一个<strong>纯前端</strong>的 Python 学习站点：首页选关，点进去看讲解、示例和挑战，写完代码立刻知道对不对，过关自动解锁下一关，进度存在本地浏览器里。</p>\n\n<h2>游戏化为什么有效</h2>\n<ul>\n  <li><strong>即时反馈：</strong>写错马上知道，不用攒到月底。</li>\n  <li><strong>小步通关：</strong>每关只学一个知识点，成就感推着你继续。</li>\n  <li><strong>即开即玩：</strong>零启动成本，没有配环境的劝退感。</li>\n</ul>\n\n<h2>核心特性</h2>\n<ul>\n  <li><strong>30 关 / 6 阶段：</strong>从变量循环到函数、文件、综合项目，难度递进，后续阶段自动锁定。</li>\n  <li><strong>5 种答题模式：</strong>代码编写、拖放编程、选择题、填空、分步引导，适配不同知识点。</li>\n  <li><strong>进度本地保存：</strong>基于 <code>localStorage</code>，关掉网页再打开进度还在。</li>\n</ul>\n\n<h2>技术实现</h2>\n<p>整个项目<strong>零后端</strong>：关卡数据集中在 <code>data/levels.json</code> 异步加载，主页与关卡逻辑分别在 <code>js/game.js</code> 与 <code>js/level.js</code>（ES6 类设计），进度用 <code>localStorage</code> 持久化，渲染时对输入做 HTML 转义防 XSS。视觉走简洁清爽路线，蓝紫渐变 + 卡片式布局，并做了响应式适配。</p>\n\n<h2>结语</h2>\n<p>这是我把「让编程更好玩」落地的一次尝试，和这个博客一样追求<strong>打开即用、轻量纯粹</strong>。欢迎去我的 GitHub（<a href=\"https://github.com/DRGJU\" title=\"作者的 GitHub\">DRGJU</a>）交流，后续我计划补全早期关卡并加入成就系统。</p>"
     }
   ]
 }

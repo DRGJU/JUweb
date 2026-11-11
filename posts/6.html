@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>从零到通关：我做的 Python 游戏化学习平台 | 墨迹</title>
+  <meta name="description" content="简要介绍我做的另一个项目——浏览器里的 Python 游戏化学习平台：30 个关卡、6 大阶段、5 种答题模式，纯前端、打开即玩。">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="从零到通关：我做的 Python 游戏化学习平台">
+  <meta property="og:description" content="简要介绍我做的另一个项目——浏览器里的 Python 游戏化学习平台：30 个关卡、6 大阶段、5 种答题模式，纯前端、打开即玩。">
+  <meta property="og:url" content="https://drgju.github.io/JUweb/posts/6.html">
+  <meta property="article:published_time" content="2026-11-11">
+  <link rel="canonical" href="https://drgju.github.io/JUweb/posts/6.html">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script type="module" src="../js/post.js"></script>
+</head>
+<body>
+  <a class="visually-hidden" href="#postContent">跳到正文</a>
+
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
+      <span class="masthead__edition">第 4 期，2026-11-11</span>
+      <nav class="masthead__nav" aria-label="主导航">
+        <a href="../index.html">文章归档</a>
+        <a href="../index.html#about">关于</a>
+        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container post">
+    <article>
+      <header class="post__head">
+        <a class="post__back" href="../index.html">返回目录</a>
+        <h1 id="postTitle" class="post__title">从零到通关：我做的 Python 游戏化学习平台</h1>
+        <div class="post__meta">
+          <span id="postCategory">技术</span>
+          <time id="postDate" datetime="2026-11-11">2026-11-11</time>
+        </div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">游戏化学习</span><span class="post__tag">项目</span><span class="post__tag">前端</span></div>
+      </header>
+      <div id="postContent" class="post__body"><p>除了这个博客，我最近还做了一个小项目：一个<strong>浏览器里的 Python 游戏化学习平台</strong>。打开网页就能玩，把 Python 语法拆成 30 个关卡，边写边闯关，不用装环境、不用登录。</p>
+
+<h2>它是什么</h2>
+<p>一个<strong>纯前端</strong>的 Python 学习站点：首页选关，点进去看讲解、示例和挑战，写完代码立刻知道对不对，过关自动解锁下一关，进度存在本地浏览器里。</p>
+
+<h2>游戏化为什么有效</h2>
+<ul>
+  <li><strong>即时反馈：</strong>写错马上知道，不用攒到月底。</li>
+  <li><strong>小步通关：</strong>每关只学一个知识点，成就感推着你继续。</li>
+  <li><strong>即开即玩：</strong>零启动成本，没有配环境的劝退感。</li>
+</ul>
+
+<h2>核心特性</h2>
+<ul>
+  <li><strong>30 关 / 6 阶段：</strong>从变量循环到函数、文件、综合项目，难度递进，后续阶段自动锁定。</li>
+  <li><strong>5 种答题模式：</strong>代码编写、拖放编程、选择题、填空、分步引导，适配不同知识点。</li>
+  <li><strong>进度本地保存：</strong>基于 <code>localStorage</code>，关掉网页再打开进度还在。</li>
+</ul>
+
+<h2>技术实现</h2>
+<p>整个项目<strong>零后端</strong>：关卡数据集中在 <code>data/levels.json</code> 异步加载，主页与关卡逻辑分别在 <code>js/game.js</code> 与 <code>js/level.js</code>（ES6 类设计），进度用 <code>localStorage</code> 持久化，渲染时对输入做 HTML 转义防 XSS。视觉走简洁清爽路线，蓝紫渐变 + 卡片式布局，并做了响应式适配。</p>
+
+<h2>结语</h2>
+<p>这是我把「让编程更好玩」落地的一次尝试，和这个博客一样追求<strong>打开即用、轻量纯粹</strong>。欢迎去我的 GitHub（<a href="https://github.com/DRGJU" title="作者的 GitHub" rel="noopener noreferrer">DRGJU</a>）交流，后续我计划补全早期关卡并加入成就系统。</p></div>
+      <div id="postActions" class="post__actions"></div>
+    </article>
+  </main>
+
+  <footer class="colophon">
+    <div class="container colophon__inner">
+      <div>
+        <p class="colophon__statement">用文字丈量世界</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 4 期。</p>
+      </div>
+      <div class="colophon__links">
+        <a href="../index.html">文章归档</a>
+        <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+    <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
+  </footer>
+
+  <script type="application/json" id="post-data">{"id":6,"title":"从零到通关：我做的 Python 游戏化学习平台","excerpt":"简要介绍我做的另一个项目——浏览器里的 Python 游戏化学习平台：30 个关卡、6 大阶段、5 种答题模式，纯前端、打开即玩。","date":"2026-11-11","category":"技术","tags":["Python","游戏化学习","项目","前端"],"content":"\u003cp>除了这个博客，我最近还做了一个小项目：一个\u003cstrong>浏览器里的 Python 游戏化学习平台\u003c/strong>。打开网页就能玩，把 Python 语法拆成 30 个关卡，边写边闯关，不用装环境、不用登录。\u003c/p>\n\n\u003ch2>它是什么\u003c/h2>\n\u003cp>一个\u003cstrong>纯前端\u003c/strong>的 Python 学习站点：首页选关，点进去看讲解、示例和挑战，写完代码立刻知道对不对，过关自动解锁下一关，进度存在本地浏览器里。\u003c/p>\n\n\u003ch2>游戏化为什么有效\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>即时反馈：\u003c/strong>写错马上知道，不用攒到月底。\u003c/li>\n  \u003cli>\u003cstrong>小步通关：\u003c/strong>每关只学一个知识点，成就感推着你继续。\u003c/li>\n  \u003cli>\u003cstrong>即开即玩：\u003c/strong>零启动成本，没有配环境的劝退感。\u003c/li>\n\u003c/ul>\n\n\u003ch2>核心特性\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>30 关 / 6 阶段：\u003c/strong>从变量循环到函数、文件、综合项目，难度递进，后续阶段自动锁定。\u003c/li>\n  \u003cli>\u003cstrong>5 种答题模式：\u003c/strong>代码编写、拖放编程、选择题、填空、分步引导，适配不同知识点。\u003c/li>\n  \u003cli>\u003cstrong>进度本地保存：\u003c/strong>基于 \u003ccode>localStorage\u003c/code>，关掉网页再打开进度还在。\u003c/li>\n\u003c/ul>\n\n\u003ch2>技术实现\u003c/h2>\n\u003cp>整个项目\u003cstrong>零后端\u003c/strong>：关卡数据集中在 \u003ccode>data/levels.json\u003c/code> 异步加载，主页与关卡逻辑分别在 \u003ccode>js/game.js\u003c/code> 与 \u003ccode>js/level.js\u003c/code>（ES6 类设计），进度用 \u003ccode>localStorage\u003c/code> 持久化，渲染时对输入做 HTML 转义防 XSS。视觉走简洁清爽路线，蓝紫渐变 + 卡片式布局，并做了响应式适配。\u003c/p>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>这是我把「让编程更好玩」落地的一次尝试，和这个博客一样追求\u003cstrong>打开即用、轻量纯粹\u003c/strong>。欢迎去我的 GitHub（\u003ca href=\"https://github.com/DRGJU\" title=\"作者的 GitHub\">DRGJU\u003c/a>）交流，后续我计划补全早期关卡并加入成就系统。\u003c/p>"}</script>
+  <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
+  <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9.5 7.5 17 12l-7.5 4.5Z"/>
+    </svg>
+  </button>
+  <button id="pauseBtn" class="float-btn float-btn--pause" type="button" aria-label="暂停背景音乐" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+      <path d="M9.5 7.5v9M14.5 7.5v9"/>
+    </svg>
+  </button>
+  <audio id="bgMusic" src="../media/bgyy.mp3" loop preload="none"></audio>
+</div>
+
+<button id="backToTop" class="float-btn float-btn--top" type="button" aria-label="回到顶部" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/>
+  </svg>
+</button>
+
+</body>
+</html>
