@@ -27,7 +27,7 @@
 - 归档区：`h2 文章归档` + 篇数，下面为静态文章行。每行含日期（tabular 数字）、标题链接、摘要、分类与标签、一个阅读链接；行间发丝线。
 - 关于我：两栏排版的原有自述与 GitHub 链接。
 - 页脚（statement close）：「用文字丈量世界」、年份、期号与真实链接；音乐控件已移至悬浮层。
-- 悬浮控件：左下音乐（播放 / 暂停互斥）、右下回到顶部（页首禁用），双线同心圆、八态齐全，由 `templates/controls.html` 注入首页、分页与所有文章页。
+- 悬浮控件：左下音乐（播放 / 暂停互斥）、右下回到顶部（页首隐藏，滚动后显示），双线同心圆、八态齐全，由 `templates/controls.html` 注入首页、分页与所有文章页。
 - 保留的脚本钩子：`#articleList`、`#pagination`、`#articleCount`、`#notice`、`#year`、`#themeToggle`、`#musicControl`、`#playBtn`、`#pauseBtn`、`#bgMusic`、`#backToTop`。
 
 ### 3.2 文章页 `posts/<id>.html`

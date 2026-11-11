@@ -16,6 +16,7 @@
 
 - [x] 背景音乐从页脚移到**左下角圆形悬浮按钮**；右下角新增**圆形回到顶部按钮**
 - [x] 两枚按钮采用双线同心环 + 线性图标，播放中双环转干砖色；桌面 52px、手机 44px
+- [x] 回到顶部改为页首隐藏（而非禁用），滚动超过 240px 显示；点击后隐藏并把焦点交回正文
 - [x] 新增 `css/float-controls.css`、`templates/controls.html`、`js/controls.js` 与八态预览 `float-controls.preview.html`
 - [x] 首页与文章页共享控件；`design.md` 记录圆形是用户对 Newsprint 直角规则的明确例外
 - [x] Hallmark 组件级检查 `--scope component`：**0 FAIL / 0 REFLEX / 0 WARN**；页面级 `--kept` 回归仍为 0 FAIL / 0 REFLEX

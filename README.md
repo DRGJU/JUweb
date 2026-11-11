@@ -92,7 +92,7 @@ npm test           # 核心逻辑单元测试
 - **形态**：Index-First。首屏即报头 + 标题 + 一句 + 一个动作，归档行紧随其后；没有卡片、渐变、阴影或入场动画。
 - **字体**：`Zilla Slab` / `Spectral` / `Libre Franklin` 优先，未安装时回退到系统中文字体栈。**不请求 Google Fonts**。
 - **主题切换**：报头右侧按钮切换浅/深，偏好存 localStorage；深色由同一套色阶派生。
-- **悬浮控件**：左下圆形音乐按钮（`preload="none"`，点击才加载，播放中双环转干砖色）；右下圆形回到顶部按钮（页首禁用，滚动后启用）。两者都是双线同心环、八态齐全，样式与逻辑见 `css/float-controls.css` / `js/controls.js`，八态预览见 `float-controls.preview.html`。如不需要音乐，删除 `media/bgyy.mp3` 与 `templates/controls.html` 中的音乐按钮即可。
+- **悬浮控件**：左下圆形音乐按钮（`preload="none"`，点击才加载，播放中双环转干砖色）；右下圆形回到顶部按钮（页首隐藏，滚动超过 240px 后出现）。两者都是双线同心环、八态齐全，样式与逻辑见 `css/float-controls.css` / `js/controls.js`，八态预览见 `float-controls.preview.html`。如不需要音乐，删除 `media/bgyy.mp3` 与 `templates/controls.html` 中的音乐按钮即可。
 - **可访问性**：`skip-link`、即时焦点环、`aria-pressed` / `aria-current`、`prefers-reduced-motion` 回退、语义化标题层级。
 
 ## 部署

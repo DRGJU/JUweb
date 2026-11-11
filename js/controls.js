@@ -56,7 +56,7 @@ function initBackToTop() {
   let queued = false;
 
   const update = () => {
-    button.disabled = window.scrollY < 240;
+    button.hidden = window.scrollY < 240;
     queued = false;
   };
   update();
@@ -69,6 +69,13 @@ function initBackToTop() {
 
   button.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
-    button.focus({ preventScroll: true });
+    button.hidden = true;
+    // 控件消失后把焦点交回正文，避免焦点落到 body
+    const main = document.querySelector('main');
+    if (main) {
+      main.setAttribute('tabindex', '-1');
+      main.focus({ preventScroll: true });
+      main.removeAttribute('tabindex');
+    }
   });
 }
