@@ -17,3 +17,229 @@
   height: 100%;
   pointer-events: none;
 }
+
+/* ===== 页面基础 ===== */
+body {
+  background-color: #f7f5f0;
+  color: #1f2430;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+/* ===== 滚动显现动画（配合 script.js 的 IntersectionObserver）===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  will-change: opacity, transform;
+}
+
+.reveal.visible,
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ===== 文章卡片 ===== */
+.article-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(31, 36, 48, 0.08);
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.article-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(31, 36, 48, 0.1);
+  border-color: rgba(139, 94, 60, 0.35);
+}
+
+.hover-accent:hover {
+  color: #8b5e3c;
+}
+
+/* ===== 标签 ===== */
+.tag {
+  background-color: #eee9df;
+  color: #6b7280;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.article-card:hover .tag {
+  background-color: rgba(139, 94, 60, 0.12);
+  color: #8b5e3c;
+}
+
+/* ===== 分页 ===== */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2.5rem;
+}
+
+.pagination-btn {
+  min-width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border: 1px solid rgba(31, 36, 48, 0.15);
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #1f2430;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+  border-color: #8b5e3c;
+  color: #8b5e3c;
+}
+
+.pagination-btn.active {
+  background-color: #8b5e3c;
+  border-color: #8b5e3c;
+  color: #ffffff;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===== 背景音乐控制 ===== */
+.music-controls {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 60;
+}
+
+.music-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(31, 36, 48, 0.15);
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  color: #8b5e3c;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(31, 36, 48, 0.12);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.music-btn:hover {
+  transform: scale(1.08);
+  background-color: #ffffff;
+}
+
+/* ===== 文章详情正文排版 ===== */
+.custom-prose {
+  color: #374151;
+  line-height: 1.9;
+  font-size: 1rem;
+}
+
+.custom-prose h2,
+.custom-prose h3 {
+  font-family: 'Cormorant Garamond', 'Noto Sans SC', serif;
+  color: #1f2430;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.custom-prose p {
+  margin-bottom: 1.25rem;
+}
+
+.custom-prose a {
+  color: #8b5e3c;
+  text-decoration: underline;
+}
+
+.custom-prose img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.custom-prose pre,
+.custom-prose code {
+  background-color: #eee9df;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.custom-prose pre {
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.custom-prose code {
+  padding: 0.15em 0.4em;
+}
+
+.custom-prose pre code {
+  padding: 0;
+  background: none;
+}
+
+.custom-prose blockquote {
+  border-left: 3px solid #8b5e3c;
+  padding-left: 1rem;
+  color: #6b7280;
+  margin: 1.5rem 0;
+}
+
+.custom-prose ul,
+.custom-prose ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.custom-prose ul {
+  list-style: disc;
+}
+
+.custom-prose ol {
+  list-style: decimal;
+}
+
+/* ===== 视频背景（html/index.html 旧版页面）===== */
+.video-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.video-background video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== 管理页表单控件 ===== */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #8b5e3c !important;
+  box-shadow: 0 0 0 2px rgba(139, 94, 60, 0.15);
+}
