@@ -115,13 +115,14 @@
 
 /* ===== 文章页 ===== */
 .post { padding-block: var(--section-gap-s) var(--section-gap); }
+.post__article { max-width: 68ch; margin-inline: auto; }
 .post__head { padding-bottom: var(--space-xl); border-bottom: calc(var(--rule-hair) * 3) double var(--color-rule-2); }
 .post__back { font-size: var(--text-sm); color: var(--color-accent); text-decoration: underline; }
-.post__title { margin-top: var(--space-lg); font-size: var(--text-display-s); max-width: 26ch; }
+.post__title { margin-top: var(--space-lg); font-size: var(--text-display-s); max-width: 100%; }
 .post__meta { display: flex; gap: var(--space-lg); flex-wrap: wrap; margin-top: var(--space-lg); font-size: var(--text-sm); color: var(--color-muted); }
 .post__tags { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-top: var(--space-md); }
 .post__tag { font-size: var(--text-xs); color: var(--color-muted); }
-.post__body { margin-top: var(--space-2xl); max-width: 68ch; line-height: 1.75; }
+.post__body { margin-top: var(--space-2xl); max-width: 100%; line-height: 1.75; }
 .post__body h2 { margin-top: var(--space-2xl); margin-bottom: var(--space-md); font-size: var(--text-section); }
 .post__body h3 { margin-top: var(--space-xl); margin-bottom: var(--space-sm); }
 .post__body p { margin-bottom: var(--space-lg); }

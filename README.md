@@ -90,6 +90,7 @@ npm test           # 核心逻辑单元测试
 
 - **主题**：Newsprint（editorial，restrained）。浅新闻纸底、暖黑墨、板衬线标题、书衬线正文、agate 数字；普通分隔用发丝线，大分隔用双线；干砖色只用于链接、焦点环等信号，不作填充。
 - **形态**：Index-First。首屏即报头 + 标题 + 一句 + 一个动作，归档行紧随其后；收尾是把「关于我」与页脚合并的换纸刊记 band（超大刊名字标 + 自述 + 真实刊记表）；没有卡片、渐变、阴影或入场动画。
+- **文章页**：标题与正文居中收进 68ch 阅读栏（约 34 个汉字/行），报头与页脚仍用全宽容器；不是把文字设为居中对齐。
 - **字体**：`Zilla Slab` / `Spectral` / `Libre Franklin` 优先，未安装时回退到系统中文字体栈。**不请求 Google Fonts**。
 - **主题切换**：报头右侧按钮切换浅/深，偏好存 localStorage；深色由同一套色阶派生。
 - **悬浮控件**：左下圆形音乐按钮（`preload="none"`，点击才加载，播放中双环转干砖色）；右下圆形回到顶部按钮（页首隐藏，滚动超过 240px 后出现）。两者都是双线同心环、八态齐全，样式与逻辑见 `css/float-controls.css` / `js/controls.js`，八态预览见 `float-controls.preview.html`。如不需要音乐，删除 `media/bgyy.mp3` 与 `templates/controls.html` 中的音乐按钮即可。

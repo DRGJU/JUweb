@@ -29,6 +29,12 @@
 - [x] 文章页保留简化 statement 页脚，不重复作者自述；`design.md` 登记超大字标与换纸 band 例外
 - [x] CSS stamp 记录方案 A；保留全部 id、脚本钩子与真实链接
 
+## v3.3 · 文章页阅读栏（本次完成）
+
+- [x] 用户要求文章内容居中且宽度合适：按阅读栏居中实现（非文字居中对齐）
+- [x] `templates/post.html` 为 `article` 增加 `post__article`；`css/style.css` 设 68ch 居中、标题与正文填满该栏
+- [x] README / spec / checklist / design.md 同步说明
+
 ## 历史
 
 - v2：零依赖静态博客，带本地草稿编辑器与文章页（已被 v3 取代）。

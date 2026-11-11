@@ -30,6 +30,13 @@
 - **层级**：字标是首页最大字号，其次为 `h2 --text-section`，再次为 14px 刊记行；干砖色只落在链接与焦点环。
 - **响应式**：60rem 以下三栏改单栏，40rem 以下字标降一档、页脚行竖排。
 
+## 文章页阅读栏
+
+- `<article class="post__article">` 在全宽容器里居中，`max-width: 68ch`（约 34 个汉字/行），`margin-inline: auto`。
+- 返回目录、标题、dateline、正文与末尾操作都在同一栏内；标题 `max-width: 100%`，不再受 26ch 限制反复折行。
+- 全宽报头与页脚夹着一条居中阅读栏，形成「宽 — 窄 — 宽」的节奏；这是「一个容器宽度」规则的一处用户指定例外。
+- 窄屏时阅读栏自然占满容器减去 gutter 的宽度，无需额外断点；正文仍保持 16px / 1.75 行高。
+
 ## 悬浮控件
 
 见 `css/float-controls.css`、`templates/controls.html`、`js/controls.js`，八态预览在 `float-controls.preview.html`。
@@ -45,7 +52,7 @@
 | 页面 | 首屏 | 主体 | 收尾 |
 |------|------|------|------|
 | `index.html` / `page/*.html` | Index，标题 + 一句 + 读最新一篇 | 归档行 | 刊记 band（关于我 + 页脚合并） |
-| `posts/*.html` | 文章标题 + dateline | 单栏 68ch 正文、返回目录 | 简化 statement 页脚 |
+| `posts/*.html` | 文章标题 + dateline | 居中 68ch 阅读栏（标题 + 正文）、返回目录 | 简化 statement 页脚 |
 
 两者共享报头、令牌、悬浮控件与排版尺度，只在主体与收尾上不同；文章页不重复作者自述。
 
