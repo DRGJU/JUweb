@@ -1,6 +1,7 @@
 import { normalizeArticle, parseJSON, stripHTML } from './core.js';
 import { sanitizeHTML } from './sanitize.js';
 import { initTheme, showNotice } from './ui.js';
+import { initControls } from './controls.js';
 
 function node(tag, className, text) {
   const el = document.createElement(tag);
@@ -54,6 +55,7 @@ function render(article) {
 }
 
 initTheme();
+initControls();
 
 const article = resolveArticle();
 if (article) {

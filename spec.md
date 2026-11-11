@@ -11,8 +11,8 @@
 | 项目 | 选型 |
 |------|------|
 | 渲染 | **构建期静态生成**：`data/articles.json` → `index.html`、`page/*.html`、`posts/*.html` |
-| 运行时 JS | 渐进增强，仅主题切换、音乐控件、文章页二次消毒与复制链接 |
-| 样式 | 自有 CSS，三层：`tokens.css`（设计令牌）、`base.css`（Hallmark 基础）、`style.css`（页面） |
+| 运行时 JS | 渐进增强，仅主题切换、两枚悬浮控件（音乐 / 回到顶部）、文章页二次消毒与复制链接 |
+| 样式 | 自有 CSS，四层：`tokens.css`（设计令牌）、`base.css`（Hallmark 基础）、`float-controls.css`（悬浮控件）、`style.css`（页面） |
 | 字体 | 本地字体栈，零外部请求 |
 | 工具链 | Node.js ≥ 18（仅本地构建、预览、测试），零第三方依赖 |
 
@@ -26,8 +26,9 @@
 - 首屏（Index posture）：标题「白天写代码，晚上写文章。」、一句说明、主按钮「读最新一篇」，右侧以大字号排最新文章标题与日期。
 - 归档区：`h2 文章归档` + 篇数，下面为静态文章行。每行含日期（tabular 数字）、标题链接、摘要、分类与标签、一个阅读链接；行间发丝线。
 - 关于我：两栏排版的原有自述与 GitHub 链接。
-- 页脚（statement close）：「用文字丈量世界」、年份、期号、音乐控件与真实链接。
-- 保留的脚本钩子：`#articleList`、`#pagination`、`#articleCount`、`#notice`、`#year`、`#themeToggle`、`#playBtn`、`#pauseBtn`、`#bgMusic`。
+- 页脚（statement close）：「用文字丈量世界」、年份、期号与真实链接；音乐控件已移至悬浮层。
+- 悬浮控件：左下音乐（播放 / 暂停互斥）、右下回到顶部（页首禁用），双线同心圆、八态齐全，由 `templates/controls.html` 注入首页、分页与所有文章页。
+- 保留的脚本钩子：`#articleList`、`#pagination`、`#articleCount`、`#notice`、`#year`、`#themeToggle`、`#musicControl`、`#playBtn`、`#pauseBtn`、`#bgMusic`、`#backToTop`。
 
 ### 3.2 文章页 `posts/<id>.html`
 

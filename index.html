@@ -112,12 +112,6 @@
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
         <p class="colophon__meta">墨迹，<span id="year"></span>。第 2 期，2026-11-11。</p>
-        <div class="music">
-          <span class="music__label">背景音乐</span>
-          <button id="playBtn" class="music__btn" type="button" aria-label="播放背景音乐">播放</button>
-          <button id="pauseBtn" class="music__btn" type="button" aria-label="暂停背景音乐" hidden>暂停</button>
-          <audio id="bgMusic" src="./media/bgyy.mp3" loop preload="none"></audio>
-        </div>
       </div>
       <div class="colophon__links">
         <a href="index.html">首页</a>
@@ -127,5 +121,26 @@
     </div>
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
+
+  <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
+  <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9.5 7.5 17 12l-7.5 4.5Z"/>
+    </svg>
+  </button>
+  <button id="pauseBtn" class="float-btn float-btn--pause" type="button" aria-label="暂停背景音乐" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+      <path d="M9.5 7.5v9M14.5 7.5v9"/>
+    </svg>
+  </button>
+  <audio id="bgMusic" src="./media/bgyy.mp3" loop preload="none"></audio>
+</div>
+
+<button id="backToTop" class="float-btn float-btn--top" type="button" aria-label="回到顶部" disabled>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/>
+  </svg>
+</button>
+
 </body>
 </html>

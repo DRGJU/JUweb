@@ -6,8 +6,10 @@
 /* Hallmark · waive 37 · three families with the agate face held to figures only · Newsprint's listings face has one role */
 /* Hallmark · dropped admin.html · the user is retiring the in-browser article editor */
 /* Hallmark · answered F1 · straight quotes are Python string literals in the code samples · replacing them breaks the examples */
+/* Hallmark · component: floating controls · states: 8 · the circle is a user-requested exception to Newsprint's square corners */
 @import url("./tokens.css");
 @import url("./base.css");
+@import url("./float-controls.css");
 
 /* ===== 报头 ===== */
 .masthead { border-bottom: calc(var(--rule-hair) * 3) double var(--color-rule-2); }
@@ -66,7 +68,7 @@
 .btn:hover { background: var(--color-ink-2); }
 .btn:active { transform: translateY(1px); }
 .btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
-.btn:disabled, .music__btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .hero__note { font-size: var(--text-sm); color: var(--color-muted); }
 
 .hero__latest { border-top: calc(var(--rule-hair) * 3) double var(--color-rule-2); padding-top: var(--space-md); }
@@ -144,22 +146,6 @@
 .colophon__meta { margin-top: var(--space-sm); font-size: var(--text-sm); color: var(--color-muted); }
 .colophon__links { display: flex; gap: var(--space-lg); flex-wrap: wrap; font-size: var(--text-sm); }
 .colophon__links a { color: var(--color-accent); text-decoration: underline; }
-.music { display: inline-flex; align-items: center; gap: var(--space-xs); margin-top: var(--space-lg); }
-.music__label { font-size: var(--text-sm); color: var(--color-muted); }
-.music__btn {
-  min-height: 40px;
-  padding-inline: var(--space-md);
-  border: var(--rule-hair) solid var(--color-rule-2);
-  background: none;
-  color: var(--color-ink);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  transition: background-color var(--dur-short) var(--ease-out);
-}
-.music__btn:hover { background: var(--color-paper-2); }
-.music__btn:active { transform: translateY(1px); }
-.music__btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
 /* ===== 响应式 ===== */
 @media (max-width: 60rem) {
@@ -175,6 +161,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn, .music__btn { transition: none; }
-  .btn:active, .music__btn:active { transform: none; }
+  .btn { transition: none; }
+  .btn:active { transform: none; }
 }

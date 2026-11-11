@@ -53,7 +53,7 @@ function renderPagination(current, pages, inPageDir) {
   return links.join('\n        ');
 }
 
-function indexValues(template, payload, articles, page, inPageDir) {
+function indexValues(template, controlsTemplate, payload, articles, page, inPageDir) {
   const base = inPageDir ? '../' : './';
   const latest = articles[0];
   const { items } = paginate(articles, page, ITEMS_PER_PAGE);
@@ -69,11 +69,12 @@ function indexValues(template, payload, articles, page, inPageDir) {
     LATEST_DATE: escapeHTML(latest.date),
     LATEST_CATEGORY: escapeHTML(latest.category),
     ARTICLE_ROWS: items.map((article) => renderRow(article, base)).join('\n        '),
-    PAGINATION: renderPagination(page, totalPages(articles.length, ITEMS_PER_PAGE), inPageDir)
+    PAGINATION: renderPagination(page, totalPages(articles.length, ITEMS_PER_PAGE), inPageDir),
+    CONTROLS: fill(controlsTemplate, { BASE: base })
   });
 }
 
-function postPage(template, article, payload) {
+function postPage(template, controlsTemplate, article, payload) {
   const tags = article.tags
     .map((tag) => `<span class="post__tag">${escapeHTML(tag)}</span>`)
     .join('');
@@ -89,7 +90,8 @@ function postPage(template, article, payload) {
     VERSION: payload.version,
     TAGS: tags,
     BODY: sanitizeHTMLString(article.content),
-    POST_DATA: json
+    POST_DATA: json,
+    CONTROLS: fill(controlsTemplate, { BASE: '../' })
   });
 }
 
@@ -114,17 +116,30 @@ async function main() {
 
   const indexTemplate = await readFile(path.join(TEMPLATES, 'index.html'), 'utf8');
   const postTemplate = await readFile(path.join(TEMPLATES, 'post.html'), 'utf8');
+  const controlsTemplate = await readFile(path.join(TEMPLATES, 'controls.html'), 'utf8');
 
   await cleanGenerated(path.join(ROOT, 'posts'));
   await cleanGenerated(path.join(ROOT, 'page'));
 
   const pages = totalPages(articles.length, ITEMS_PER_PAGE);
-  await writeFile(path.join(ROOT, 'index.html'), indexValues(indexTemplate, payload, articles, 1, false), 'utf8');
+  await writeFile(
+    path.join(ROOT, 'index.html'),
+    indexValues(indexTemplate, controlsTemplate, payload, articles, 1, false),
+    'utf8'
+  );
   for (let p = 2; p <= pages; p += 1) {
-    await writeFile(path.join(ROOT, 'page', `${p}.html`), indexValues(indexTemplate, payload, articles, p, true), 'utf8');
+    await writeFile(
+      path.join(ROOT, 'page', `${p}.html`),
+      indexValues(indexTemplate, controlsTemplate, payload, articles, p, true),
+      'utf8'
+    );
   }
   for (const article of articles) {
-    await writeFile(path.join(ROOT, 'posts', `${article.id}.html`), postPage(postTemplate, article, payload), 'utf8');
+    await writeFile(
+      path.join(ROOT, 'posts', `${article.id}.html`),
+      postPage(postTemplate, controlsTemplate, article, payload),
+      'utf8'
+    );
   }
 
   const urls = [SITE_URL];

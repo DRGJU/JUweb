@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>悬浮控件 · 八态预览 | 墨迹</title>
+  <meta name="description" content="墨迹博客两个悬浮圆形按钮的全部交互状态预览。">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/float-controls.css">
+  <style>
+    .preview { padding-block: var(--space-2xl); }
+    .preview h1 { font-size: var(--text-display-s); max-width: 24ch; }
+    .preview h2 { font-size: var(--text-section); margin-top: var(--space-3xl); }
+    .preview__grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-2xl);
+      margin-top: var(--space-xl);
+    }
+    .preview__item { display: flex; flex-direction: column; align-items: center; gap: var(--space-xl); }
+    .preview__item figcaption { font-size: var(--text-sm); color: var(--color-muted); }
+    .float-slot--music, .float-btn--top { position: static; }
+    .float-btn { position: relative; }
+    @media (max-width: 40rem) { .preview__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  </style>
+</head>
+<body>
+  <main class="container preview">
+    <h1>悬浮控件的八个状态</h1>
+    <p class="lead">同一套双线同心环，音乐在左下，回到顶部在右下。</p>
+
+    <h2>背景音乐</h2>
+    <div class="preview__grid">
+      <figure class="preview__item">
+        <button class="float-btn float-btn--play" type="button" aria-label="默认状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 7.5 17 12l-7.5 4.5Z"/></svg>
+        </button>
+        <figcaption>默认</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn is-hover" type="button" aria-label="悬停状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 7.5 17 12l-7.5 4.5Z"/></svg>
+        </button>
+        <figcaption>悬停</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn is-focus" type="button" aria-label="焦点状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 7.5 17 12l-7.5 4.5Z"/></svg>
+        </button>
+        <figcaption>焦点</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn is-active" type="button" aria-label="按下状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 7.5 17 12l-7.5 4.5Z"/></svg>
+        </button>
+        <figcaption>按下</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn is-disabled" type="button" aria-label="禁用状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 7.5 17 12l-7.5 4.5Z"/></svg>
+        </button>
+        <figcaption>禁用</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn is-loading" type="button" aria-label="加载状态" aria-busy="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 7.5 17 12l-7.5 4.5Z"/></svg>
+        </button>
+        <figcaption>加载</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn is-error" type="button" aria-label="错误状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 7.5 17 12l-7.5 4.5Z"/></svg>
+        </button>
+        <figcaption>错误</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn is-success" type="button" aria-label="播放中状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M9.5 7.5v9M14.5 7.5v9"/></svg>
+        </button>
+        <figcaption>播放中</figcaption>
+      </figure>
+    </div>
+
+    <h2>回到顶部</h2>
+    <div class="preview__grid">
+      <figure class="preview__item">
+        <button class="float-btn float-btn--top" type="button" aria-label="默认状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/></svg>
+        </button>
+        <figcaption>默认</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn float-btn--top is-hover" type="button" aria-label="悬停状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/></svg>
+        </button>
+        <figcaption>悬停</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn float-btn--top is-focus" type="button" aria-label="焦点状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/></svg>
+        </button>
+        <figcaption>焦点</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn float-btn--top is-active" type="button" aria-label="按下状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/></svg>
+        </button>
+        <figcaption>按下</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn float-btn--top is-disabled" type="button" aria-label="禁用状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/></svg>
+        </button>
+        <figcaption>禁用</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn float-btn--top is-loading" type="button" aria-label="加载状态" aria-busy="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/></svg>
+        </button>
+        <figcaption>加载</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn float-btn--top is-error" type="button" aria-label="错误状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/></svg>
+        </button>
+        <figcaption>错误</figcaption>
+      </figure>
+      <figure class="preview__item">
+        <button class="float-btn float-btn--top is-success" type="button" aria-label="完成状态">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/></svg>
+        </button>
+        <figcaption>完成</figcaption>
+      </figure>
+    </div>
+  </main>
+</body>
+</html>

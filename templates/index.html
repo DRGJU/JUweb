@@ -77,12 +77,6 @@
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
         <p class="colophon__meta">墨迹，<span id="year"></span>。第 {{VERSION}} 期，{{UPDATED_AT}}。</p>
-        <div class="music">
-          <span class="music__label">背景音乐</span>
-          <button id="playBtn" class="music__btn" type="button" aria-label="播放背景音乐">播放</button>
-          <button id="pauseBtn" class="music__btn" type="button" aria-label="暂停背景音乐" hidden>暂停</button>
-          <audio id="bgMusic" src="{{BASE}}media/bgyy.mp3" loop preload="none"></audio>
-        </div>
       </div>
       <div class="colophon__links">
         <a href="{{HOME_HREF}}">首页</a>
@@ -92,5 +86,7 @@
     </div>
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
+
+  {{CONTROLS}}
 </body>
 </html>

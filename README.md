@@ -59,18 +59,22 @@ npm test           # 核心逻辑单元测试
 ├── index.html          生成物：报头 + 首屏 + 文章归档 + 关于 + 页脚
 ├── posts/              生成物：每篇文章一个独立静态页
 ├── page/               生成物：归档分页（文章超过 7 篇时出现）
+├── float-controls.preview.html  两枚悬浮按钮的八态预览（noindex）
 ├── templates/
 │   ├── index.html      首页 / 分页模板
-│   └── post.html       文章页模板
+│   ├── post.html       文章页模板
+│   └── controls.html   两枚悬浮按钮的共享片段
 ├── css/
 │   ├── tokens.css      设计令牌（OKLCH 色阶、字体栈、间距刻度）
 │   ├── base.css        Hallmark 基础规则（焦点、容器、reduced-motion 等）
+│   ├── float-controls.css  圆形悬浮按钮（双线同心环 + 八态）
 │   └── style.css       页面样式（首行含 Hallmark stamp 与豁免记录）
 ├── js/
 │   ├── core.js         纯函数：数据规范化、分页、日期、白名单消毒规则
 │   ├── ui.js           主题切换、年份、提示条
-│   ├── app.js          首页渐进增强（主题、音乐）
-│   ├── post.js         文章页渐进增强（二次消毒、复制永久链接）
+│   ├── controls.js     两枚悬浮控件的共享逻辑
+│   ├── app.js          首页渐进增强（主题 + 控件）
+│   ├── post.js         文章页渐进增强（二次消毒、复制永久链接 + 控件）
 │   └── sanitize.js     浏览器 DOM 白名单消毒
 ├── data/articles.json  唯一内容源
 ├── media/bgyy.mp3      背景音乐（preload="none"，点击才加载）
@@ -88,7 +92,7 @@ npm test           # 核心逻辑单元测试
 - **形态**：Index-First。首屏即报头 + 标题 + 一句 + 一个动作，归档行紧随其后；没有卡片、渐变、阴影或入场动画。
 - **字体**：`Zilla Slab` / `Spectral` / `Libre Franklin` 优先，未安装时回退到系统中文字体栈。**不请求 Google Fonts**。
 - **主题切换**：报头右侧按钮切换浅/深，偏好存 localStorage；深色由同一套色阶派生。
-- **音乐**：页脚控件，`preload="none"`，播放被浏览器拦截时给出提示。如不需要，删除 `media/bgyy.mp3` 与模板中的音乐控件即可。
+- **悬浮控件**：左下圆形音乐按钮（`preload="none"`，点击才加载，播放中双环转干砖色）；右下圆形回到顶部按钮（页首禁用，滚动后启用）。两者都是双线同心环、八态齐全，样式与逻辑见 `css/float-controls.css` / `js/controls.js`，八态预览见 `float-controls.preview.html`。如不需要音乐，删除 `media/bgyy.mp3` 与 `templates/controls.html` 中的音乐按钮即可。
 - **可访问性**：`skip-link`、即时焦点环、`aria-pressed` / `aria-current`、`prefers-reduced-motion` 回退、语义化标题层级。
 
 ## 部署

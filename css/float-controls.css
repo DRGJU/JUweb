@@ -1,0 +1,105 @@
+/* Hallmark · component: floating controls · genre: editorial · theme: Newsprint · states: 8 · contrast: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H5 E5 S5 R5 V4 · weakest: S, a pair of round buttons is a familiar pattern; gave them the paper's double-rule rings and a brick playing state */
+/* Hallmark · note · the circle is the user's exception to Newsprint's square corners, recorded in design.md; no device frame is drawn */
+
+.float-slot--music {
+  position: fixed;
+  left: var(--space-xl);
+  bottom: var(--space-xl);
+  z-index: var(--z-sticky);
+  width: 3.25rem;
+  height: 3.25rem;
+}
+
+.float-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: var(--space-3xs);
+  border: var(--rule-hair) solid var(--color-ink);
+  border-radius: 50%;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out);
+}
+
+/* 双线同心环：把报纸的双线规则缩到一个圆上 */
+.float-btn::before,
+.float-btn::after {
+  content: "";
+  position: absolute;
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: border-color var(--dur-short) var(--ease-out);
+}
+.float-btn::before { inset: var(--space-xs); }
+.float-btn::after { inset: calc(var(--space-2xs) * -2); }
+
+.float-btn > svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform var(--dur-short) var(--ease-out);
+}
+
+.float-btn--top {
+  position: fixed;
+  right: var(--space-xl);
+  bottom: var(--space-xl);
+  z-index: var(--z-sticky);
+}
+
+/* 八态：伪类与预览用的状态类并列 */
+.float-btn:hover,
+.float-btn.is-hover { background: var(--color-paper-2); }
+.float-btn:hover::after,
+.float-btn.is-hover::after { border-color: var(--color-ink-2); }
+
+.float-btn:focus-visible,
+.float-btn.is-focus { outline: 2px solid var(--color-focus); outline-offset: var(--space-2xs); }
+
+.float-btn:active,
+.float-btn.is-active { transform: translateY(1px); }
+.float-btn--top:hover > svg,
+.float-btn--top.is-hover > svg { transform: translateY(-2px); }
+
+.float-btn:disabled,
+.float-btn[aria-disabled="true"],
+.float-btn.is-disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.float-btn[aria-busy="true"],
+.float-btn.is-loading { color: var(--color-muted); }
+.float-btn[aria-busy="true"]::after,
+.float-btn.is-loading::after { border-color: var(--color-accent); }
+
+.float-btn[data-state="error"],
+.float-btn.is-error { color: var(--color-error); border-color: var(--color-error); }
+.float-btn[data-state="error"]::after,
+.float-btn.is-error::after { border-color: var(--color-error); }
+
+.float-btn[data-state="success"],
+.float-btn.is-success,
+.float-slot[data-playing="true"] .float-btn {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.float-btn[data-state="success"]::after,
+.float-btn.is-success::after,
+.float-slot[data-playing="true"] .float-btn::after { border-color: var(--color-accent); }
+.float-slot[data-playing="true"] .float-btn::before { border-color: var(--color-accent); }
+
+@media (max-width: 40rem) {
+  .float-slot--music { left: var(--space-md); bottom: var(--space-md); width: 2.75rem; height: 2.75rem; }
+  .float-btn--top { right: var(--space-md); bottom: var(--space-md); }
+  .float-btn { width: 2.75rem; height: 2.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float-btn, .float-btn > svg, .float-btn::before, .float-btn::after { transition: none; }
+  .float-btn:active, .float-btn.is-active { transform: none; }
+  .float-btn--top:hover > svg, .float-btn--top.is-hover > svg { transform: none; }
+}

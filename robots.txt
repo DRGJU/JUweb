@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /float-controls.preview.html
 
 Sitemap: https://drgju.github.io/JUweb/sitemap.xml
