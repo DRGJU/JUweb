@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>墨迹 | 个人博客</title>
+  <meta name="description" content="墨迹：记录技术探索与日常思考的个人博客。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="墨迹 | 个人博客">
+  <meta property="og:description" content="记录技术探索与日常思考的个人博客。">
+  <meta property="og:url" content="https://drgju.github.io/JUweb/page/2.html">
+  <link rel="canonical" href="https://drgju.github.io/JUweb/page/2.html">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script type="module" src="../js/app.js"></script>
+</head>
+<body>
+  <a class="visually-hidden" href="#articles">跳到文章归档</a>
+
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
+      <span class="masthead__edition">第 7 期，2026-11-11</span>
+      <nav class="masthead__nav" aria-label="主导航">
+        <a href="#articles">文章</a>
+        <a href="#about">关于</a>
+        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="container hero__grid">
+        <div>
+          <h1 id="heroTitle" class="hero__head">白天写代码，晚上写文章。</h1>
+          <p class="hero__lead">墨迹是一个记录技术探索与日常思考的个人博客。</p>
+          <div class="hero__actions">
+            <a class="btn" href="../posts/8.html">读最新一篇</a>
+            <span class="hero__note">共 8 篇，按日期排列。</span>
+          </div>
+        </div>
+        <aside class="hero__latest" aria-label="最新一篇">
+          <a class="hero__latest-title" href="../posts/8.html">DLL 入门：如何编写并在 C/C++、C#、Python 中调用动态链接库</a>
+          <time class="hero__latest-date" datetime="2026-11-11">2026-11-11，技术</time>
+        </aside>
+      </div>
+    </section>
+
+    <section id="articles" class="archive" aria-labelledby="listTitle">
+      <div class="container">
+        <div class="archive__head">
+          <h2 id="listTitle">文章归档</h2>
+          <span id="articleCount" class="archive__count">共 8 篇</span>
+        </div>
+        <div id="articleList"><article class="row">
+          <time class="row__date" datetime="2024-01-01">2024-01-01</time>
+          <div>
+            <h3 class="row__title"><a href="../posts/1.html">Python 入门教程：从零开始掌握 Python 基础</a></h3>
+            <p class="row__excerpt">Python 是一门简洁优雅、功能强大的编程语言，非常适合作为第一门编程语言。本文将从环境搭建讲起，带你逐步掌握变量、数据类型、流程控制、函数等核心语法，为后续深入学习打下坚实基础。</p>
+            <p class="row__meta">技术，Python，入门教程，编程基础</p>
+          </div>
+          <a class="row__link" href="../posts/1.html" aria-label="读《Python 入门教程：从零开始掌握 Python 基础》">读这一篇</a>
+        </article></div>
+        <nav id="pagination" class="pagination" aria-label="文章分页"><a href="../index.html">上一页</a>
+        <a href="../index.html">第 1 页</a>
+        <a href="page/2.html" aria-current="page">第 2 页</a></nav>
+      </div>
+    </section>
+  </main>
+
+  <footer id="about" class="colophon-mast" aria-labelledby="aboutTitle">
+    <div class="container">
+      <div class="colophon-mast__grid">
+        <div>
+          <p class="colophon-mast__mark">墨迹</p>
+          <p class="colophon-mast__tagline">用文字丈量世界</p>
+        </div>
+        <div>
+          <h2 id="aboutTitle" class="colophon-mast__heading">关于我</h2>
+          <div class="colophon-mast__prose">
+            <p>一个热爱技术与文字的普通人。白天写代码，晚上写文章。喜欢探索新技术，也喜欢回味经典。</p>
+            <p>相信好的代码像诗一样优雅，好的文章像老友聊天一样自然。这个博客是我的数字花园，记录成长，分享收获。</p>
+          </div>
+        </div>
+        <dl class="colophon-mast__facts">
+          <div><dt>收录</dt><dd>8 篇</dd></div>
+          <div><dt>本期</dt><dd>第 7 期</dd></div>
+          <div><dt>更新</dt><dd>2026-11-11</dd></div>
+          <div><dt>起始</dt><dd>2024-01-01</dd></div>
+          <div><dt>去处</dt><dd><a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a></dd></div>
+        </dl>
+      </div>
+      <div class="colophon-mast__foot">
+        <p>墨迹，<span id="year"></span>。第 7 期，2026-11-11。</p>
+        <div class="colophon-mast__links">
+          <a href="../index.html">首页</a>
+          <a href="#articles">文章归档</a>
+          <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+      <p id="notice" class="visually-hidden" role="status"></p>
+    </div>
+  </footer>
+
+  <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
+  <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9.5 7.5 17 12l-7.5 4.5Z"/>
+    </svg>
+  </button>
+  <button id="pauseBtn" class="float-btn float-btn--pause" type="button" aria-label="暂停背景音乐" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+      <path d="M9.5 7.5v9M14.5 7.5v9"/>
+    </svg>
+  </button>
+  <audio id="bgMusic" src="../media/bgyy.mp3" loop preload="none"></audio>
+</div>
+
+<button id="backToTop" class="float-btn float-btn--top" type="button" aria-label="回到顶部" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/>
+  </svg>
+</button>
+
+</body>
+</html>
