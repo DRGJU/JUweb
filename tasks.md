@@ -38,7 +38,7 @@
 ## v3.4 · 标题区恢复原样（本次完成）
 
 - [x] 用户要求文章页标题部分恢复成改动前的样子：移除 `post__article` 包裹，标题恢复 `max-width: 26ch`，双线恢复横跨全宽
-- [x] 只保留正文居中：`.post__body { max-width: 68ch; margin-inline: auto; }`；末尾操作保持全宽
+- [x] 正文改为全宽：` .post__body { max-width: none; }` 并 `.post__body p { max-width: none; }`，取消居中
 - [x] design.md / README / spec / checklist / tasks 同步说明；改完直接推送 main
 
 ## 历史

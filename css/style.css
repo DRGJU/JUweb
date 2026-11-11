@@ -121,10 +121,10 @@
 .post__meta { display: flex; gap: var(--space-lg); flex-wrap: wrap; margin-top: var(--space-lg); font-size: var(--text-sm); color: var(--color-muted); }
 .post__tags { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-top: var(--space-md); }
 .post__tag { font-size: var(--text-xs); color: var(--color-muted); }
-.post__body { margin-top: var(--space-2xl); max-width: 68ch; margin-inline: auto; line-height: 1.75; }
+.post__body { margin-top: var(--space-2xl); max-width: none; line-height: 1.75; }
 .post__body h2 { margin-top: var(--space-2xl); margin-bottom: var(--space-md); font-size: var(--text-section); }
 .post__body h3 { margin-top: var(--space-xl); margin-bottom: var(--space-sm); }
-.post__body p { margin-bottom: var(--space-lg); }
+.post__body p { margin-bottom: var(--space-lg); max-width: none; }
 .post__body a { color: var(--color-accent); text-decoration: underline; }
 .post__body img { margin-block: var(--space-lg); }
 .post__body pre { padding: var(--space-md); background: var(--color-paper-2); overflow-x: auto; }
