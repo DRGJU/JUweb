@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "updatedAt": "2026-11-11",
   "articles": [
     {
@@ -85,6 +85,20 @@
         "前端"
       ],
       "content": "<p>除了这个博客，我最近还做了一个小项目：一个<strong>浏览器里的 Python 游戏化学习平台</strong>。打开网页就能玩，把 Python 语法拆成 30 个关卡，边写边闯关，不用装环境、不用登录。</p>\n\n<h2>它是什么</h2>\n<p>一个<strong>纯前端</strong>的 Python 学习站点：首页选关，点进去看讲解、示例和挑战，写完代码立刻知道对不对，过关自动解锁下一关，进度存在本地浏览器里。</p>\n\n<h2>游戏化为什么有效</h2>\n<ul>\n  <li><strong>即时反馈：</strong>写错马上知道，不用攒到月底。</li>\n  <li><strong>小步通关：</strong>每关只学一个知识点，成就感推着你继续。</li>\n  <li><strong>即开即玩：</strong>零启动成本，没有配环境的劝退感。</li>\n</ul>\n\n<h2>核心特性</h2>\n<ul>\n  <li><strong>30 关 / 6 阶段：</strong>从变量循环到函数、文件、综合项目，难度递进，后续阶段自动锁定。</li>\n  <li><strong>5 种答题模式：</strong>代码编写、拖放编程、选择题、填空、分步引导，适配不同知识点。</li>\n  <li><strong>进度本地保存：</strong>基于 <code>localStorage</code>，关掉网页再打开进度还在。</li>\n</ul>\n\n<h2>技术实现</h2>\n<p>整个项目<strong>零后端</strong>：关卡数据集中在 <code>data/levels.json</code> 异步加载，主页与关卡逻辑分别在 <code>js/game.js</code> 与 <code>js/level.js</code>（ES6 类设计），进度用 <code>localStorage</code> 持久化，渲染时对输入做 HTML 转义防 XSS。视觉走简洁清爽路线，蓝紫渐变 + 卡片式布局，并做了响应式适配。</p>\n\n<h2>结语</h2>\n<p>这是我把「让编程更好玩」落地的一次尝试，和这个博客一样追求<strong>打开即用、轻量纯粹</strong>。欢迎去我的 GitHub（<a href=\"https://github.com/DRGJU\" title=\"作者的 GitHub\">DRGJU</a>）交流，后续我计划补全早期关卡并加入成就系统。</p>"
+    },
+    {
+      "id": 7,
+      "title": "Python 多环境配置指南：让开发、测试、生产互不干扰",
+      "excerpt": "一套代码要在开发、测试、生产三套环境跑，依赖和配置却各不相同。本文讲清楚用虚拟环境隔离依赖、用锁定文件保证一致、用 .env 与环境变量分离配置的多环境实践。",
+      "date": "2026-11-11",
+      "category": "技术",
+      "tags": [
+        "Python",
+        "环境配置",
+        "虚拟环境",
+        "最佳实践"
+      ],
+      "content": "<p>随着项目变大，你迟早会遇到这样的问题：本地跑得好好的代码，一到测试或生产环境就报错；或者 A 项目要 Django 4，B 项目却卡在 Django 3。根源往往是<strong>环境混在一起</strong>。本文讲清楚如何用多环境配置，让开发、测试、生产各司其职、互不干扰。</p>\n\n<h2>1. 为什么需要多环境</h2>\n<p>一套代码通常要跑在三个地方：</p>\n<ul>\n  <li><strong>开发环境（dev）：</strong>你本机写代码，可以装调试工具、开详细日志。</li>\n  <li><strong>测试环境（test）：</strong>跑自动化测试，数据和配置尽量接近生产但不影响真实用户。</li>\n  <li><strong>生产环境（prod）：</strong>真实用户访问，追求稳定、安全、性能。</li>\n</ul>\n<p>它们的<strong>依赖版本</strong>和<strong>配置项</strong>（数据库地址、密钥、开关）往往不同，混在一起迟早出事。多环境配置的目标就是：<strong>代码同一份，依赖与配置按环境切换</strong>。</p>\n\n<h2>2. 第一步：用虚拟环境隔离依赖</h2>\n<p>不要让所有项目共用系统级的 Python 包。用虚拟环境把每个项目的依赖装进独立目录：</p>\n<pre><code># 在项目根目录创建虚拟环境\npython -m venv .venv\n\n# 激活（Windows）\n.venv\\Scripts\\activate\n# 激活（macOS / Linux）\nsource .venv/bin/activate\n\n# 安装依赖\npip install -r requirements.txt</code></pre>\n<p>激活后，<code>pip install</code> 只会装进当前项目的 <code>.venv</code>，不影响其他项目，也不污染系统。</p>\n\n<h2>3. 依赖管理工具怎么选</h2>\n<p>除了内置的 <code>venv</code>，还有更省心的工具：</p>\n<ul>\n  <li><strong>virtualenv：</strong><code>venv</code> 的前身，功能类似，兼容老版本 Python。</li>\n  <li><strong>Pipenv：</strong>自动管理虚拟环境 + 依赖锁定，一条命令搞定。</li>\n  <li><strong>Poetry：</strong>现代首选，统一管理依赖、构建与发布，<code>pyproject.toml</code> 一把梭。</li>\n</ul>\n<p>Poetry 示例：</p>\n<pre><code>poetry new myproject\ncd myproject\npoetry add requests\npoetry install</code></pre>\n\n<h2>4. 依赖清单与锁定文件</h2>\n<p>光有 <code>requirements.txt</code> 还不够——它常常只写顶层包，不锁定间接依赖的版本，导致「在我机器上能跑」。</p>\n<ul>\n  <li><strong>requirements.txt：</strong>适合简单项目，建议显式写出版本号。</li>\n  <li><strong>锁定文件（lock）：</strong>Poetry 的 <code>poetry.lock</code>、Pipenv 的 <code>Pipfile.lock</code> 会冻结全部依赖树，保证所有人装到一模一样的版本。</li>\n</ul>\n<pre><code># requirements.txt 示例：显式固定版本\nrequests==2.31.0\nflask==3.0.0</code></pre>\n\n<h2>5. 配置与密钥分离：用 .env</h2>\n<p>数据库地址、API 密钥等<strong>绝不能写死在代码里</strong>，也别提交进版本库。把它们放进 <code>.env</code> 文件，用 <code>python-dotenv</code> 读取：</p>\n<pre><code># .env（不要提交到 git，加入 .gitignore）\nDATABASE_URL=postgresql://user:pass@localhost:5432/dev\nDEBUG=true</code></pre>\n<pre><code># Python 中读取\nfrom dotenv import load_dotenv\nimport os\n\nload_dotenv()\ndb_url = os.environ.get(\"DATABASE_URL\")\ndebug = os.environ.get(\"DEBUG\") == \"true\"</code></pre>\n<p>不同环境用不同的 <code>.env</code> 文件（如 <code>.env.dev</code>、<code>.env.prod</code>），部署时再指定加载哪一个。</p>\n\n<h2>6. 十二要素配置原则</h2>\n<p>业界公认的 <strong>12-Factor App</strong> 指出：配置应当来自<strong>环境变量</strong>，而不是代码或文件。这样同一份构建产物，靠环境变量就能适配任意环境，是 CI/CD 和多环境部署的基础。</p>\n\n<h2>7. 一个最小可用的多环境结构</h2>\n<pre><code>myproject/\n├── .env.dev          # 开发配置\n├── .env.prod         # 生产配置\n├── pyproject.toml    # 依赖与项目元数据\n├── poetry.lock       # 锁定文件\n├── src/              # 源码\n└── tests/            # 测试</code></pre>\n<p>流程建议：本地用 <code>.env.dev</code> + <code>poetry install</code> 开发；CI 用测试配置跑 <code>tests/</code>；生产只部署构建产物并注入 <code>.env.prod</code> 的环境变量。</p>\n\n<h2>结语</h2>\n<p>多环境配置的核心就三句话：<strong>依赖用虚拟环境隔离并锁定版本，配置用环境变量与 .env 分离，同一份代码靠环境切换。</strong>把这套习惯建立起来，你会发现「在我机器上能跑」的尴尬会少很多，部署也顺滑得多。</p>"
     }
   ]
 }
