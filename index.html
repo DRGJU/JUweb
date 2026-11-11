@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>墨迹 | 个人博客</title>
-  <meta name="description" content="墨迹：一个记录技术探索与日常思考的个人博客。">
-  <meta name="theme-color" content="#f7f5f0">
+  <meta name="description" content="墨迹：记录技术探索与日常思考的个人博客。">
   <meta property="og:type" content="website">
   <meta property="og:title" content="墨迹 | 个人博客">
   <meta property="og:description" content="记录技术探索与日常思考的个人博客。">
@@ -13,76 +12,120 @@
   <link rel="canonical" href="https://drgju.github.io/JUweb/">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="stylesheet" href="./css/style.css">
-  <script>
-    // 在首屏渲染前应用主题，避免闪烁
-    try {
-      var t = localStorage.getItem('juweb:theme');
-      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
-    } catch (e) {}
-  </script>
   <script type="module" src="./js/app.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#articles">跳到正文</a>
+  <a class="visually-hidden" href="#articles">跳到文章归档</a>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="./index.html">墨迹</a>
-      <nav class="header-nav" aria-label="主导航">
-        <a href="./index.html" aria-current="page">文章</a>
-        <a href="./admin.html">草稿编辑</a>
-        <button id="themeToggle" class="icon-btn" type="button" aria-pressed="false">深色</button>
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <a class="masthead__brand" href="index.html" aria-label="墨迹，返回首页">墨迹</a>
+      <span class="masthead__edition">第 2 期，2026-11-11</span>
+      <nav class="masthead__nav" aria-label="主导航">
+        <a href="#articles">文章</a>
+        <a href="#about">关于</a>
+        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
       </nav>
     </div>
   </header>
 
-  <main class="container">
-    <div id="notice" class="notice" role="status" hidden></div>
-
-    <section id="articles" aria-labelledby="listTitle">
-      <div class="section-head reveal">
-        <h1 id="listTitle">最新文章</h1>
-        <span id="articleCount" class="count"></span>
+  <main>
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="container hero__grid">
+        <div>
+          <h1 id="heroTitle" class="hero__head">白天写代码，晚上写文章。</h1>
+          <p class="hero__lead">墨迹是一个记录技术探索与日常思考的个人博客。</p>
+          <div class="hero__actions">
+            <a class="btn" href="./posts/4.html">读最新一篇</a>
+            <span class="hero__note">共 4 篇，按日期排列。</span>
+          </div>
+        </div>
+        <aside class="hero__latest" aria-label="最新一篇">
+          <a class="hero__latest-title" href="./posts/4.html">Python 使用 boto3 模块操作 DynamoDB 和 S3</a>
+          <time class="hero__latest-date" datetime="2024-01-04">2024-01-04，技术</time>
+        </aside>
       </div>
-      <div id="articleList" class="article-list" aria-live="polite"></div>
-      <nav id="pagination" class="pagination" aria-label="文章分页"></nav>
     </section>
 
-    <section id="about" class="about reveal" aria-labelledby="aboutTitle">
-      <h2 id="aboutTitle">关于我</h2>
-      <div class="about-grid">
-        <div>
-          <p>一个热爱技术与文字的普通人。白天写代码，晚上写文章。喜欢探索新技术，也喜欢回味经典。</p>
-          <p>相信好的代码像诗一样优雅，好的文章像老友聊天一样自然。这个博客是我的数字花园，记录成长，分享收获。</p>
+    <section id="articles" class="archive" aria-labelledby="listTitle">
+      <div class="container">
+        <div class="archive__head">
+          <h2 id="listTitle">文章归档</h2>
+          <span id="articleCount" class="archive__count">共 4 篇</span>
         </div>
+        <div id="articleList"><article class="row">
+          <time class="row__date" datetime="2024-01-04">2024-01-04</time>
+          <div>
+            <h3 class="row__title"><a href="./posts/4.html">Python 使用 boto3 模块操作 DynamoDB 和 S3</a></h3>
+            <p class="row__excerpt">boto3 是 AWS 的官方 Python SDK，用于与 AWS 服务进行交互。本文将介绍如何使用 boto3 模块操作 DynamoDB 和 S3 这两个常用的 AWS 服务，包括基本的 CRUD 操作和常见的使用场景。</p>
+            <p class="row__meta">技术，Python，boto3，DynamoDB，S3，AWS</p>
+          </div>
+          <a class="row__link" href="./posts/4.html" aria-label="读《Python 使用 boto3 模块操作 DynamoDB 和 S3》">读这一篇</a>
+        </article>
+        <article class="row">
+          <time class="row__date" datetime="2024-01-03">2024-01-03</time>
+          <div>
+            <h3 class="row__title"><a href="./posts/3.html">Python 各数据类型的高效方法、技巧与魔法</a></h3>
+            <p class="row__excerpt">Python 提供了丰富的数据类型，每种类型都有其独特的方法和技巧。本文将深入探讨 Python 中常用数据类型的高效使用方法、实用技巧和一些令人惊叹的&quot;魔法&quot;操作，帮助你充分发挥每种数据类型的潜力。</p>
+            <p class="row__meta">技术，Python，数据类型，技巧，魔法</p>
+          </div>
+          <a class="row__link" href="./posts/3.html" aria-label="读《Python 各数据类型的高效方法、技巧与魔法》">读这一篇</a>
+        </article>
+        <article class="row">
+          <time class="row__date" datetime="2024-01-02">2024-01-02</time>
+          <div>
+            <h3 class="row__title"><a href="./posts/2.html">Pythonic 的高效方法和技巧与魔法</a></h3>
+            <p class="row__excerpt">Python 以其优雅的语法和强大的表达能力而闻名。本文将深入探讨 Pythonic 的编程风格，分享一系列提高代码效率、可读性和简洁性的技巧和魔法，帮助你写出更符合 Python 哲学的高质量代码。</p>
+            <p class="row__meta">技术，Python，Pythonic，技巧，魔法</p>
+          </div>
+          <a class="row__link" href="./posts/2.html" aria-label="读《Pythonic 的高效方法和技巧与魔法》">读这一篇</a>
+        </article>
+        <article class="row">
+          <time class="row__date" datetime="2024-01-01">2024-01-01</time>
+          <div>
+            <h3 class="row__title"><a href="./posts/1.html">Python 入门教程：从零开始掌握 Python 基础</a></h3>
+            <p class="row__excerpt">Python 是一门简洁优雅、功能强大的编程语言，非常适合作为第一门编程语言。本文将从环境搭建讲起，带你逐步掌握变量、数据类型、流程控制、函数等核心语法，为后续深入学习打下坚实基础。</p>
+            <p class="row__meta">技术，Python，入门教程，编程基础</p>
+          </div>
+          <a class="row__link" href="./posts/1.html" aria-label="读《Python 入门教程：从零开始掌握 Python 基础》">读这一篇</a>
+        </article></div>
+        <nav id="pagination" class="pagination" aria-label="文章分页"></nav>
+      </div>
+    </section>
+
+    <section id="about" class="about" aria-labelledby="aboutTitle">
+      <div class="container about__grid">
+        <h2 id="aboutTitle">关于我</h2>
         <div>
-          <h3>联系方式</h3>
-          <p><a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub / DRGJU</a></p>
+          <div class="about__cols">
+            <p>一个热爱技术与文字的普通人。白天写代码，晚上写文章。喜欢探索新技术，也喜欢回味经典。</p>
+            <p>相信好的代码像诗一样优雅，好的文章像老友聊天一样自然。这个博客是我的数字花园，记录成长，分享收获。</p>
+          </div>
+          <p class="about__links"><a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub / DRGJU</a></p>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <span><span id="year"></span> 墨迹. All rights reserved.</span>
-      <span>用文字丈量世界</span>
+  <footer class="colophon">
+    <div class="container colophon__inner">
+      <div>
+        <p class="colophon__statement">用文字丈量世界</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 2 期，2026-11-11。</p>
+        <div class="music">
+          <span class="music__label">背景音乐</span>
+          <button id="playBtn" class="music__btn" type="button" aria-label="播放背景音乐">播放</button>
+          <button id="pauseBtn" class="music__btn" type="button" aria-label="暂停背景音乐" hidden>暂停</button>
+          <audio id="bgMusic" src="./media/bgyy.mp3" loop preload="none"></audio>
+        </div>
+      </div>
+      <div class="colophon__links">
+        <a href="index.html">首页</a>
+        <a href="#articles">文章归档</a>
+        <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
     </div>
+    <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
-
-  <div class="music-controls">
-    <button id="playBtn" class="music-btn" type="button" aria-label="播放背景音乐">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.75 11.17l-3.2-2.14A1 1 0 0010 9.87v4.26a1 1 0 001.55.83l3.2-2.13a1 1 0 000-1.66z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-    </button>
-    <button id="pauseBtn" class="music-btn" type="button" aria-label="暂停背景音乐" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-    </button>
-    <audio id="bgMusic" src="./media/bgyy.mp3" loop preload="none"></audio>
-  </div>
 </body>
 </html>

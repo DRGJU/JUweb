@@ -1,14 +1,12 @@
-import { STORAGE_KEYS, readStorage, writeStorage } from './core.js';
+import { STORAGE_KEYS, writeStorage } from './core.js';
 
-/** 主题切换 + 页脚年份 + 提示条，所有页面共用。 */
+/** 主题切换、页脚年份与提示条，首页与文章页共用。 */
 export function initTheme(buttonId = 'themeToggle') {
   const button = document.getElementById(buttonId);
 
   const apply = (theme) => {
     const next = theme === 'dark' ? 'dark' : 'light';
     document.documentElement.dataset.theme = next;
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', next === 'dark' ? '#17191f' : '#f7f5f0');
     if (button) {
       button.textContent = next === 'dark' ? '浅色' : '深色';
       button.setAttribute('aria-pressed', String(next === 'dark'));
@@ -33,12 +31,15 @@ export function showNotice(message, kind = 'info') {
   if (!el) return;
   el.textContent = message;
   el.classList.toggle('notice-error', kind === 'error');
+  el.classList.remove('visually-hidden');
   el.hidden = false;
 }
 
 export function hideNotice() {
   const el = document.getElementById('notice');
-  if (el) el.hidden = true;
+  if (!el) return;
+  el.hidden = true;
+  el.classList.add('visually-hidden');
 }
 
 export function setStatus(id, message, kind = 'ok') {

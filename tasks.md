@@ -1,23 +1,25 @@
 # 任务与维护记录
 
-## v2 重构（本次完成）
+## v3 · Hallmark 重设计（本次完成）
 
-- [x] 移除 Vue 2 / Tailwind Play CDN / Google Fonts，改为零外部依赖的原生实现
-- [x] 修复动态 `.reveal` 元素未被 IntersectionObserver 观察导致的文章隐形问题
-- [x] 移除 `html/` 重复页面与备份页 404 数据路径
-- [x] 删除失效的视频背景、粒子、侧边栏、点击涟漪等死代码及不一致的 CSS 变量
-- [x] 数据改为发布源 + 本地草稿双通道，消除 localStorage 缓存遮蔽与「伪发布」
-- [x] 移除 `isAdmin` 伪鉴权，后台明确标注为本地草稿编辑器
-- [x] 正文双重白名单消毒，补齐 CSP 之外的注入防护
-- [x] 修复 UTC 日期、硬编码年份、分页越界、JSON.parse 无保护等问题
-- [x] 新增独立文章静态页、canonical / OG / sitemap / robots / favicon
-- [x] 新增 `build.mjs`、`server.mjs`、`package.json` 与核心单元测试
-- [x] 重写 README / spec / checklist，修复 `.gitignore`，添加 LICENSE
+- [x] 按用户要求移除浏览器内文章编辑模块：`admin.html`、`preview.html`、`js/admin.js` 及导航入口
+- [x] 发布流程收敛为「编辑 `data/articles.json` → `npm run build` → 提交」
+- [x] 重做整体框架：模板驱动的构建期静态生成（`templates/` → `index.html` / `posts/` / `page/`）
+- [x] 首页改为 Index-First 报纸式结构：报头、首屏、日期归档行、两栏关于、statement 页脚
+- [x] 采用 Newsprint 主题：双线规则、发丝线、干砖色信号、板衬线标题、本地字体栈
+- [x] Hallmark scaffold 生成 `css/tokens.css` 与 `css/base.css`；`css/style.css` 首行写入 stamp、critique 与豁免
+- [x] 保留全部脚本钩子（6/6）与真实链接；删除项在 stamp 中登记
+- [x] 静态规则检查 0 FAIL / 0 WARN / 0 REFLEX；`npm test` 11/11；`npm run build` 成功
+- [x] 重写 README / spec / checklist / tasks / robots.txt，新增 `design.md`
+
+## 历史
+
+- v2：零依赖静态博客，带本地草稿编辑器与文章页（已被 v3 取代）。
+- v1：Vue 2 + Tailwind Play CDN + 视频背景/粒子特效（已废弃）。
 
 ## 后续可选
 
-- [ ] 补端到端浏览器测试（需安装 Playwright 或提供可用浏览器）
-- [ ] 支持 Markdown 正文与代码高亮
-- [ ] 文章搜索 / 标签筛选 / 归档页
-- [ ] 内容安全策略（CSP）响应头（需要托管平台支持自定义头）
-- [ ] 若不需要背景音乐，删除 `media/bgyy.mp3` 与首页音乐控件以减小仓库体积
+- [ ] 安装 `puppeteer-core` 后补 Hallmark 渲染层与截图对比审查
+- [ ] 浏览器端人工复核移动端布局与各浏览器排版
+- [ ] 支持 Markdown 正文、代码高亮、标签筛选或归档页
+- [ ] 若不需要背景音乐，删除 `media/bgyy.mp3` 与模板中的音乐控件

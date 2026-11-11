@@ -1,56 +1,48 @@
 # 项目检查清单
 
-标记说明：`[x]` = 已通过静态检查或 `npm test` 自动化验证；`[ ]` = 需在真实浏览器中人工确认（当前环境无可用浏览器，未做端到端渲染测试）。
+标记说明：`[x]` = 静态检查或 `npm test` 已验证；`[ ]` = 需在真实浏览器中人工确认。
 
-## 代码与数据
+## 构建与数据
 
-- [x] 所有页面有 DOCTYPE、`lang="zh-CN"`、`charset`、`viewport`
-- [x] 所有资源路径为相对路径且指向存在的文件（由构建/引用检查验证）
-- [x] `data/articles.json` 为合法 JSON，带 `version` / `updatedAt` / `articles`
-- [x] 文章 `id` 唯一、字段齐全、类型一致（单元测试覆盖）
-- [x] 兼容旧版数组格式，过滤坏数据（单元测试覆盖）
-- [x] 分页越界收敛、切片正确（单元测试覆盖）
-- [x] 日期使用本地日历而非 UTC（单元测试覆盖）
-- [x] `JSON.parse` 全部使用安全解析，损坏缓存不会导致白屏
-- [x] JS 通过 `node --check` 语法检查；`npm test` 全部通过
-- [x] 构建脚本可重复执行，生成 `posts/*.html` 与 `sitemap.xml`
+- [x] `npm run build` 生成 `index.html`、4 个文章页与 `sitemap.xml`
+- [x] `npm test` 11/11 通过；全部 JS 通过 `node --check`
+- [x] `data/articles.json` 合法，带 `version` / `updatedAt` / `articles`
+- [x] 文章 id 唯一，字段齐全，分页与日期逻辑有单元测试
+- [x] 页面在构建期静态写出，**关闭 JavaScript 仍可读归档与正文**
+- [x] HTML 中的模板占位符全部被替换，无残留 `{{...}}`
+- [x] 资源引用在本地服务器全部返回 200
 
 ## 功能
 
-- [x] 首页每次以 `no-store` 拉取发布数据，离线回退缓存并提示
-- [x] 文章卡片为真实链接，可分享、可用键盘访问
-- [x] 入场动画为纯 CSS，动态节点不会永久隐藏
-- [x] 后台增删改查、导入/导出/放弃草稿、表单必填校验
-- [x] 后台明确标注「本地草稿、不发布」，无伪鉴权
-- [x] 主题切换持久化，首屏渲染前应用
+- [x] 首页归档按日期倒序，每篇有真实链接
+- [x] 文章页有独立 URL、canonical、OG 与静态正文
+- [x] 主题切换持久化，报头按钮有 `aria-pressed`
 - [x] 音乐 `preload="none"`，播放失败有提示
-- [ ] 浏览器中确认列表、分页、文章页、草稿预览的实际渲染
+- [x] **浏览器内文章编辑模块已移除**（`admin.html` / `preview.html` / `js/admin.js` 及全部入口链接）
 - [ ] 浏览器中确认主题切换、音乐播放、复制永久链接
 - [ ] 移动端（≤640px）与平板（≤768px）布局目视检查
 - [ ] Chrome / Firefox / Safari / Edge 兼容性目视检查
 
 ## 安全
 
-- [x] 正文双重白名单消毒（构建期字符串 + 浏览器 DOM）
-- [x] 单元测试覆盖 `<script>`、`on*`、`javascript:`、`<iframe>` 清除
-- [x] 其余用户文本一律 `textContent`
-- [x] 外链 `rel="noopener noreferrer"`
-- [x] 无硬编码凭证、无敏感信息、无服务端写入
-- [ ] 在浏览器中对恶意草稿内容做一次人工渗透验证
+- [x] 正文双重白名单消毒；单元测试覆盖 `<script>`、`on*`、`javascript:`、`<iframe>`
+- [x] 其余用户文本一律 `escapeHTML` 或 `textContent`
+- [x] 无表单、无凭证、无服务端写入
 
-## SEO / 部署
+## Hallmark 重设计
 
-- [x] 首页与文章页有 `title` / `description` / canonical / OG
-- [x] 每篇文章有独立静态 URL 与 `sitemap.xml`
-- [x] `robots.txt` 排除后台与预览页
-- [x] `favicon.svg` 存在
-- [x] 线上资源全部返回 200（旧版仓库验证过；新版部署后需复核）
-- [ ] 推送到 GitHub Pages 后复核线上首页与文章页
+- [x] 主题 `Newsprint`（deal 3/3）、形态 `Index-First`、draw `9a8543` 已写入 CSS stamp
+- [x] 设计令牌与基础层由 scaffold 生成（`css/tokens.css`、`css/base.css`）
+- [x] 旧版基线已记录于 `.hallmark/before.json`（7 FAIL / 1 REFLEX / 10 WARN）
+- [x] `sloplint --kept` 静态扫描：**0 FAIL、0 WARN、0 REFLEX**
+- [x] 1 项 `ANSWERED F1`（文章中的直引号是 Python 代码示例，替换会破坏示例）
+- [x] 2 项 `NOTE 58`（文章页长文，不受营销页字数预算约束）
+- [x] Kept 检查：链接 3/4（`admin.html` 已按用户要求在 stamp 中登记删除），脚本钩子 6/6
+- [x] 首行 stamp、pre-emit critique、豁免与删除记录齐备
+- [ ] `sloplint --render` 渲染层与 hero/finish 截图审查：本机无 `puppeteer-core`，未运行
 
 ## 仓库卫生
 
-- [x] `.gitignore` 无语法错误，忽略 `.inspect/` 对照快照与临时文件
-- [x] 添加 `LICENSE`（MIT）
-- [x] 文档与实现一致；删除旧版重复页面与失效特效代码
-- [x] 无 `package-lock.json` / 构建产物误提交（无第三方依赖）
-- [x] 媒体资源仅保留被引用的 `bgyy.mp3`；旧版 `bg.mp4`、`touxiang.png` 未纳入新版
+- [x] `.gitignore` 忽略 `.inspect/`、`.deploy/`、`.hallmark/`
+- [x] `LICENSE`（MIT）、`design.md`、`robots.txt`、`favicon.svg` 齐备
+- [x] README / spec / checklist / tasks 与实现一致

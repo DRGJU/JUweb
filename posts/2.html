@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pythonic 的高效方法和技巧与魔法 | 墨迹</title>
   <meta name="description" content="Python 以其优雅的语法和强大的表达能力而闻名。本文将深入探讨 Pythonic 的编程风格，分享一系列提高代码效率、可读性和简洁性的技巧和魔法，帮助你写出更符合 Python 哲学的高质量代码。">
-  <meta name="theme-color" content="#f7f5f0">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Pythonic 的高效方法和技巧与魔法">
   <meta property="og:description" content="Python 以其优雅的语法和强大的表达能力而闻名。本文将深入探讨 Pythonic 的编程风格，分享一系列提高代码效率、可读性和简洁性的技巧和魔法，帮助你写出更符合 Python 哲学的高质量代码。">
@@ -14,45 +13,35 @@
   <link rel="canonical" href="https://drgju.github.io/JUweb/posts/2.html">
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="../css/style.css">
-  <script>
-    try {
-      var t = localStorage.getItem('juweb:theme');
-      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
-    } catch (e) {}
-  </script>
   <script type="module" src="../js/post.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#postContent">跳到正文</a>
+  <a class="visually-hidden" href="#postContent">跳到正文</a>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="../index.html">墨迹</a>
-      <nav class="header-nav" aria-label="主导航">
-        <a href="../index.html">文章</a>
-        <a href="../admin.html">草稿编辑</a>
-        <button id="themeToggle" class="icon-btn" type="button" aria-pressed="false">深色</button>
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
+      <span class="masthead__edition">第 2 期，2024-01-02</span>
+      <nav class="masthead__nav" aria-label="主导航">
+        <a href="../index.html">文章归档</a>
+        <a href="../index.html#about">关于</a>
+        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
       </nav>
     </div>
   </header>
 
-  <main class="container">
+  <main class="container post">
     <article>
-      <header class="post-header">
-        <a class="back-link" href="../index.html">&larr; 返回列表</a>
-        <h1 id="postTitle">Pythonic 的高效方法和技巧与魔法</h1>
-        <div class="card-meta">
-          <span id="postCategory" class="card-category">技术</span>
-          <span id="postDate" class="card-date">2024-01-02</span>
+      <header class="post__head">
+        <a class="post__back" href="../index.html">返回目录</a>
+        <h1 id="postTitle" class="post__title">Pythonic 的高效方法和技巧与魔法</h1>
+        <div class="post__meta">
+          <span id="postCategory">技术</span>
+          <time id="postDate" datetime="2024-01-02">2024-01-02</time>
         </div>
-        <div id="postTags" class="post-tags">
-          <span class="tag">Python</span>
-          <span class="tag">Pythonic</span>
-          <span class="tag">技巧</span>
-          <span class="tag">魔法</span>
-        </div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">Pythonic</span><span class="post__tag">技巧</span><span class="post__tag">魔法</span></div>
       </header>
-      <div id="postContent" class="prose"><p>Pythonic 是一个经常被提及但有时难以定义的概念。简而言之，它指的是一种符合 Python 语言哲学的编程风格，强调代码的可读性、简洁性和优雅性。本文将介绍一些 Pythonic 的高效方法和技巧，帮助你写出更地道的 Python 代码。</p>
+      <div id="postContent" class="post__body"><p>Pythonic 是一个经常被提及但有时难以定义的概念。简而言之，它指的是一种符合 Python 语言哲学的编程风格，强调代码的可读性、简洁性和优雅性。本文将介绍一些 Pythonic 的高效方法和技巧，帮助你写出更地道的 Python 代码。</p>
 
       <h2>1. Python 哲学</h2>
       <p>在深入技巧之前，让我们先了解一下 Python 的核心哲学。你可以通过在 Python 解释器中运行 <code>import this</code> 来查看 <strong>The Zen of Python</strong>：</p>
@@ -251,15 +240,22 @@ print(cube(5))    # 输出: 125</code></pre>
       <h2>结语</h2>
       <p>Pythonic 的编程风格不仅仅是关于使用特定的语法技巧，更是一种思维方式，强调代码的可读性、简洁性和优雅性。通过掌握这些方法和技巧，你可以写出更高效、更易维护的 Python 代码，同时也能更好地理解和欣赏 Python 语言的设计哲学。</p>
       <p>记住，Python 的魅力在于它允许你用更少的代码表达更多的思想。不断学习和实践这些技巧，你会发现 Python 编程变得越来越有趣和高效。</p></div>
-      <div id="postActions" class="post-actions"></div>
+      <div id="postActions" class="post__actions"></div>
     </article>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <span><span id="year"></span> 墨迹. All rights reserved.</span>
-      <span>用文字丈量世界</span>
+  <footer class="colophon">
+    <div class="container colophon__inner">
+      <div>
+        <p class="colophon__statement">用文字丈量世界</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 2 期。</p>
+      </div>
+      <div class="colophon__links">
+        <a href="../index.html">文章归档</a>
+        <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
     </div>
+    <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
   <script type="application/json" id="post-data">{"id":2,"title":"Pythonic 的高效方法和技巧与魔法","excerpt":"Python 以其优雅的语法和强大的表达能力而闻名。本文将深入探讨 Pythonic 的编程风格，分享一系列提高代码效率、可读性和简洁性的技巧和魔法，帮助你写出更符合 Python 哲学的高质量代码。","date":"2024-01-02","category":"技术","tags":["Python","Pythonic","技巧","魔法"],"content":"\u003cp>Pythonic 是一个经常被提及但有时难以定义的概念。简而言之，它指的是一种符合 Python 语言哲学的编程风格，强调代码的可读性、简洁性和优雅性。本文将介绍一些 Pythonic 的高效方法和技巧，帮助你写出更地道的 Python 代码。\u003c/p>\n\n      \u003ch2>1. Python 哲学\u003c/h2>\n      \u003cp>在深入技巧之前，让我们先了解一下 Python 的核心哲学。你可以通过在 Python 解释器中运行 \u003ccode>import this\u003c/code> 来查看 \u003cstrong>The Zen of Python\u003c/strong>：\u003c/p>\n      \u003cpre>\u003ccode>import this\u003c/code>\u003c/pre>\n      \u003cp>这将显示 Tim Peters 编写的 Python 设计原则，包括：\u003c/p>\n      \u003cul>\n        \u003cli>美胜于丑\u003c/li>\n        \u003cli>显式胜于隐式\u003c/li>\n        \u003cli>简单胜于复杂\u003c/li>\n        \u003cli>复杂胜于混乱\u003c/li>\n        \u003cli>扁平胜于嵌套\u003c/li>\n        \u003cli>稀疏胜于密集\u003c/li>\n        \u003cli>可读性很重要\u003c/li>\n      \u003c/ul>\n\n      \u003ch2>2. 列表推导式\u003c/h2>\n      \u003cp>列表推导式是 Python 中最强大的特性之一，它允许你用一行代码创建和转换列表：\u003c/p>\n      \u003cpre>\u003ccode># 传统方式\nsquares = []\nfor i in range(10):\n    squares.append(i**2)\n\n# Pythonic 方式\nsquares = [i**2 for i in range(10)]\n\n# 带条件的列表推导式\neven_squares = [i**2 for i in range(10) if i % 2 == 0]\u003c/code>\u003c/pre>\n\n      \u003ch2>3. 字典推导式和集合推导式\u003c/h2>\n      \u003cp>除了列表推导式，Python 还支持字典和集合推导式：\u003c/p>\n      \u003cpre>\u003ccode># 字典推导式\nuser_ids = {\"alice\": 1, \"bob\": 2, \"charlie\": 3}\nids_to_users = {v: k for k, v in user_ids.items()}\n\n# 集合推导式\nunique_squares = {i**2 for i in range(-5, 6)}\u003c/code>\u003c/pre>\n\n      \u003ch2>4. 上下文管理器（with 语句）\u003c/h2>\n      \u003cp>使用 \u003ccode>with\u003c/code> 语句可以自动管理资源，如文件、网络连接等：\u003c/p>\n      \u003cpre>\u003ccode># 传统方式\nfile = open(\"example.txt\", \"r\")\ntry:\n    content = file.read()\nfinally:\n    file.close()\n\n# Pythonic 方式\nwith open(\"example.txt\", \"r\") as file:\n    content = file.read()\u003c/code>\u003c/pre>\n\n      \u003ch2>5. 解包操作\u003c/h2>\n      \u003cp>Python 提供了强大的解包功能：\u003c/p>\n      \u003cpre>\u003ccode># 基本解包\na, b, c = [1, 2, 3]\n\n# 扩展解包\nfirst, *rest = [1, 2, 3, 4, 5]\n\n# 字典解包\nuser = {\"name\": \"Alice\", \"age\": 30}\n# 注意：直接访问可能会引发KeyError if键不存在\nprint(f\"{user['name']} is {user['age']} years old\")  # 传统方式，但可能引发KeyError\nprint(f\"{user.get('name')} is {user.get('age')} years old\")  # 更安全的方式，键不存在时返回None\n\n# 函数参数解包\ndef greet(name, age):\n    print(f\"Hello, {name}! You are {age} years old.\")\n\nuser_info = (\"Bob\", 25)\ngreet(*user_info)  # 解包元组\n\nuser_dict = {\"name\": \"Charlie\", \"age\": 35}\ngreet(**user_dict)  # 解包字典\u003c/code>\u003c/pre>\n\n      \u003ch2>6. 生成器表达式\u003c/h2>\n      \u003cp>生成器表达式与列表推导式类似，但使用圆括号而不是方括号，并且它是惰性求值的，更节省内存：\u003c/p>\n      \u003cpre>\u003ccode># 列表推导式（立即创建完整列表）\nsquares = [i**2 for i in range(1000000)]\n\n# 生成器表达式（按需生成值）\nsquares_gen = (i**2 for i in range(1000000))\n\n# 使用生成器\nfor square in squares_gen:\n    if square > 100:\n        break\n    print(square)\u003c/code>\u003c/pre>\n\n      \u003ch2>7. 装饰器\u003c/h2>\n      \u003cp>装饰器是 Python 中一种强大的元编程工具，它允许你修改函数或类的行为：\u003c/p>\n      \u003cpre>\u003ccode>def timer(func):\n    import time\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        end = time.time()\n        print(f\"{func.__name__} took {end - start:.4f} seconds\")\n        return result\n    return wrapper\n\n@timer\ndef slow_function():\n    time.sleep(1)\n    return \"Done\"\n\nslow_function()  # 输出: slow_function took 1.0001 seconds\u003c/code>\u003c/pre>\n\n      \u003ch2>8. 魔术方法\u003c/h2>\n      \u003cp>Python 的魔术方法（也称为特殊方法）以双下划线开头和结尾，它们允许你自定义类的行为：\u003c/p>\n      \u003cpre>\u003ccode>class Vector:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    \n    def __add__(self, other):\n        return Vector(self.x + other.x, self.y + other.y)\n    \n    def __repr__(self):\n        return f\"Vector({self.x}, {self.y})\"\n    \n    def __len__(self):\n        return int((self.x**2 + self.y**2)**0.5)\n\nv1 = Vector(3, 4)\nv2 = Vector(1, 2)\nprint(v1 + v2)  # 输出: Vector(4, 6)\nprint(len(v1))  # 输出: 5\u003c/code>\u003c/pre>\n\n      \u003ch2>9. 上下文管理器的实现\u003c/h2>\n      \u003cp>你可以通过实现 \u003ccode>__enter__\u003c/code> 和 \u003ccode>__exit__\u003c/code> 方法来创建自定义上下文管理器：\u003c/p>\n      \u003cpre>\u003ccode>class Timer:\n    def __enter__(self):\n        import time\n        self.start = time.time()\n        return self\n    \n    def __exit__(self, exc_type, exc_val, exc_tb):\n        import time\n        self.end = time.time()\n        print(f\"Elapsed time: {self.end - self.start:.4f} seconds\")\n\nwith Timer():\n    # 执行一些操作\n    import time\n    time.sleep(1)\u003c/code>\u003c/pre>\n\n      \u003ch2>10. 高级技巧\u003c/h2>\n      \u003ch3>10.1 使用 enumerate 获取索引\u003c/h3>\n      \u003cpre>\u003ccode>fruits = [\"apple\", \"banana\", \"cherry\"]\nfor i, fruit in enumerate(fruits):\n    print(f\"{i}: {fruit}\")\u003c/code>\u003c/pre>\n\n      \u003ch3>10.2 使用 zip 并行迭代\u003c/h3>\n      \u003cpre>\u003ccode>names = [\"Alice\", \"Bob\", \"Charlie\"]\nage = [30, 25, 35]\nfor name, age in zip(names, age):\n    print(f\"{name} is {age} years old\")\u003c/code>\u003c/pre>\n\n      \u003ch3>10.3 使用 itertools 模块\u003c/h3>\n      \u003cpre>\u003ccode>import itertools\n\n# 无限迭代器\ncounter = itertools.count(start=1, step=2)\nfor i in counter:\n    if i > 10:\n        break\n    print(i)\n\n# 组合和排列\nprint(list(itertools.permutations([1, 2, 3])))\nprint(list(itertools.combinations([1, 2, 3], 2)))\u003c/code>\u003c/pre>\n\n      \u003ch3>10.4 使用 functools 模块\u003c/h3>\n      \u003cpre>\u003ccode>import functools\n\n# 缓存函数结果\n@functools.lru_cache(maxsize=None)\ndef fibonacci(n):\n    if n \u003c= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(fibonacci(100))  # 快速计算，因为结果被缓存了\n\n# 偏函数\nfrom functools import partial\ndef power(base, exponent):\n    return base ** exponent\n\nsquare = partial(power, exponent=2)\ncube = partial(power, exponent=3)\n\nprint(square(5))  # 输出: 25\nprint(cube(5))    # 输出: 125\u003c/code>\u003c/pre>\n\n      \u003ch2>结语\u003c/h2>\n      \u003cp>Pythonic 的编程风格不仅仅是关于使用特定的语法技巧，更是一种思维方式，强调代码的可读性、简洁性和优雅性。通过掌握这些方法和技巧，你可以写出更高效、更易维护的 Python 代码，同时也能更好地理解和欣赏 Python 语言的设计哲学。\u003c/p>\n      \u003cp>记住，Python 的魅力在于它允许你用更少的代码表达更多的思想。不断学习和实践这些技巧，你会发现 Python 编程变得越来越有趣和高效。\u003c/p>"}</script>

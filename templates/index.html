@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>墨迹 | 个人博客</title>
+  <meta name="description" content="墨迹：记录技术探索与日常思考的个人博客。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="墨迹 | 个人博客">
+  <meta property="og:description" content="记录技术探索与日常思考的个人博客。">
+  <meta property="og:url" content="{{CANONICAL}}">
+  <link rel="canonical" href="{{CANONICAL}}">
+  <link rel="icon" type="image/svg+xml" href="{{BASE}}favicon.svg">
+  <link rel="stylesheet" href="{{BASE}}css/style.css">
+  <script type="module" src="{{BASE}}js/app.js"></script>
+</head>
+<body>
+  <a class="visually-hidden" href="#articles">跳到文章归档</a>
+
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <a class="masthead__brand" href="{{HOME_HREF}}" aria-label="墨迹，返回首页">墨迹</a>
+      <span class="masthead__edition">第 {{VERSION}} 期，{{UPDATED_AT}}</span>
+      <nav class="masthead__nav" aria-label="主导航">
+        <a href="#articles">文章</a>
+        <a href="#about">关于</a>
+        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="container hero__grid">
+        <div>
+          <h1 id="heroTitle" class="hero__head">白天写代码，晚上写文章。</h1>
+          <p class="hero__lead">墨迹是一个记录技术探索与日常思考的个人博客。</p>
+          <div class="hero__actions">
+            <a class="btn" href="{{LATEST_HREF}}">读最新一篇</a>
+            <span class="hero__note">共 {{ARTICLE_COUNT}} 篇，按日期排列。</span>
+          </div>
+        </div>
+        <aside class="hero__latest" aria-label="最新一篇">
+          <a class="hero__latest-title" href="{{LATEST_HREF}}">{{LATEST_TITLE}}</a>
+          <time class="hero__latest-date" datetime="{{LATEST_DATE}}">{{LATEST_DATE}}，{{LATEST_CATEGORY}}</time>
+        </aside>
+      </div>
+    </section>
+
+    <section id="articles" class="archive" aria-labelledby="listTitle">
+      <div class="container">
+        <div class="archive__head">
+          <h2 id="listTitle">文章归档</h2>
+          <span id="articleCount" class="archive__count">共 {{ARTICLE_COUNT}} 篇</span>
+        </div>
+        <div id="articleList">{{ARTICLE_ROWS}}</div>
+        <nav id="pagination" class="pagination" aria-label="文章分页">{{PAGINATION}}</nav>
+      </div>
+    </section>
+
+    <section id="about" class="about" aria-labelledby="aboutTitle">
+      <div class="container about__grid">
+        <h2 id="aboutTitle">关于我</h2>
+        <div>
+          <div class="about__cols">
+            <p>一个热爱技术与文字的普通人。白天写代码，晚上写文章。喜欢探索新技术，也喜欢回味经典。</p>
+            <p>相信好的代码像诗一样优雅，好的文章像老友聊天一样自然。这个博客是我的数字花园，记录成长，分享收获。</p>
+          </div>
+          <p class="about__links"><a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub / DRGJU</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="colophon">
+    <div class="container colophon__inner">
+      <div>
+        <p class="colophon__statement">用文字丈量世界</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 {{VERSION}} 期，{{UPDATED_AT}}。</p>
+        <div class="music">
+          <span class="music__label">背景音乐</span>
+          <button id="playBtn" class="music__btn" type="button" aria-label="播放背景音乐">播放</button>
+          <button id="pauseBtn" class="music__btn" type="button" aria-label="暂停背景音乐" hidden>暂停</button>
+          <audio id="bgMusic" src="{{BASE}}media/bgyy.mp3" loop preload="none"></audio>
+        </div>
+      </div>
+      <div class="colophon__links">
+        <a href="{{HOME_HREF}}">首页</a>
+        <a href="#articles">文章归档</a>
+        <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+    <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
+  </footer>
+</body>
+</html>

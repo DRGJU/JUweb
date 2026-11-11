@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /preview.html
 
 Sitemap: https://drgju.github.io/JUweb/sitemap.xml

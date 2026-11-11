@@ -1,4 +1,4 @@
-import { STORAGE_KEYS, normalizeArticle, normalizePayload, parseJSON, readStorage, stripHTML } from './core.js';
+import { normalizeArticle, parseJSON, stripHTML } from './core.js';
 import { sanitizeHTML } from './sanitize.js';
 import { initTheme, showNotice } from './ui.js';
 
@@ -9,18 +9,11 @@ function node(tag, className, text) {
   return el;
 }
 
-/** 静态文章页读内嵌 JSON；草稿预览页读 localStorage。 */
+/** 文章页的数据在构建期内嵌为 JSON，正文同时以静态 HTML 写出。 */
 function resolveArticle() {
   const inline = document.getElementById('post-data');
-  if (inline) {
-    const raw = parseJSON(inline.textContent);
-    return normalizeArticle(raw);
-  }
-
-  const id = Number(new URLSearchParams(location.search).get('id'));
-  const draft = parseJSON(readStorage(STORAGE_KEYS.draft));
-  if (!id || !draft) return null;
-  return normalizePayload(draft).articles.find((a) => a.id === id) || null;
+  if (!inline) return null;
+  return normalizeArticle(parseJSON(inline.textContent));
 }
 
 function render(article) {
@@ -34,7 +27,7 @@ function render(article) {
 
   const tags = document.getElementById('postTags');
   tags.replaceChildren();
-  article.tags.forEach((tag) => tags.append(node('span', 'tag', tag)));
+  article.tags.forEach((tag) => tags.append(node('span', 'post__tag', tag)));
 
   // 唯一允许插入 HTML 的位置，且必须经过白名单消毒
   document.getElementById('postContent').innerHTML = sanitizeHTML(article.content);
@@ -43,11 +36,11 @@ function render(article) {
   if (!host) return;
   host.replaceChildren();
 
-  const back = node('a', 'btn', '返回列表');
-  back.href = './index.html';
+  const back = node('a', '', '返回目录');
+  back.href = '../index.html';
   host.append(back);
 
-  const copy = node('button', 'btn', '复制永久链接');
+  const copy = node('button', '', '复制永久链接');
   copy.type = 'button';
   copy.addEventListener('click', async () => {
     try {
@@ -66,7 +59,5 @@ const article = resolveArticle();
 if (article) {
   render(article);
 } else {
-  document.getElementById('postTitle').textContent = '文章不存在';
-  document.getElementById('postContent').textContent = '请返回列表重新选择，或先在草稿编辑器中保存内容。';
-  showNotice('未找到文章数据。草稿预览需要在同一浏览器中先保存草稿。', 'error');
+  showNotice('文章数据未能读取，正文仍以静态内容显示。', 'error');
 }

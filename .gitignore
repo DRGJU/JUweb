@@ -1,6 +1,7 @@
 # 本地对照快照与推送用临时目录（不属于交付内容）
 .inspect/
 .deploy/
+.hallmark/
 
 # 依赖
 node_modules/
