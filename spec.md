@@ -25,8 +25,8 @@
 - 报头：字标「墨迹」、期号与更新日期、导航（文章 / 关于 / 主题切换），双线规则收口。
 - 首屏（Index posture）：标题「白天写代码，晚上写文章。」、一句说明、主按钮「读最新一篇」，右侧以大字号排最新文章标题与日期。
 - 归档区：`h2 文章归档` + 篇数，下面为静态文章行。每行含日期（tabular 数字）、标题链接、摘要、分类与标签、一个阅读链接；行间发丝线。
-- 关于我：两栏排版的原有自述与 GitHub 链接。
-- 页脚（statement close）：「用文字丈量世界」、年份、期号与真实链接；音乐控件已移至悬浮层。
+- 收尾（刊记 band，方案 A）：原本独立的「关于我」与页脚合并为一个换纸区。左 4fr 超大刊名字标「墨迹」与标语；中 5fr 「关于我」标题与两段自述（单栏短行）；右 3fr 刊记表（收录 / 本期 / 更新 / 起始 / 去处，均为真实数据，数字 agate 右对齐）。底部发丝线收年份、期号与真实链接。音乐控件已移至悬浮层。
+- 文章页保留简化 statement 页脚，不重复作者自述。
 - 悬浮控件：左下音乐（播放 / 暂停互斥）、右下回到顶部（页首隐藏，滚动后显示），双线同心圆、八态齐全，由 `templates/controls.html` 注入首页、分页与所有文章页。
 - 保留的脚本钩子：`#articleList`、`#pagination`、`#articleCount`、`#notice`、`#year`、`#themeToggle`、`#musicControl`、`#playBtn`、`#pauseBtn`、`#bgMusic`、`#backToTop`。
 
@@ -55,7 +55,7 @@
 
 ## 6. 设计系统（锁定于 `design.md`）
 
-- 主题 Newsprint，genre editorial，posture restrained，shape Index-First，draw `9a8543`，hero Index，nav edge-aligned，footer statement。
+- 主题 Newsprint，genre editorial，posture restrained，shape Index-First，draw `9a8543`，hero Index，nav edge-aligned，首页 footer 为 colophon mast、文章页 footer 为 statement。
 - 所有颜色与字体走 `:root` 令牌；间距走 `--space-*`；容器上限 `--container`；`html`/`body` 设 `overflow-x: clip`。
 - 只使用 `transform` / `opacity` 做状态反馈；主题动效为「仅状态」，无入场动画；`prefers-reduced-motion` 有回退。
 - 一页一个主按钮、一个容器宽度、一个嵌套圆角层级；章节之间用发丝线与双线交替，不用卡片套卡片。

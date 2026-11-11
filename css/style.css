@@ -1,5 +1,5 @@
 /* Hallmark · shape: Index-First · genre: editorial · theme: Newsprint (deal 3/3, seed personal-blog-index-where-1add·f218979e·2026-11-11·r0) · redesign: full · draw: 9a8543
- * hero: Index · nav: edge-aligned · footer: statement · imagery: none · signature: dated archive rows under a double rule
+ * hero: Index · nav: edge-aligned · footer: colophon mast (home) / statement (post) · imagery: none · signature: dated archive rows under a double rule
  * axes: light/slab-serif/warm · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H5 E4 S5 R5 V4 · weakest: P, a four-essay blog has no argument of its own; led with the author's own line about code by day and writing by night instead of a mission statement */
 /* Hallmark · waive 1 · Zilla Slab named first, local serif stand-ins after it · the project ships no external font requests */
@@ -7,6 +7,7 @@
 /* Hallmark · dropped admin.html · the user is retiring the in-browser article editor */
 /* Hallmark · answered F1 · straight quotes are Python string literals in the code samples · replacing them breaks the examples */
 /* Hallmark · component: floating controls · states: 8 · the circle is a user-requested exception to Newsprint's square corners */
+/* Hallmark · section: colophon mast · about and footer merged into one user-approved band (plan A) · the mark is the largest type on the home page */
 @import url("./tokens.css");
 @import url("./base.css");
 @import url("./float-controls.css");
@@ -112,13 +113,6 @@
 .pagination a { font-size: var(--text-sm); color: var(--color-accent); text-decoration: underline; }
 .pagination a[aria-current="page"] { color: var(--color-ink); text-decoration: none; }
 
-/* ===== 关于 ===== */
-.about { padding-block: var(--section-gap); border-top: calc(var(--rule-hair) * 3) double var(--color-rule-2); }
-.about__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-3xl); align-items: start; }
-.about__cols { column-count: 2; column-width: 20rem; column-gap: var(--space-xl); column-rule: var(--rule-hair) solid var(--color-rule); }
-.about__cols p { margin-bottom: var(--space-md); line-height: 1.75; }
-.about__links { margin-top: var(--space-lg); font-size: var(--text-sm); }
-
 /* ===== 文章页 ===== */
 .post { padding-block: var(--section-gap-s) var(--section-gap); }
 .post__head { padding-bottom: var(--space-xl); border-bottom: calc(var(--rule-hair) * 3) double var(--color-rule-2); }
@@ -139,7 +133,64 @@
 .post__body blockquote { margin-inline: 0; padding-left: var(--space-lg); border-left: var(--rule-hair) solid var(--color-rule-2); color: var(--color-ink-2); }
 .post__body ul, .post__body ol { padding-left: var(--space-xl); margin-bottom: var(--space-lg); }
 
-/* ===== 页脚 ===== */
+/* ===== 首页刊记 band（关于我 + 页脚合并） ===== */
+.colophon-mast {
+  background: var(--color-paper-2);
+  border-top: calc(var(--rule-hair) * 3) double var(--color-rule-2);
+  padding-block: var(--section-gap-s) var(--space-2xl);
+}
+.colophon-mast__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 3fr);
+  gap: var(--space-3xl);
+  align-items: start;
+}
+.colophon-mast__mark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: var(--display-weight);
+  line-height: 1.05;
+  letter-spacing: var(--tracking-display);
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.colophon-mast__tagline { margin-top: var(--space-md); font-size: var(--text-sm); color: var(--color-muted); }
+.colophon-mast__heading { font-size: var(--text-section); }
+.colophon-mast__prose { margin-top: var(--space-lg); max-width: 65ch; }
+.colophon-mast__prose p { margin-bottom: var(--space-md); line-height: 1.75; }
+.colophon-mast__facts { margin: 0; display: grid; gap: var(--space-xs); }
+.colophon-mast__facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-bottom: var(--space-xs);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+}
+.colophon-mast__facts dt { font-size: var(--text-sm); color: var(--color-muted); }
+.colophon-mast__facts dd {
+  margin: 0;
+  font-family: var(--font-outlier);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.colophon-mast__facts dd a { color: var(--color-accent); text-decoration: underline; }
+.colophon-mast__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  margin-top: var(--space-3xl);
+  padding-top: var(--space-md);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+.colophon-mast__links { display: flex; gap: var(--space-lg); flex-wrap: wrap; }
+.colophon-mast__links a { color: var(--color-accent); text-decoration: underline; }
+
+/* ===== 文章页简化页脚 ===== */
 .colophon { padding-block: var(--space-2xl); border-top: calc(var(--rule-hair) * 3) double var(--color-rule-2); }
 .colophon__inner { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-xl); flex-wrap: wrap; }
 .colophon__statement { font-family: var(--font-display); font-size: var(--text-xl); font-weight: var(--display-weight); }
@@ -149,15 +200,16 @@
 
 /* ===== 响应式 ===== */
 @media (max-width: 60rem) {
-  .hero__grid, .about__grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
+  .hero__grid, .colophon-mast__grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
   .row { grid-template-columns: minmax(0, 7rem) minmax(0, 1fr); }
   .row__link { grid-column: 2; justify-self: start; }
-  .about__cols { column-count: 1; }
 }
 @media (max-width: 40rem) {
   .masthead__inner { flex-direction: column; gap: var(--space-sm); }
   .row { grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); }
   .row__link { grid-column: 1; }
+  .colophon-mast__mark { font-size: var(--text-display-s); }
+  .colophon-mast__foot { flex-direction: column; }
 }
 
 @media (prefers-reduced-motion: reduce) {

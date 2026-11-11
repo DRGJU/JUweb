@@ -64,6 +64,7 @@ function indexValues(template, controlsTemplate, payload, articles, page, inPage
     VERSION: payload.version,
     UPDATED_AT: escapeHTML(payload.updatedAt || '日期未提供'),
     ARTICLE_COUNT: articles.length,
+    FIRST_DATE: escapeHTML(articles[articles.length - 1].date),
     LATEST_HREF: `${base}posts/${latest.id}.html`,
     LATEST_TITLE: escapeHTML(latest.title),
     LATEST_DATE: escapeHTML(latest.date),

@@ -57,34 +57,40 @@
         <nav id="pagination" class="pagination" aria-label="文章分页">{{PAGINATION}}</nav>
       </div>
     </section>
+  </main>
 
-    <section id="about" class="about" aria-labelledby="aboutTitle">
-      <div class="container about__grid">
-        <h2 id="aboutTitle">关于我</h2>
+  <footer id="about" class="colophon-mast" aria-labelledby="aboutTitle">
+    <div class="container">
+      <div class="colophon-mast__grid">
         <div>
-          <div class="about__cols">
+          <p class="colophon-mast__mark">墨迹</p>
+          <p class="colophon-mast__tagline">用文字丈量世界</p>
+        </div>
+        <div>
+          <h2 id="aboutTitle" class="colophon-mast__heading">关于我</h2>
+          <div class="colophon-mast__prose">
             <p>一个热爱技术与文字的普通人。白天写代码，晚上写文章。喜欢探索新技术，也喜欢回味经典。</p>
             <p>相信好的代码像诗一样优雅，好的文章像老友聊天一样自然。这个博客是我的数字花园，记录成长，分享收获。</p>
           </div>
-          <p class="about__links"><a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub / DRGJU</a></p>
+        </div>
+        <dl class="colophon-mast__facts">
+          <div><dt>收录</dt><dd>{{ARTICLE_COUNT}} 篇</dd></div>
+          <div><dt>本期</dt><dd>第 {{VERSION}} 期</dd></div>
+          <div><dt>更新</dt><dd>{{UPDATED_AT}}</dd></div>
+          <div><dt>起始</dt><dd>{{FIRST_DATE}}</dd></div>
+          <div><dt>去处</dt><dd><a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a></dd></div>
+        </dl>
+      </div>
+      <div class="colophon-mast__foot">
+        <p>墨迹，<span id="year"></span>。第 {{VERSION}} 期，{{UPDATED_AT}}。</p>
+        <div class="colophon-mast__links">
+          <a href="{{HOME_HREF}}">首页</a>
+          <a href="#articles">文章归档</a>
+          <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
-    </section>
-  </main>
-
-  <footer class="colophon">
-    <div class="container colophon__inner">
-      <div>
-        <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 {{VERSION}} 期，{{UPDATED_AT}}。</p>
-      </div>
-      <div class="colophon__links">
-        <a href="{{HOME_HREF}}">首页</a>
-        <a href="#articles">文章归档</a>
-        <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
-      </div>
+      <p id="notice" class="visually-hidden" role="status"></p>
     </div>
-    <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
   {{CONTROLS}}
