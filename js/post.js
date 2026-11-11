@@ -40,18 +40,6 @@ function render(article) {
   const back = node('a', '', '返回目录');
   back.href = '../index.html';
   host.append(back);
-
-  const copy = node('button', '', '复制永久链接');
-  copy.type = 'button';
-  copy.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(location.href);
-      copy.textContent = '已复制';
-    } catch {
-      showNotice('复制失败，请手动复制地址栏链接。', 'error');
-    }
-  });
-  host.append(copy);
 }
 
 initTheme();

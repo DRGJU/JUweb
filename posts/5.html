@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Windows 11 终端美化指南：从默认黑框到高颜值命令行 | 墨迹</title>
+  <meta name="description" content="Windows 11 自带的 Windows Terminal 远比老式 cmd 强大。本文带你一步步美化终端：更换等宽 Nerd 字体、自定义配色与亚克力背景、用 Oh My Posh 打造炫酷提示符，把命令行变成赏心悦目的工作台。">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Windows 11 终端美化指南：从默认黑框到高颜值命令行">
+  <meta property="og:description" content="Windows 11 自带的 Windows Terminal 远比老式 cmd 强大。本文带你一步步美化终端：更换等宽 Nerd 字体、自定义配色与亚克力背景、用 Oh My Posh 打造炫酷提示符，把命令行变成赏心悦目的工作台。">
+  <meta property="og:url" content="https://drgju.github.io/JUweb/posts/5.html">
+  <meta property="article:published_time" content="2026-11-11">
+  <link rel="canonical" href="https://drgju.github.io/JUweb/posts/5.html">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script type="module" src="../js/post.js"></script>
+</head>
+<body>
+  <a class="visually-hidden" href="#postContent">跳到正文</a>
+
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
+      <span class="masthead__edition">第 3 期，2026-11-11</span>
+      <nav class="masthead__nav" aria-label="主导航">
+        <a href="../index.html">文章归档</a>
+        <a href="../index.html#about">关于</a>
+        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container post">
+    <article>
+      <header class="post__head">
+        <a class="post__back" href="../index.html">返回目录</a>
+        <h1 id="postTitle" class="post__title">Windows 11 终端美化指南：从默认黑框到高颜值命令行</h1>
+        <div class="post__meta">
+          <span id="postCategory">技术</span>
+          <time id="postDate" datetime="2026-11-11">2026-11-11</time>
+        </div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Windows</span><span class="post__tag">终端美化</span><span class="post__tag">Windows Terminal</span><span class="post__tag">Oh My Posh</span></div>
+      </header>
+      <div id="postContent" class="post__body"><p>Windows 11 自带的 <strong>Windows Terminal</strong> 远比老式 cmd 黑框强大：多标签页、GPU 加速渲染、亚克力透明背景，还能自由更换字体与配色。本文带你一步步把默认终端美化成一个赏心悦目的工作台。</p>
+
+<h2>1. 为什么要从 cmd 换到 Windows Terminal</h2>
+<p>旧版命令提示符（cmd）只能单窗口、字体丑、不可定制。Windows Terminal 是微软官方开源的现代终端，支持：</p>
+<ul>
+  <li><strong>多标签 / 多窗格：</strong>一个窗口里同时跑 PowerShell、WSL、cmd。</li>
+  <li><strong>等宽 Nerd 字体：</strong>正确显示各种图标与连字。</li>
+  <li><strong>亚克力与透明度：</strong>让终端融入桌面壁纸。</li>
+  <li><strong>完整配色方案：</strong>一键切换 Catppuccin、Tokyo Night 等主题。</li>
+</ul>
+
+<h2>2. 第一步：安装并设为默认</h2>
+<p>Windows 11 已自带 Windows Terminal；若没有，用 winget 安装：</p>
+<pre><code>winget install --id Microsoft.WindowsTerminal -e</code></pre>
+<p>安装后在「设置 → 系统 → 面向开发人员」中，把<strong>终端</strong>的默认改为 Windows Terminal。</p>
+
+<h2>3. 第二步：换上等宽 Nerd 字体</h2>
+<p>很多图标（如 git 分支符号）需要 Nerd Font 才能显示，普通 Consolas 会变成豆腐块。推荐：</p>
+<ul>
+  <li><strong>Cascadia Code NF</strong>（微软官方，连字优雅）</li>
+  <li><strong>Fira Code NF</strong>（程序员最爱，连字丰富）</li>
+</ul>
+<p>从 <a href="https://www.nerdfonts.com" title="Nerd Fonts 官网" rel="noopener noreferrer">Nerd Fonts 官网</a> 下载安装后，打开终端设置（<code>Ctrl + ,</code>）→ 外观 → 字体，选择 <code>CascadiaCode NF</code>。</p>
+
+<h2>4. 第三步：配色方案与主题</h2>
+<p>Windows Terminal 内置几十种配色，也可导入社区主题。打开设置 → 配色方案，挑一款喜欢的，例如 <strong>Catppuccin Mocha</strong> 或 <strong>Tokyo Night</strong>。想全局统一，可在 <code>settings.json</code> 的 <code>profiles.defaults</code> 里指定：</p>
+<pre><code>{
+  "profiles": {
+    "defaults": {
+      "font": { "face": "CascadiaCode NF", "size": 11 },
+      "colorScheme": "Catppuccin Mocha"
+    }
+  }
+}</code></pre>
+
+<h2>5. 第四步：亚克力背景与透明度</h2>
+<p>让终端半透明、透出桌面，是最容易出效果的一步：</p>
+<pre><code>{
+  "profiles": {
+    "defaults": {
+      "useAcrylic": true,
+      "acrylicOpacity": 0.85,
+      "background": "#1e1e2e"
+    }
+  }
+}</code></pre>
+<p><code>acrylicOpacity</code> 越接近 1 越不透明；调到 <code>0.7</code> 左右能隐约看到壁纸，质感最佳。</p>
+
+<h2>6. 第五步：用 Oh My Posh 美化提示符</h2>
+<p><strong>Oh My Posh</strong> 能把 PowerShell / bash / zsh 的提示符变成带 Git 状态、路径、耗时等信息的炫酷状态栏。</p>
+<h3>6.1 安装</h3>
+<pre><code>winget install JanDeDobbeleer.OhMyPosh -e
+oh-my-posh font install</code></pre>
+<h3>6.2 应用主题</h3>
+<p>在 PowerShell 中执行（主题路径可在 <code>$env:POSH_THEMES_PATH</code> 查看）：</p>
+<pre><code>oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\catppuccin.omp.json" | Invoke-Expression</code></pre>
+<h3>6.3 写入 $PROFILE 持久化</h3>
+<p>让每次启动自动加载：</p>
+<pre><code>notepad $PROFILE</code></pre>
+<p>在打开的文件里加入上面那条 <code>oh-my-posh init ...</code> 命令并保存即可。</p>
+
+<h2>7. 一份可直接用的 settings.json</h2>
+<p>把下面内容合并进 Windows Terminal 的 <code>settings.json</code>（设置 → 打开 JSON 文件），即可同时拥有字体、配色、透明背景：</p>
+<pre><code>{
+  "profiles": {
+    "defaults": {
+      "font": { "face": "CascadiaCode NF", "size": 11 },
+      "colorScheme": "Catppuccin Mocha",
+      "useAcrylic": true,
+      "acrylicOpacity": 0.82,
+      "background": "#1e1e2e",
+      "cursorShape": "filledBox"
+    }
+  },
+  "schemes": [
+    {
+      "name": "Catppuccin Mocha",
+      "background": "#1e1e2e",
+      "foreground": "#cdd6f4",
+      "cursorColor": "#f5e0dc",
+      "black": "#45475a",
+      "red": "#f38ba8",
+      "green": "#a6e3a1",
+      "yellow": "#f9e2af",
+      "blue": "#89b4fa",
+      "purple": "#cba6f7",
+      "white": "#bac2de"
+    }
+  ]
+}</code></pre>
+
+<h2>结语</h2>
+<p>到这里，你的 Windows 11 终端已经拥有了 Nerd 字体、协调配色、亚克力背景和精致的 Oh My Posh 提示符。一个好看的终端不仅能提升心情，也能让日常的命令行工作更顺手。继续探索主题与配置，把它调成属于你自己的样子吧。</p></div>
+      <div id="postActions" class="post__actions"></div>
+    </article>
+  </main>
+
+  <footer class="colophon">
+    <div class="container colophon__inner">
+      <div>
+        <p class="colophon__statement">用文字丈量世界</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 3 期。</p>
+      </div>
+      <div class="colophon__links">
+        <a href="../index.html">文章归档</a>
+        <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+    <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
+  </footer>
+
+  <script type="application/json" id="post-data">{"id":5,"title":"Windows 11 终端美化指南：从默认黑框到高颜值命令行","excerpt":"Windows 11 自带的 Windows Terminal 远比老式 cmd 强大。本文带你一步步美化终端：更换等宽 Nerd 字体、自定义配色与亚克力背景、用 Oh My Posh 打造炫酷提示符，把命令行变成赏心悦目的工作台。","date":"2026-11-11","category":"技术","tags":["Windows","终端美化","Windows Terminal","Oh My Posh"],"content":"\u003cp>Windows 11 自带的 \u003cstrong>Windows Terminal\u003c/strong> 远比老式 cmd 黑框强大：多标签页、GPU 加速渲染、亚克力透明背景，还能自由更换字体与配色。本文带你一步步把默认终端美化成一个赏心悦目的工作台。\u003c/p>\n\n\u003ch2>1. 为什么要从 cmd 换到 Windows Terminal\u003c/h2>\n\u003cp>旧版命令提示符（cmd）只能单窗口、字体丑、不可定制。Windows Terminal 是微软官方开源的现代终端，支持：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>多标签 / 多窗格：\u003c/strong>一个窗口里同时跑 PowerShell、WSL、cmd。\u003c/li>\n  \u003cli>\u003cstrong>等宽 Nerd 字体：\u003c/strong>正确显示各种图标与连字。\u003c/li>\n  \u003cli>\u003cstrong>亚克力与透明度：\u003c/strong>让终端融入桌面壁纸。\u003c/li>\n  \u003cli>\u003cstrong>完整配色方案：\u003c/strong>一键切换 Catppuccin、Tokyo Night 等主题。\u003c/li>\n\u003c/ul>\n\n\u003ch2>2. 第一步：安装并设为默认\u003c/h2>\n\u003cp>Windows 11 已自带 Windows Terminal；若没有，用 winget 安装：\u003c/p>\n\u003cpre>\u003ccode>winget install --id Microsoft.WindowsTerminal -e\u003c/code>\u003c/pre>\n\u003cp>安装后在「设置 → 系统 → 面向开发人员」中，把\u003cstrong>终端\u003c/strong>的默认改为 Windows Terminal。\u003c/p>\n\n\u003ch2>3. 第二步：换上等宽 Nerd 字体\u003c/h2>\n\u003cp>很多图标（如 git 分支符号）需要 Nerd Font 才能显示，普通 Consolas 会变成豆腐块。推荐：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>Cascadia Code NF\u003c/strong>（微软官方，连字优雅）\u003c/li>\n  \u003cli>\u003cstrong>Fira Code NF\u003c/strong>（程序员最爱，连字丰富）\u003c/li>\n\u003c/ul>\n\u003cp>从 \u003ca href=\"https://www.nerdfonts.com\" title=\"Nerd Fonts 官网\">Nerd Fonts 官网\u003c/a> 下载安装后，打开终端设置（\u003ccode>Ctrl + ,\u003c/code>）→ 外观 → 字体，选择 \u003ccode>CascadiaCode NF\u003c/code>。\u003c/p>\n\n\u003ch2>4. 第三步：配色方案与主题\u003c/h2>\n\u003cp>Windows Terminal 内置几十种配色，也可导入社区主题。打开设置 → 配色方案，挑一款喜欢的，例如 \u003cstrong>Catppuccin Mocha\u003c/strong> 或 \u003cstrong>Tokyo Night\u003c/strong>。想全局统一，可在 \u003ccode>settings.json\u003c/code> 的 \u003ccode>profiles.defaults\u003c/code> 里指定：\u003c/p>\n\u003cpre>\u003ccode>{\n  \"profiles\": {\n    \"defaults\": {\n      \"font\": { \"face\": \"CascadiaCode NF\", \"size\": 11 },\n      \"colorScheme\": \"Catppuccin Mocha\"\n    }\n  }\n}\u003c/code>\u003c/pre>\n\n\u003ch2>5. 第四步：亚克力背景与透明度\u003c/h2>\n\u003cp>让终端半透明、透出桌面，是最容易出效果的一步：\u003c/p>\n\u003cpre>\u003ccode>{\n  \"profiles\": {\n    \"defaults\": {\n      \"useAcrylic\": true,\n      \"acrylicOpacity\": 0.85,\n      \"background\": \"#1e1e2e\"\n    }\n  }\n}\u003c/code>\u003c/pre>\n\u003cp>\u003ccode>acrylicOpacity\u003c/code> 越接近 1 越不透明；调到 \u003ccode>0.7\u003c/code> 左右能隐约看到壁纸，质感最佳。\u003c/p>\n\n\u003ch2>6. 第五步：用 Oh My Posh 美化提示符\u003c/h2>\n\u003cp>\u003cstrong>Oh My Posh\u003c/strong> 能把 PowerShell / bash / zsh 的提示符变成带 Git 状态、路径、耗时等信息的炫酷状态栏。\u003c/p>\n\u003ch3>6.1 安装\u003c/h3>\n\u003cpre>\u003ccode>winget install JanDeDobbeleer.OhMyPosh -e\noh-my-posh font install\u003c/code>\u003c/pre>\n\u003ch3>6.2 应用主题\u003c/h3>\n\u003cp>在 PowerShell 中执行（主题路径可在 \u003ccode>$env:POSH_THEMES_PATH\u003c/code> 查看）：\u003c/p>\n\u003cpre>\u003ccode>oh-my-posh init pwsh --config \"$env:POSH_THEMES_PATH\\catppuccin.omp.json\" | Invoke-Expression\u003c/code>\u003c/pre>\n\u003ch3>6.3 写入 $PROFILE 持久化\u003c/h3>\n\u003cp>让每次启动自动加载：\u003c/p>\n\u003cpre>\u003ccode>notepad $PROFILE\u003c/code>\u003c/pre>\n\u003cp>在打开的文件里加入上面那条 \u003ccode>oh-my-posh init ...\u003c/code> 命令并保存即可。\u003c/p>\n\n\u003ch2>7. 一份可直接用的 settings.json\u003c/h2>\n\u003cp>把下面内容合并进 Windows Terminal 的 \u003ccode>settings.json\u003c/code>（设置 → 打开 JSON 文件），即可同时拥有字体、配色、透明背景：\u003c/p>\n\u003cpre>\u003ccode>{\n  \"profiles\": {\n    \"defaults\": {\n      \"font\": { \"face\": \"CascadiaCode NF\", \"size\": 11 },\n      \"colorScheme\": \"Catppuccin Mocha\",\n      \"useAcrylic\": true,\n      \"acrylicOpacity\": 0.82,\n      \"background\": \"#1e1e2e\",\n      \"cursorShape\": \"filledBox\"\n    }\n  },\n  \"schemes\": [\n    {\n      \"name\": \"Catppuccin Mocha\",\n      \"background\": \"#1e1e2e\",\n      \"foreground\": \"#cdd6f4\",\n      \"cursorColor\": \"#f5e0dc\",\n      \"black\": \"#45475a\",\n      \"red\": \"#f38ba8\",\n      \"green\": \"#a6e3a1\",\n      \"yellow\": \"#f9e2af\",\n      \"blue\": \"#89b4fa\",\n      \"purple\": \"#cba6f7\",\n      \"white\": \"#bac2de\"\n    }\n  ]\n}\u003c/code>\u003c/pre>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>到这里，你的 Windows 11 终端已经拥有了 Nerd 字体、协调配色、亚克力背景和精致的 Oh My Posh 提示符。一个好看的终端不仅能提升心情，也能让日常的命令行工作更顺手。继续探索主题与配置，把它调成属于你自己的样子吧。\u003c/p>"}</script>
+  <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
+  <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9.5 7.5 17 12l-7.5 4.5Z"/>
+    </svg>
+  </button>
+  <button id="pauseBtn" class="float-btn float-btn--pause" type="button" aria-label="暂停背景音乐" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+      <path d="M9.5 7.5v9M14.5 7.5v9"/>
+    </svg>
+  </button>
+  <audio id="bgMusic" src="../media/bgyy.mp3" loop preload="none"></audio>
+</div>
+
+<button id="backToTop" class="float-btn float-btn--top" type="button" aria-label="回到顶部" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/>
+  </svg>
+</button>
+
+</body>
+</html>
