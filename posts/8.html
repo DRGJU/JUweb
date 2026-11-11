@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DLL 入门：如何编写并在 C/C++、C#、Python 中调用动态链接库 | 墨迹</title>
-  <meta name="description" content="DLL（动态链接库）是 Windows 上代码复用与插件化的基石。本文讲解什么是 DLL、如何用 C/C++ 导出，以及在 C/C++、C#（P/Invoke）、Python（ctypes）三种语言中调用的实战示例，并总结常见坑。">
+  <title>Python 装饰器详解：从 @ 语法到实战应用 | 墨迹</title>
+  <meta name="description" content="Python 装饰器用一个 @ 符号实现函数包装与元编程。本文从计时装饰器讲起，覆盖 @ 语法糖、functools.wraps、带参装饰器、类装饰器，以及缓存/路由/鉴权等真实应用场景与常见坑。">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="DLL 入门：如何编写并在 C/C++、C#、Python 中调用动态链接库">
-  <meta property="og:description" content="DLL（动态链接库）是 Windows 上代码复用与插件化的基石。本文讲解什么是 DLL、如何用 C/C++ 导出，以及在 C/C++、C#（P/Invoke）、Python（ctypes）三种语言中调用的实战示例，并总结常见坑。">
+  <meta property="og:title" content="Python 装饰器详解：从 @ 语法到实战应用">
+  <meta property="og:description" content="Python 装饰器用一个 @ 符号实现函数包装与元编程。本文从计时装饰器讲起，覆盖 @ 语法糖、functools.wraps、带参装饰器、类装饰器，以及缓存/路由/鉴权等真实应用场景与常见坑。">
   <meta property="og:url" content="https://drgju.github.io/JUweb/posts/8.html">
   <meta property="article:published_time" content="2026-11-11">
   <link rel="canonical" href="https://drgju.github.io/JUweb/posts/8.html">
@@ -21,7 +21,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 7 期，2026-11-11</span>
+      <span class="masthead__edition">第 8 期，2026-11-11</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
@@ -34,93 +34,121 @@
     <article>
       <header class="post__head">
         <a class="post__back" href="../index.html">返回目录</a>
-        <h1 id="postTitle" class="post__title">DLL 入门：如何编写并在 C/C++、C#、Python 中调用动态链接库</h1>
+        <h1 id="postTitle" class="post__title">Python 装饰器详解：从 @ 语法到实战应用</h1>
         <div class="post__meta">
           <span id="postCategory">技术</span>
           <time id="postDate" datetime="2026-11-11">2026-11-11</time>
         </div>
-        <div id="postTags" class="post__tags"><span class="post__tag">DLL</span><span class="post__tag">Windows</span><span class="post__tag">C/C++</span><span class="post__tag">Python</span><span class="post__tag">动态链接库</span></div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">装饰器</span><span class="post__tag">进阶</span><span class="post__tag">元编程</span></div>
       </header>
-      <div id="postContent" class="post__body"><p>在 Windows 上，你几乎每天都在和 <strong>DLL（Dynamic Link Library，动态链接库）</strong>打交道——系统里成千上万的 <code>.dll</code> 文件就是各种功能的共享模块。学会自己编写并使用 DLL，不仅能复用代码，还能给已有程序做插件化扩展。本文从「是什么」讲到「怎么用」，覆盖 C/C++、C# 与 Python 三种调用方式。</p>
+      <div id="postContent" class="post__body"><p>Python 装饰器（Decorator）看起来只是一个 <code>@</code> 符号，背后却是函数式编程与元编程的精华。它能在不修改原函数代码的前提下，给函数「套上」额外行为——计时、缓存、鉴权、日志统统用它。本文从最直观的例子讲起，一直到带参装饰器、类装饰器和真实应用场景。</p>
 
-<h2>1. 什么是 DLL</h2>
-<p>DLL 是一段<strong>可被多个程序在运行时共享加载</strong>的二进制代码。和静态库（.lib 把代码直接编进 exe）不同，DLL 在运行时才被链接，多个进程可以共用同一份内存中的代码。</p>
+<h2>1. 什么是装饰器</h2>
+<p>在 Python 里，<strong>函数是一等公民</strong>：可以赋值给变量、当作参数传递、作为返回值。装饰器正是利用这一点——它本质是一个<strong>接收函数、返回函数</strong>的可调用对象。所谓「装饰」，就是把原函数包一层，再返回包装后的函数。</p>
 
-<h2>2. 为什么用 DLL</h2>
+<h2>2. 第一个装饰器：给函数计时</h2>
+<pre><code>import time
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        print(f"{func.__name__} 耗时 {time.time() - start:.4f}s")
+        return result
+    return wrapper
+
+@timer
+def slow_add(a, b):
+    time.sleep(0.5)
+    return a + b
+
+slow_add(1, 2)</code></pre>
+<p><code>wrapper</code> 用 <code>*args, **kwargs</code> 接住任意参数，调用原函数后再打印耗时，最后把结果原样返回——原函数「长什么样」没变，只是多了一层计时。</p>
+
+<h2>3. @ 语法糖</h2>
+<p><code>@timer</code> 只是下面写法的简写：</p>
+<pre><code>def slow_add(a, b):
+    time.sleep(0.5)
+    return a + b
+slow_add = timer(slow_add)</code></pre>
+<p>也就是说，<code>@装饰器</code> 放在函数定义上方，等价于「把下面这个函数传给装饰器，再把返回值绑回原名」。</p>
+
+<h2>4. 保留原函数信息：functools.wraps</h2>
+<p>上面那个装饰器有个隐患：包装后 <code>slow_add.__name__</code> 会变成 <code>wrapper</code>，原函数的名字和文档都丢了，影响调试和自动文档。用 <code>functools.wraps</code> 修正：</p>
+<pre><code>import functools, time
+
+def timer(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        print(f"{func.__name__} 耗时 {time.time() - start:.4f}s")
+        return result
+    return wrapper</code></pre>
+<p><code>@functools.wraps(func)</code> 会把原函数的 <code>__name__</code>、<code>__doc__</code> 等元信息复制给 <code>wrapper</code>，这是写装饰器的标准动作。</p>
+
+<h2>5. 带参数的装饰器</h2>
+<p>想让装饰器本身也能接收参数（比如「重复执行 N 次」），需要再多包一层：</p>
+<pre><code>import functools
+
+def repeat(times):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for _ in range(times):
+                func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@repeat(times=3)
+def greet(name):
+    print(f"Hello, {name}")
+
+greet("World")  # 打印 3 次</code></pre>
+<p>结构是「参数层 → 装饰器层 → 包装层」三层嵌套，记住这个套路就不容易写错。</p>
+
+<h2>6. 类装饰器</h2>
+<p>装饰器不一定是函数，只要是可调用对象即可。用类实现时，把原函数存起来，在 <code>__call__</code> 里执行包装逻辑：</p>
+<pre><code>class CountCalls:
+    def __init__(self, func):
+        self.func = func
+        self.calls = 0
+
+    def __call__(self, *args, **kwargs):
+        self.calls += 1
+        print(f"第 {self.calls} 次调用")
+        return self.func(*args, **kwargs)
+
+@CountCalls
+def say_hi():
+    print("hi")
+
+say_hi()
+say_hi()</code></pre>
+
+<h2>7. 真实应用场景</h2>
 <ul>
-  <li><strong>代码复用：</strong>一套算法，C++、C#、Python 都能调用。</li>
-  <li><strong>节省内存：</strong>同一 DLL 在物理内存中只存一份，被多个进程共享。</li>
-  <li><strong>热更新 / 插件化：</strong>换掉 DLL 就能更新功能，不用重编主程序。</li>
-  <li><strong>职责分离：</strong>把不稳定或需授权的模块隔离在 DLL 里。</li>
+  <li><strong>缓存：</strong><code>functools.lru_cache</code> 缓存函数返回值，斐波那契这类递归瞬间提速。</li>
+  <li><strong>属性：</strong><code>@property</code> 把方法变成可读属性，调用时像访问字段。</li>
+  <li><strong>Web 路由：</strong>Flask 的 <code>@app.route("/")</code> 用装饰器把函数注册成 URL 处理器。</li>
+  <li><strong>鉴权与日志：</strong>在接口函数外包一层登录校验或访问日志，业务代码保持干净。</li>
 </ul>
+<pre><code>from functools import lru_cache
 
-<h2>3. 用 C/C++ 编写并导出 DLL</h2>
-<p>关键是<strong>显式导出符号</strong>，并尽量用 <code>extern "C"</code> 避免 C++ 的名称修饰（name mangling）：</p>
-<pre><code>// mathlib.h
-#ifdef MATHLIB_EXPORTS
-#define API __declspec(dllexport)
-#else
-#define API __declspec(dllimport)
-#endif
+@lru_cache(maxsize=128)
+def fib(n):
+    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)</code></pre>
 
-extern "C" API int add(int a, int b);</code></pre>
-<pre><code>// mathlib.cpp
-#include "mathlib.h"
-
-extern "C" API int add(int a, int b) {
-    return a + b;
-}</code></pre>
-<p>编译后会得到 <code>mathlib.dll</code>（以及导入库 <code>mathlib.lib</code>）。</p>
-
-<h2>4. 在 C/C++ 中调用 DLL</h2>
-<p>有两种链接方式：</p>
+<h2>8. 常见坑</h2>
 <ul>
-  <li><strong>隐式链接：</strong>编译时链接 <code>.lib</code>，运行时系统自动加载 DLL。</li>
-  <li><strong>显式链接：</strong>用 <code>LoadLibrary</code> + <code>GetProcAddress</code> 在代码里动态加载，更灵活。</li>
-</ul>
-<pre><code>// 显式链接示例
-#include &lt;windows.h&gt;
-typedef int (*AddFunc)(int, int);
-
-HMODULE h = LoadLibraryA("mathlib.dll");
-AddFunc add = (AddFunc)GetProcAddress(h, "add");
-int r = add(2, 3);
-FreeLibrary(h);</code></pre>
-
-<h2>5. 在 C# 中通过 P/Invoke 调用</h2>
-<p>C# 用 <code>DllImport</code> 一行声明就能调用，注意<strong>调用约定要一致</strong>：</p>
-<pre><code>using System;
-using System.Runtime.InteropServices;
-
-class Program {
-    [DllImport("mathlib.dll", CallingConvention = CallingConvention.Cdecl)]
-    static extern int add(int a, int b);
-
-    static void Main() {
-        Console.WriteLine(add(2, 3));
-    }
-}</code></pre>
-
-<h2>6. 在 Python 中通过 ctypes 调用</h2>
-<p>Python 标准库 <code>ctypes</code> 无需额外安装即可加载 DLL：</p>
-<pre><code>from ctypes import cdll, c_int
-
-lib = cdll.LoadLibrary("mathlib.dll")
-lib.add.argtypes = [c_int, c_int]
-lib.add.restype = c_int
-print(lib.add(2, 3))</code></pre>
-
-<h2>7. 常见坑</h2>
-<ul>
-  <li><strong>调用约定不匹配：</strong><code>__cdecl</code> 与 <code>__stdcall</code> 必须和调用方一致，否则栈会错乱崩溃。</li>
-  <li><strong>位数不匹配：</strong>64 位程序不能加载 32 位 DLL，反之亦然，务必对齐 x86 / x64。</li>
-  <li><strong>依赖缺失：</strong>DLL 自身还可能依赖别的 DLL 或 VC++ 运行库，缺失会报「找不到模块」，可用 <code>dumpbin /dependents</code> 排查。</li>
-  <li><strong>名称修饰：</strong>C++ 导出函数名会被改写，记得用 <code>extern "C"</code> 或 <code>.def</code> 文件固定导出名。</li>
-  <li><strong>路径问题：</strong>运行时 DLL 要在 exe 同目录或系统 PATH 中，否则加载失败。</li>
+  <li><strong>忘了 <code>@functools.wraps</code>：</strong>原函数名、文档丢失，调试和文档生成会出问题。</li>
+  <li><strong>执行时机：</strong>装饰器的外层在<strong>定义时（import 时）</strong>就执行，而不是函数被调用时——别在里面放耗时或依赖运行时状态的逻辑。</li>
+  <li><strong>多层装饰器：</strong>从下往上执行，离函数最近的先包，顺序容易让人迷糊，建议逐个加、逐个测。</li>
+  <li><strong>参数层漏写：</strong>带参装饰器少包一层是最常见错误，牢记三层结构。</li>
 </ul>
 
 <h2>结语</h2>
-<p>DLL 把「共享、复用、可插拔」变成了 Windows 平台的底层能力。掌握它的编写与跨语言调用（C/C++ 的 LoadLibrary、C# 的 P/Invoke、Python 的 ctypes），你就能把核心逻辑用一种语言写好，再在各个语言里复用。动手写一个最小的 <code>mathlib.dll</code>，然后用三种语言各调一次，是理解它最快的方式。</p></div>
+<p>装饰器的魅力在于「开闭原则」：对扩展开放、对修改关闭。学会它，你就能把横切关注点（计时、缓存、鉴权、日志）从业务代码里抽出来，让每个函数只关心自己的事。从手写一个 <code>timer</code> 开始，再逐步用到 <code>lru_cache</code> 和框架里的路由装饰器，你会越来越体会到它的优雅。</p></div>
       <div id="postActions" class="post__actions"></div>
     </article>
   </main>
@@ -129,7 +157,7 @@ print(lib.add(2, 3))</code></pre>
     <div class="container colophon__inner">
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 7 期。</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 8 期。</p>
       </div>
       <div class="colophon__links">
         <a href="../index.html">文章归档</a>
@@ -139,7 +167,7 @@ print(lib.add(2, 3))</code></pre>
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
-  <script type="application/json" id="post-data">{"id":8,"title":"DLL 入门：如何编写并在 C/C++、C#、Python 中调用动态链接库","excerpt":"DLL（动态链接库）是 Windows 上代码复用与插件化的基石。本文讲解什么是 DLL、如何用 C/C++ 导出，以及在 C/C++、C#（P/Invoke）、Python（ctypes）三种语言中调用的实战示例，并总结常见坑。","date":"2026-11-11","category":"技术","tags":["DLL","Windows","C/C++","Python","动态链接库"],"content":"\u003cp>在 Windows 上，你几乎每天都在和 \u003cstrong>DLL（Dynamic Link Library，动态链接库）\u003c/strong>打交道——系统里成千上万的 \u003ccode>.dll\u003c/code> 文件就是各种功能的共享模块。学会自己编写并使用 DLL，不仅能复用代码，还能给已有程序做插件化扩展。本文从「是什么」讲到「怎么用」，覆盖 C/C++、C# 与 Python 三种调用方式。\u003c/p>\n\n\u003ch2>1. 什么是 DLL\u003c/h2>\n\u003cp>DLL 是一段\u003cstrong>可被多个程序在运行时共享加载\u003c/strong>的二进制代码。和静态库（.lib 把代码直接编进 exe）不同，DLL 在运行时才被链接，多个进程可以共用同一份内存中的代码。\u003c/p>\n\n\u003ch2>2. 为什么用 DLL\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>代码复用：\u003c/strong>一套算法，C++、C#、Python 都能调用。\u003c/li>\n  \u003cli>\u003cstrong>节省内存：\u003c/strong>同一 DLL 在物理内存中只存一份，被多个进程共享。\u003c/li>\n  \u003cli>\u003cstrong>热更新 / 插件化：\u003c/strong>换掉 DLL 就能更新功能，不用重编主程序。\u003c/li>\n  \u003cli>\u003cstrong>职责分离：\u003c/strong>把不稳定或需授权的模块隔离在 DLL 里。\u003c/li>\n\u003c/ul>\n\n\u003ch2>3. 用 C/C++ 编写并导出 DLL\u003c/h2>\n\u003cp>关键是\u003cstrong>显式导出符号\u003c/strong>，并尽量用 \u003ccode>extern \"C\"\u003c/code> 避免 C++ 的名称修饰（name mangling）：\u003c/p>\n\u003cpre>\u003ccode>// mathlib.h\n#ifdef MATHLIB_EXPORTS\n#define API __declspec(dllexport)\n#else\n#define API __declspec(dllimport)\n#endif\n\nextern \"C\" API int add(int a, int b);\u003c/code>\u003c/pre>\n\u003cpre>\u003ccode>// mathlib.cpp\n#include \"mathlib.h\"\n\nextern \"C\" API int add(int a, int b) {\n    return a + b;\n}\u003c/code>\u003c/pre>\n\u003cp>编译后会得到 \u003ccode>mathlib.dll\u003c/code>（以及导入库 \u003ccode>mathlib.lib\u003c/code>）。\u003c/p>\n\n\u003ch2>4. 在 C/C++ 中调用 DLL\u003c/h2>\n\u003cp>有两种链接方式：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>隐式链接：\u003c/strong>编译时链接 \u003ccode>.lib\u003c/code>，运行时系统自动加载 DLL。\u003c/li>\n  \u003cli>\u003cstrong>显式链接：\u003c/strong>用 \u003ccode>LoadLibrary\u003c/code> + \u003ccode>GetProcAddress\u003c/code> 在代码里动态加载，更灵活。\u003c/li>\n\u003c/ul>\n\u003cpre>\u003ccode>// 显式链接示例\n#include &lt;windows.h&gt;\ntypedef int (*AddFunc)(int, int);\n\nHMODULE h = LoadLibraryA(\"mathlib.dll\");\nAddFunc add = (AddFunc)GetProcAddress(h, \"add\");\nint r = add(2, 3);\nFreeLibrary(h);\u003c/code>\u003c/pre>\n\n\u003ch2>5. 在 C# 中通过 P/Invoke 调用\u003c/h2>\n\u003cp>C# 用 \u003ccode>DllImport\u003c/code> 一行声明就能调用，注意\u003cstrong>调用约定要一致\u003c/strong>：\u003c/p>\n\u003cpre>\u003ccode>using System;\nusing System.Runtime.InteropServices;\n\nclass Program {\n    [DllImport(\"mathlib.dll\", CallingConvention = CallingConvention.Cdecl)]\n    static extern int add(int a, int b);\n\n    static void Main() {\n        Console.WriteLine(add(2, 3));\n    }\n}\u003c/code>\u003c/pre>\n\n\u003ch2>6. 在 Python 中通过 ctypes 调用\u003c/h2>\n\u003cp>Python 标准库 \u003ccode>ctypes\u003c/code> 无需额外安装即可加载 DLL：\u003c/p>\n\u003cpre>\u003ccode>from ctypes import cdll, c_int\n\nlib = cdll.LoadLibrary(\"mathlib.dll\")\nlib.add.argtypes = [c_int, c_int]\nlib.add.restype = c_int\nprint(lib.add(2, 3))\u003c/code>\u003c/pre>\n\n\u003ch2>7. 常见坑\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>调用约定不匹配：\u003c/strong>\u003ccode>__cdecl\u003c/code> 与 \u003ccode>__stdcall\u003c/code> 必须和调用方一致，否则栈会错乱崩溃。\u003c/li>\n  \u003cli>\u003cstrong>位数不匹配：\u003c/strong>64 位程序不能加载 32 位 DLL，反之亦然，务必对齐 x86 / x64。\u003c/li>\n  \u003cli>\u003cstrong>依赖缺失：\u003c/strong>DLL 自身还可能依赖别的 DLL 或 VC++ 运行库，缺失会报「找不到模块」，可用 \u003ccode>dumpbin /dependents\u003c/code> 排查。\u003c/li>\n  \u003cli>\u003cstrong>名称修饰：\u003c/strong>C++ 导出函数名会被改写，记得用 \u003ccode>extern \"C\"\u003c/code> 或 \u003ccode>.def\u003c/code> 文件固定导出名。\u003c/li>\n  \u003cli>\u003cstrong>路径问题：\u003c/strong>运行时 DLL 要在 exe 同目录或系统 PATH 中，否则加载失败。\u003c/li>\n\u003c/ul>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>DLL 把「共享、复用、可插拔」变成了 Windows 平台的底层能力。掌握它的编写与跨语言调用（C/C++ 的 LoadLibrary、C# 的 P/Invoke、Python 的 ctypes），你就能把核心逻辑用一种语言写好，再在各个语言里复用。动手写一个最小的 \u003ccode>mathlib.dll\u003c/code>，然后用三种语言各调一次，是理解它最快的方式。\u003c/p>"}</script>
+  <script type="application/json" id="post-data">{"id":8,"title":"Python 装饰器详解：从 @ 语法到实战应用","excerpt":"Python 装饰器用一个 @ 符号实现函数包装与元编程。本文从计时装饰器讲起，覆盖 @ 语法糖、functools.wraps、带参装饰器、类装饰器，以及缓存/路由/鉴权等真实应用场景与常见坑。","date":"2026-11-11","category":"技术","tags":["Python","装饰器","进阶","元编程"],"content":"\u003cp>Python 装饰器（Decorator）看起来只是一个 \u003ccode>@\u003c/code> 符号，背后却是函数式编程与元编程的精华。它能在不修改原函数代码的前提下，给函数「套上」额外行为——计时、缓存、鉴权、日志统统用它。本文从最直观的例子讲起，一直到带参装饰器、类装饰器和真实应用场景。\u003c/p>\n\n\u003ch2>1. 什么是装饰器\u003c/h2>\n\u003cp>在 Python 里，\u003cstrong>函数是一等公民\u003c/strong>：可以赋值给变量、当作参数传递、作为返回值。装饰器正是利用这一点——它本质是一个\u003cstrong>接收函数、返回函数\u003c/strong>的可调用对象。所谓「装饰」，就是把原函数包一层，再返回包装后的函数。\u003c/p>\n\n\u003ch2>2. 第一个装饰器：给函数计时\u003c/h2>\n\u003cpre>\u003ccode>import time\n\ndef timer(func):\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        print(f\"{func.__name__} 耗时 {time.time() - start:.4f}s\")\n        return result\n    return wrapper\n\n@timer\ndef slow_add(a, b):\n    time.sleep(0.5)\n    return a + b\n\nslow_add(1, 2)\u003c/code>\u003c/pre>\n\u003cp>\u003ccode>wrapper\u003c/code> 用 \u003ccode>*args, **kwargs\u003c/code> 接住任意参数，调用原函数后再打印耗时，最后把结果原样返回——原函数「长什么样」没变，只是多了一层计时。\u003c/p>\n\n\u003ch2>3. @ 语法糖\u003c/h2>\n\u003cp>\u003ccode>@timer\u003c/code> 只是下面写法的简写：\u003c/p>\n\u003cpre>\u003ccode>def slow_add(a, b):\n    time.sleep(0.5)\n    return a + b\nslow_add = timer(slow_add)\u003c/code>\u003c/pre>\n\u003cp>也就是说，\u003ccode>@装饰器\u003c/code> 放在函数定义上方，等价于「把下面这个函数传给装饰器，再把返回值绑回原名」。\u003c/p>\n\n\u003ch2>4. 保留原函数信息：functools.wraps\u003c/h2>\n\u003cp>上面那个装饰器有个隐患：包装后 \u003ccode>slow_add.__name__\u003c/code> 会变成 \u003ccode>wrapper\u003c/code>，原函数的名字和文档都丢了，影响调试和自动文档。用 \u003ccode>functools.wraps\u003c/code> 修正：\u003c/p>\n\u003cpre>\u003ccode>import functools, time\n\ndef timer(func):\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        print(f\"{func.__name__} 耗时 {time.time() - start:.4f}s\")\n        return result\n    return wrapper\u003c/code>\u003c/pre>\n\u003cp>\u003ccode>@functools.wraps(func)\u003c/code> 会把原函数的 \u003ccode>__name__\u003c/code>、\u003ccode>__doc__\u003c/code> 等元信息复制给 \u003ccode>wrapper\u003c/code>，这是写装饰器的标准动作。\u003c/p>\n\n\u003ch2>5. 带参数的装饰器\u003c/h2>\n\u003cp>想让装饰器本身也能接收参数（比如「重复执行 N 次」），需要再多包一层：\u003c/p>\n\u003cpre>\u003ccode>import functools\n\ndef repeat(times):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for _ in range(times):\n                func(*args, **kwargs)\n        return wrapper\n    return decorator\n\n@repeat(times=3)\ndef greet(name):\n    print(f\"Hello, {name}\")\n\ngreet(\"World\")  # 打印 3 次\u003c/code>\u003c/pre>\n\u003cp>结构是「参数层 → 装饰器层 → 包装层」三层嵌套，记住这个套路就不容易写错。\u003c/p>\n\n\u003ch2>6. 类装饰器\u003c/h2>\n\u003cp>装饰器不一定是函数，只要是可调用对象即可。用类实现时，把原函数存起来，在 \u003ccode>__call__\u003c/code> 里执行包装逻辑：\u003c/p>\n\u003cpre>\u003ccode>class CountCalls:\n    def __init__(self, func):\n        self.func = func\n        self.calls = 0\n\n    def __call__(self, *args, **kwargs):\n        self.calls += 1\n        print(f\"第 {self.calls} 次调用\")\n        return self.func(*args, **kwargs)\n\n@CountCalls\ndef say_hi():\n    print(\"hi\")\n\nsay_hi()\nsay_hi()\u003c/code>\u003c/pre>\n\n\u003ch2>7. 真实应用场景\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>缓存：\u003c/strong>\u003ccode>functools.lru_cache\u003c/code> 缓存函数返回值，斐波那契这类递归瞬间提速。\u003c/li>\n  \u003cli>\u003cstrong>属性：\u003c/strong>\u003ccode>@property\u003c/code> 把方法变成可读属性，调用时像访问字段。\u003c/li>\n  \u003cli>\u003cstrong>Web 路由：\u003c/strong>Flask 的 \u003ccode>@app.route(\"/\")\u003c/code> 用装饰器把函数注册成 URL 处理器。\u003c/li>\n  \u003cli>\u003cstrong>鉴权与日志：\u003c/strong>在接口函数外包一层登录校验或访问日志，业务代码保持干净。\u003c/li>\n\u003c/ul>\n\u003cpre>\u003ccode>from functools import lru_cache\n\n@lru_cache(maxsize=128)\ndef fib(n):\n    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)\u003c/code>\u003c/pre>\n\n\u003ch2>8. 常见坑\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>忘了 \u003ccode>@functools.wraps\u003c/code>：\u003c/strong>原函数名、文档丢失，调试和文档生成会出问题。\u003c/li>\n  \u003cli>\u003cstrong>执行时机：\u003c/strong>装饰器的外层在\u003cstrong>定义时（import 时）\u003c/strong>就执行，而不是函数被调用时——别在里面放耗时或依赖运行时状态的逻辑。\u003c/li>\n  \u003cli>\u003cstrong>多层装饰器：\u003c/strong>从下往上执行，离函数最近的先包，顺序容易让人迷糊，建议逐个加、逐个测。\u003c/li>\n  \u003cli>\u003cstrong>参数层漏写：\u003c/strong>带参装饰器少包一层是最常见错误，牢记三层结构。\u003c/li>\n\u003c/ul>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>装饰器的魅力在于「开闭原则」：对扩展开放、对修改关闭。学会它，你就能把横切关注点（计时、缓存、鉴权、日志）从业务代码里抽出来，让每个函数只关心自己的事。从手写一个 \u003ccode>timer\u003c/code> 开始，再逐步用到 \u003ccode>lru_cache\u003c/code> 和框架里的路由装饰器，你会越来越体会到它的优雅。\u003c/p>"}</script>
   <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
   <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
