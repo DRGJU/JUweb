@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>草稿预览 | 墨迹博客</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./css/style.css">
+  <script>
+    try {
+      var t = localStorage.getItem('juweb:theme');
+      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <script type="module" src="./js/post.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#postContent">跳到正文</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./index.html">墨迹</a>
+      <nav class="header-nav" aria-label="主导航">
+        <a href="./index.html">博客</a>
+        <a href="./admin.html">草稿编辑</a>
+        <button id="themeToggle" class="icon-btn" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="banner"><strong>草稿预览</strong>：内容来自当前浏览器的 localStorage，尚未发布。</div>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <article>
+      <header class="post-header">
+        <a class="back-link" href="./index.html?draft=1">&larr; 返回草稿列表</a>
+        <h1 id="postTitle">正在加载…</h1>
+        <div class="card-meta">
+          <span id="postCategory" class="card-category"></span>
+          <span id="postDate" class="card-date"></span>
+        </div>
+        <div id="postTags" class="post-tags"></div>
+      </header>
+      <div id="postContent" class="prose"></div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span><span id="year"></span> 墨迹. All rights reserved.</span>
+      <span>用文字丈量世界</span>
+    </div>
+  </footer>
+</body>
+</html>

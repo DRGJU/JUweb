@@ -1,231 +1,80 @@
-# 墨迹个人博客 - 项目规格说明
+# 墨迹 (JUweb) 项目规格说明
 
-## 1. 项目概述
+> 本文件描述**当前实现**（v2，零依赖静态博客）。旧版 Vue 2 + Tailwind CDN + 视频背景/粒子特效的规格已废弃，不再作为验收依据。
 
-### 1.1 项目名称
-**墨迹 (JUweb)** - 个人技术博客
+## 1. 目标与范围
 
-### 1.2 项目描述
-一个现代化的个人技术博客网站，记录技术探索与生活感悟，采用 Vue.js + Tailwind CSS 构建，包含丰富的视觉效果和交互体验。
-
-### 1.3 主要功能
-- 博客文章展示（列表 + 详情）
-- 文章管理（增删改查）
-- 背景音乐播放控制
-- 滚动显现动画、分页导航等交互体验
-
-### 1.4 目标用户
-- 技术博客读者
-- 博主本人（管理文章）
-
----
+一个可静态托管的个人技术博客：文章列表、分页、独立文章页、关于我、浅/深主题、背景音乐，以及一个**只作用于本地**的草稿编辑器。
 
 ## 2. 技术架构
 
-### 2.1 技术栈
-| 类别 | 技术选型 | 版本/来源 |
-|------|----------|-----------|
-| 前端框架 | Vue.js | 2.6.14 (CDN) |
-| CSS框架 | Tailwind CSS Play CDN | 3.x (CDN，含内联自定义色板配置) |
-| 字体 | Cormorant Garamond | Google Fonts |
-| 字体 | Noto Sans SC | Google Fonts |
-| 动画 | 原生JavaScript + CSS | Canvas API |
-| 数据存储 | localStorage + JSON | 浏览器本地存储 |
+| 项目 | 选型 |
+|------|------|
+| 页面 | 原生 HTML5，语义标签 + ARIA |
+| 样式 | 自有 CSS（`css/style.css`），CSS 变量驱动浅/深主题 |
+| 脚本 | 原生 ES Modules，无框架、无打包器、无运行时依赖 |
+| 字体 | 系统字体栈（不请求 Google Fonts） |
+| 数据源 | `data/articles.json`（带 `version`） |
+| 发布 | 构建期生成 `posts/*.html` + `sitemap.xml` |
+| 工具链 | Node.js ≥ 18（仅本地：`server.mjs` / `build.mjs` / 单元测试） |
 
-### 2.2 文件结构
-```
-JUweb/
-├── index.html              # 博客首页（主版本）
-├── admin.html              # 文章管理页面（主版本）
-├── css/
-│   └── style.css           # 主样式文件
-├── data/
-│   └── articles.json       # 文章数据
-├── html/
-│   ├── index.html          # 博客首页（子目录版本）
-│   └── admin.html          # 文章管理页面（子目录版本）
-├── js/
-│   ├── app.js              # Vue应用核心逻辑
-│   └── script.js          # 特效和工具函数
-└── media/
-    ├── bg.mp4              # 背景视频
-    ├── bgyy.mp3            # 背景音乐
-    └── touxiang.png        # 头像
-```
-
----
+**运行时外部依赖：0。** 首页、后台、文章页均不加载 CDN 资源。
 
 ## 3. 页面规格
 
-### 3.1 首页 (index.html)
+### 3.1 首页 `index.html`
 
-#### 3.1.1 导航栏
-- 固定顶部，毛玻璃背景效果
-- 左侧：Logo "墨迹"（点击返回首页/顶部）
-- 右侧：管理员模式下显示"管理"链接
+- 固定导航：Logo、文章、草稿编辑、主题切换按钮；`skip-link` 跳到正文。
+- 每次加载以 `cache: 'no-store'` 请求 `data/articles.json`；失败时回退 `localStorage` 缓存并显示提示条。
+- 文章按日期倒序，每页 7 篇；页码在数据变化后收敛到合法范围。
+- 卡片为 `<a>`，指向 `posts/<id>.html`（草稿模式指向 `preview.html?id=<id>`），键盘可达、可复制链接。
+- 入场动画使用纯 CSS `animation`，动态节点同样生效。
+- 关于我模块、动态年份页脚、背景音乐按钮（`preload="none"`）。
 
-#### 3.1.2 文章列表顶部区域（纯博客内容页，无 Hero 区）
-- 根目录版本为纯博客内容页：已移除视频背景、头像和 CODE 展示区
-- 子目录版本 (html/index.html) 保留旧版设计：视频背景 + 3D旋转立方体头像 + 打字机效果标题
+### 3.2 文章页 `posts/<id>.html`（构建生成）
 
-#### 3.1.3 文章列表
-- 最多7篇文章/页
-- 文章卡片包含：
-  - 分类标签
-  - 发布日期
-  - 文章标题
-  - 文章摘要
-  - 标签列表
-- 分页导航组件
+- 独立 `<title>`、`description`、canonical、OG、`article:published_time`。
+- 正文**直接写入静态 HTML**（构建期白名单消毒），无需 JS 即可被抓取；`post.js` 再做一次 DOM 消毒渲染并填充「复制永久链接」按钮。
+- `noindex` 不适用于文章页；`admin.html` 与 `preview.html` 设置 `noindex`。
 
-#### 3.1.4 文章详情
-- 毛玻璃容器
-- 返回列表按钮
-- 文章标题 + 内容（支持HTML）
-- 响应式排版样式
+### 3.3 草稿编辑器 `admin.html`
 
-#### 3.1.5 关于我模块
-- 个人简介（两段文字）
-- GitHub联系方式链接
+- 顶部横幅明确说明：**修改不发布**，只写当前浏览器 localStorage。
+- 功能：列表、新增、编辑、删除、重置、导出 JSON、导入 JSON、预览草稿、放弃草稿。
+- 无登录/权限检查：不存在服务端权限模型，旧版 `isAdmin` 式的伪鉴权已移除。
+- 表单必填校验；标签以中英文逗号分隔；日期取本地日历日；`JSON.parse` 全部走安全解析。
+- 导出数据 `version = 当前发布版本 + 1`。
 
-#### 3.1.6 页脚
-- 年份自动更新
-- 标语 "用文字丈量世界"
+### 3.4 草稿预览 `preview.html`
 
-### 3.2 管理页 (admin.html)
+- 从 localStorage 草稿按 `id` 读取并消毒渲染，供发布前检查；`noindex`。
 
-#### 3.2.1 权限控制
-- 检查 `localStorage.isAdmin === 'true'`
-- 非管理员重定向到 index.html
+## 4. 数据契约
 
-#### 3.2.2 文章列表区
-- 显示所有文章
-- 每项包含：标题、日期、分类
-- 操作按钮：编辑、删除
+见 `README.md`。规范化规则集中在 `js/core.js`：兼容旧版数组格式，过滤非法 `id`、补齐缺失字段、非法日期回退到本地今天。
 
-#### 3.2.3 文章编辑表单
-- 字段：标题、分类、标签（逗号分隔）、摘要、内容
-- 支持添加和编辑两种模式
-- 保存到 localStorage
+缓存策略：发布源始终以网络为准（`no-store` + 版本号），localStorage 仅作为离线回退；草稿与发布数据使用不同的存储键，互不污染。
 
----
+## 5. 安全规格
 
-## 4. 功能规格
+- 唯一允许插入 HTML 的位置是文章正文，且必须经过 `sanitizeHTMLString()` + `sanitizeHTML()` 两道白名单。
+- 白名单标签：`p/div/span/br/hr/h1-h6/strong/b/em/i/u/s/sup/sub/blockquote/pre/code/ul/ol/li/a/img/figure/figcaption/table/...`。
+- 白名单属性仅 `href/title/src/alt/width/height/class/colspan/rowspan`；移除所有 `on*`、`style`、`srcdoc` 与 `javascript:` / `data:` / `vbscript:` / `file:` 协议；外链自动加 `rel="noopener noreferrer"`。
+- 其他所有用户可控文本（标题、摘要、分类、标签）均用 `textContent` 写入 DOM。
+- `server.mjs` 做路径规范化与目录穿越防护；仅用于本地预览。
 
-### 4.1 文章系统
+## 6. 响应式与可访问性
 
-#### 4.1.1 数据结构
-```javascript
-{
-  id: Number,           // 文章ID
-  title: String,        // 标题
-  excerpt: String,      // 摘要
-  date: String,         // 日期 (YYYY-MM-DD)
-  category: String,     // 分类
-  tags: String[],       // 标签数组
-  content: String        // HTML内容
-}
-```
+- 断点：≤768px 后台双栏改单栏；≤640px 收紧容器、导航与卡片间距。
+- `prefers-reduced-motion: reduce` 时关闭动画与平滑滚动。
+- `:focus-visible` 焦点样式、按钮 `aria-label` / `aria-pressed` / `aria-current`、分页 `aria-label`、状态区 `role="status"`。
 
-#### 4.1.2 数据加载逻辑
-1. 优先从 localStorage 读取
-2. 若无，从 `data/articles.json` 加载
-3. 首次加载后保存到 localStorage
+## 7. 部署规格
 
-### 4.2 主题切换
-- 支持深色主题（默认）
-- CSS变量定义颜色方案
-- 主题切换按钮（仅子目录版本）
+- GitHub Pages 根目录静态托管；无构建服务依赖，`posts/` 与 `sitemap.xml` 需提交到仓库。
+- 站点地址常量：`build.mjs` 的 `SITE_URL`；同步维护 `index.html` canonical/OG 与 `robots.txt` 的 sitemap 地址。
 
-### 4.3 音乐控制
-- 左下角固定音乐控制按钮
-- 播放/暂停切换
-- 循环播放
-- 点击按钮控制
+## 8. 不在范围内
 
----
-
-## 5. 视觉效果规格
-
-### 5.1 视频背景
-- 固定定位，z-index: -2
-- 自动播放、循环、静音
-- 移动端移除
-
-### 5.2 粒子动画
-- Canvas 实现
-- 粒子数量：50个
-- 鼠标规避效果
-- 粒子间连线（距离<150px）
-
-### 5.3 赛博朋克效果
-- 霓虹发光文字
-- 故障叠加层（红/青双色）
-- 闪烁动画
-
-### 5.4 全息投影头像
-- CSS实现扫描线效果
-- 旋转双光环
-- 色调偏移滤镜
-
-### 5.5 点击特效
-- 涟漪扩散动画
-- 随机颜色、大小、速度
-- 可选发光效果
-
-### 5.6 像素光标轨迹
-- 鼠标移动生成像素点
-- 随机彩虹颜色
-- 1秒后消失
-
----
-
-## 6. 响应式断点
-
-| 断点 | 宽度 | 适配内容 |
-|------|------|----------|
-| 移动端 | ≤640px | 头像尺寸、分页、导航栏 |
-| 平板 | ≤768px | 卡片样式保留毛玻璃效果 |
-| 桌面 | >768px | 完整布局 |
-
----
-
-## 7. 浏览器兼容
-
-- Chrome (最新)
-- Firefox (最新)
-- Safari (最新)
-- Edge (最新)
-- 移动端浏览器（iOS Safari, Chrome for Android）
-
----
-
-## 8. 第三方依赖
-
-| 依赖 | 版本 | 用途 | CDN |
-|------|------|------|-----|
-| Vue.js | 2.6.14 | 前端框架 | jsdelivr |
-| Tailwind CSS | 3.x | CSS框架 | tailwindcss.com |
-| Google Fonts | - | 字体 | fonts.googleapis.com |
-
----
-
-## 9. 已知限制
-
-1. **无后端**：所有数据存储在浏览器 localStorage
-2. **无搜索**：文章数量少，未实现搜索功能
-3. **无评论**：未集成评论系统
-4. **重复文件**：根目录和 html/ 子目录有重复页面
-5. **移动端视频**：自动禁用背景视频
-
----
-
-## 10. 后续优化方向
-
-- [ ] 添加 Markdown 编辑器支持
-- [ ] 实现文章搜索功能
-- [ ] 添加标签管理功能
-- [ ] 集成第三方评论系统
-- [ ] 实现数据导出/导入功能
-- [ ] 优化移动端体验
-- [ ] 添加更多主题配色方案
+- 服务端、数据库、真实用户认证、评论、全文搜索、Markdown 编辑器（正文为受限 HTML）。
+- 视频背景、粒子文字、全息头像、侧边栏、鼠标拖尾等旧版特效（已随 v2 移除，相关死代码不再保留）。

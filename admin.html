@@ -1,257 +1,99 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文章管理 | 墨迹博客</title>
-  <script>
-    // 检查是否为管理员
-    if (localStorage.getItem('isAdmin') !== 'true') {
-      // 不是管理员，重定向到首页
-      window.location.href = 'index.html';
-    }
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            body: '#f7f5f0',
-            card: '#ffffff',
-            alt: '#eee9df',
-            fg: '#1f2430',
-            muted: '#6b7280',
-            accent: '#8b5e3c',
-            'accent-light': '#a9764f',
-            theme: 'rgba(31, 36, 48, 0.1)'
-          },
-          fontFamily: {
-            display: ['"Cormorant Garamond"', '"Noto Sans SC"', 'serif']
-          }
-        }
-      }
-    };
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>草稿编辑 | 墨迹博客</title>
+  <meta name="description" content="墨迹博客的本地草稿编辑器。修改只保存在当前浏览器，不会发布到网站。">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="stylesheet" href="./css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+  <script>
+    try {
+      var t = localStorage.getItem('juweb:theme');
+      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <script type="module" src="./js/admin.js"></script>
 </head>
-<body class="min-h-screen flex flex-col bg-body">
-  <!-- 导航栏 -->
-  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-theme bg-body">
-    <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="index.html" class="font-display text-2xl font-semibold text-fg cursor-pointer">墨迹</a>
-      <div class="flex items-center gap-8">
-        <a href="index.html" class="text-sm text-muted hover:text-accent transition-colors">博客</a>
-      </div>
-    </div>
-  </nav>
+<body>
+  <a class="skip-link" href="#articleList">跳到文章列表</a>
 
-  <!-- 主要内容区域 -->
-  <div class="flex-1 pt-24 px-6" id="admin-app">
-    <div class="max-w-4xl mx-auto">
-      <h1 class="font-display text-3xl font-semibold text-fg mb-8">文章管理</h1>
-      
-      <!-- 文章列表 -->
-      <div class="mb-12">
-        <h2 class="font-display text-xl font-semibold text-fg mb-4">文章列表</h2>
-        <div class="space-y-4">
-          <div 
-            v-for="article in articles" 
-            :key="article.id"
-            class="p-4 border border-theme rounded-lg flex justify-between items-center"
-          >
-            <div>
-              <h3 class="font-medium text-fg">{{ article.title }}</h3>
-              <p class="text-xs text-muted">{{ article.date }} | {{ article.category }}</p>
-            </div>
-            <div class="flex gap-2">
-              <button @click="editArticle(article)" class="px-3 py-1 bg-accent text-white text-sm rounded hover:bg-accent-light transition-colors">编辑</button>
-              <button @click="deleteArticle(article.id)" class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors">删除</button>
-            </div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./index.html">墨迹</a>
+      <nav class="header-nav" aria-label="主导航">
+        <a href="./index.html">博客</a>
+        <a href="./admin.html" aria-current="page">草稿编辑</a>
+        <button id="themeToggle" class="icon-btn" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="banner">
+      <strong>这是本地草稿编辑器，不是发布后台。</strong>
+      所有修改只保存在当前浏览器的 localStorage，其他访客看不到，也不会写入仓库。
+      发布方式：点「导出 JSON」覆盖 <code>data/articles.json</code> → 提交仓库 → 运行 <code>npm run build</code> 生成文章页。
+    </div>
+
+    <div class="admin-actions">
+      <a class="btn" href="./index.html?draft=1" target="_blank" rel="noopener noreferrer">预览草稿</a>
+      <button id="exportBtn" class="btn" type="button">导出 JSON</button>
+      <label class="btn" for="importFile">导入 JSON</label>
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+      <button id="discardBtn" class="btn btn-danger" type="button">放弃草稿</button>
+    </div>
+
+    <div id="notice" class="notice" role="status" hidden></div>
+
+    <div class="admin-grid">
+      <section class="panel" aria-labelledby="listTitle">
+        <h2 id="listTitle">文章列表 <span id="draftBadge" class="count"></span></h2>
+        <div id="articleList"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="formTitle">
+        <h2 id="formTitle">添加文章</h2>
+        <form id="articleForm" novalidate>
+          <input type="hidden" id="editId" value="">
+          <div class="field">
+            <label for="title">标题</label>
+            <input id="title" name="title" type="text" required placeholder="文章标题">
           </div>
-          <div v-if="articles.length === 0" class="text-center py-8 text-muted">
-            暂无文章
+          <div class="field">
+            <label for="category">分类</label>
+            <input id="category" name="category" type="text" required placeholder="例如：技术">
           </div>
-        </div>
-      </div>
-      
-      <!-- 文章编辑表单 -->
-      <div class="bg-card p-6 rounded-lg shadow">
-        <h2 class="font-display text-xl font-semibold text-fg mb-4">{{ isEditing ? '编辑文章' : '添加文章' }}</h2>
-        
-        <form @submit.prevent="saveArticle">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-fg mb-1">标题</label>
-              <input 
-                v-model="form.title" 
-                type="text" 
-                class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
-                placeholder="文章标题"
-                required
-              >
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-fg mb-1">分类</label>
-              <input 
-                v-model="form.category" 
-                type="text" 
-                class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
-                placeholder="文章分类"
-                required
-              >
-            </div>
+          <div class="field">
+            <label for="tagsInput">标签</label>
+            <input id="tagsInput" name="tagsInput" type="text" placeholder="Python, 教程, 技巧">
+            <span class="field-hint">用中文或英文逗号分隔，保存时转为数组。</span>
           </div>
-          
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-fg mb-1">标签（用逗号分隔）</label>
-            <input 
-              v-model="form.tagsInput" 
-              type="text" 
-              class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
-              placeholder="Python, 教程, 技巧"
-            >
+          <div class="field">
+            <label for="excerpt">摘要</label>
+            <textarea id="excerpt" name="excerpt" rows="3" required placeholder="列表页显示的摘要"></textarea>
           </div>
-          
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-fg mb-1">摘要</label>
-            <textarea 
-              v-model="form.excerpt" 
-              class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
-              rows="3"
-              placeholder="文章摘要"
-              required
-            ></textarea>
+          <div class="field">
+            <label for="content">正文</label>
+            <textarea id="content" name="content" rows="10" required placeholder="支持有限的 HTML 标签；脚本与事件属性会被自动清除"></textarea>
+            <span class="field-hint">发布前会经过白名单消毒，<code>&lt;script&gt;</code>、<code>onerror</code> 等一律移除。</span>
           </div>
-          
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-fg mb-1">内容</label>
-            <textarea 
-              v-model="form.content" 
-              class="w-full px-3 py-2 border border-theme rounded focus:outline-none focus:ring-2 focus:ring-accent"
-              rows="10"
-              placeholder="文章内容（支持HTML）"
-              required
-            ></textarea>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">保存到草稿</button>
+            <button class="btn" type="reset">重置表单</button>
           </div>
-          
-          <div class="flex gap-4">
-            <button type="submit" class="px-4 py-2 bg-accent text-white rounded hover:bg-accent-light transition-colors">保存</button>
-            <button type="button" @click="resetForm" class="px-4 py-2 border border-theme rounded hover:bg-alt transition-colors">重置</button>
-          </div>
+          <p id="formStatus" class="form-status" role="status"></p>
         </form>
-      </div>
+      </section>
     </div>
-  </div>
+  </main>
 
-  <!-- 页脚 -->
-  <footer class="py-8 px-6 border-t border-theme mt-12">
-    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted">
-      <p>2024 墨迹. All rights reserved.</p>
-      <p>用文字丈量世界</p>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span><span id="year"></span> 墨迹. All rights reserved.</span>
+      <span>本地草稿 · 不发布</span>
     </div>
   </footer>
-
-  <script>
-    new Vue({
-      el: '#admin-app',
-      data: {
-        articles: [],
-        isEditing: false,
-        form: {
-          id: null,
-          title: '',
-          category: '',
-          tagsInput: '',
-          tags: [],
-          excerpt: '',
-          content: '',
-          date: ''
-        }
-      },
-      methods: {
-        loadArticles() {
-          const storedArticles = localStorage.getItem('blogArticles');
-          if (storedArticles) {
-            this.articles = JSON.parse(storedArticles);
-          } else {
-            // 从 JSON 文件加载
-            fetch('./data/articles.json')
-              .then(response => response.json())
-              .then(data => {
-                this.articles = data;
-                localStorage.setItem('blogArticles', JSON.stringify(data));
-              });
-          }
-        },
-        saveArticle() {
-          // 处理标签（tagsInput 仅用于表单输入，不持久化）
-          const tags = this.form.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
-          
-          // 设置日期
-          if (!this.form.date) {
-            const today = new Date();
-            this.form.date = today.toISOString().split('T')[0];
-          }
-
-          const articleData = { ...this.form, tags };
-          delete articleData.tagsInput;
-          
-          if (this.isEditing) {
-            // 编辑现有文章
-            const index = this.articles.findIndex(a => a.id === this.form.id);
-            if (index !== -1) {
-              this.articles[index] = { ...articleData };
-            }
-          } else {
-            // 添加新文章
-            const newId = this.articles.length > 0 ? Math.max(...this.articles.map(a => a.id)) + 1 : 1;
-            articleData.id = newId;
-            this.articles.push({ ...articleData });
-          }
-          
-          // 保存到本地存储
-          localStorage.setItem('blogArticles', JSON.stringify(this.articles));
-          
-          // 重置表单
-          this.resetForm();
-          
-          // 重新加载文章列表
-          this.loadArticles();
-        },
-        editArticle(article) {
-          this.isEditing = true;
-          this.form = { ...article };
-          this.form.tagsInput = article.tags.join(', ');
-        },
-        deleteArticle(id) {
-          if (confirm('确定要删除这篇文章吗？')) {
-            this.articles = this.articles.filter(a => a.id !== id);
-            localStorage.setItem('blogArticles', JSON.stringify(this.articles));
-          }
-        },
-        resetForm() {
-          this.isEditing = false;
-          this.form = {
-            id: null,
-            title: '',
-            category: '',
-            tagsInput: '',
-            tags: [],
-            excerpt: '',
-            content: '',
-            date: ''
-          };
-        }
-      },
-      mounted() {
-        this.loadArticles();
-      }
-    });
-  </script>
 </body>
 </html>

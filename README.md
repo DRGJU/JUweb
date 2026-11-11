@@ -1,71 +1,110 @@
 # 墨迹 (JUweb) — 个人博客
 
-一个基于 Vue.js + Tailwind CSS 的个人技术博客，支持文章展示、分页、详情阅读与本地管理后台。
-
-## 功能特性
-
-- 📝 博客文章展示（列表 + 详情 + 分页）
-- 🛠️ 文章管理后台（增删改查，需管理员权限）
-- 💾 数据持久化：首次从 `data/articles.json` 加载，之后缓存在 localStorage
-- 🎵 背景音乐播放控制
-- ✨ 滚动显现动画（IntersectionObserver）
-- 📱 响应式布局
+零外部依赖的静态博客：原生 HTML / CSS / ES Modules，运行时不加载任何 CDN、框架或字体服务。文章数据以 JSON 为唯一发布源，文章详情页在构建期生成为可分享、可收录的静态页。
 
 ## 快速开始
 
-本项目为纯静态站点，无需构建。任选一种方式启动本地服务器后访问：
+需要 Node.js ≥ 18（仅用于本地预览、构建与测试；部署后不需要 Node）。
 
 ```bash
-# 方式一：Python
-python3 -m http.server 8080
-
-# 方式二：Node.js
-npx serve .
+npm start          # 本地预览 http://localhost:8080/
+npm run build      # 由 data/articles.json 生成 posts/*.html 与 sitemap.xml
+npm test           # 运行核心逻辑单元测试
 ```
 
-然后打开浏览器访问 `http://localhost:8080/index.html`。
+也可以用任意静态服务器（如 `python3 -m http.server 8080`）。**不要用 `file://` 直接打开**：浏览器会拦截 `fetch('./data/articles.json')`。
 
-> 注意：直接以 `file://` 协议打开会导致 `fetch('./data/articles.json')` 失败，请使用本地服务器。
+## 发布文章
 
-## 管理后台
+后台 `admin.html` 是**本地草稿编辑器**，不是发布后台：所有修改只写入当前浏览器的 localStorage，其他访客看不到，也不会写回仓库。它不设登录，因为没有任何服务端权限需要保护。
 
-在浏览器控制台执行以下命令开启管理员权限，然后访问 `admin.html`：
+正式发布流程：
 
-```js
-localStorage.setItem('isAdmin', 'true');
+1. 在 `admin.html` 编辑文章，点「预览草稿」确认效果（`index.html?draft=1` → `preview.html?id=…`）。
+2. 点「导出 JSON」，得到 `articles.json`。
+3. 用它覆盖 `data/articles.json`，确认 `version` 比旧值大（编辑器导出时会自动 +1）。
+4. 运行 `npm run build`，生成/更新 `posts/*.html` 与 `sitemap.xml`。
+5. 提交并推送仓库，GitHub Pages 自动发布。
+
+也可以直接手写 `data/articles.json` 后执行第 4–5 步。跨设备编辑用「导出 JSON / 导入 JSON」搬运草稿。
+
+## 数据结构
+
+```json
+{
+  "version": 2,
+  "updatedAt": "2026-11-11",
+  "articles": [
+    {
+      "id": 1,
+      "title": "文章标题",
+      "excerpt": "列表页摘要",
+      "date": "2024-01-01",
+      "category": "技术",
+      "tags": ["Python", "入门"],
+      "content": "<p>支持有限 HTML 的正文</p>"
+    }
+  ]
+}
 ```
+
+- `version`：发布版本号。首页每次以 `cache: 'no-store'` 拉取 JSON 并与本地缓存比对，因此仓库更新后老访客也能看到新内容；断网时才回退到上次缓存并显示提示。
+- `id`：正整数且唯一，决定静态页文件名 `posts/<id>.html`。
+- `date`：`YYYY-MM-DD`，新增文章使用**本地时区**日期。
+- `content`：渲染前经过白名单消毒（`js/core.js` 的字符串过滤 + `js/sanitize.js` 的 DOM 二次校验），`<script>`、`<iframe>`、`on*` 属性、`javascript:` / `data:` 协议一律移除。
 
 ## 目录结构
 
 ```
-JUweb/
-├── index.html          # 博客首页（主版本，纯内容页）
-├── admin.html          # 文章管理页面
-├── css/
-│   └── style.css       # 自定义样式（reveal / 卡片 / 分页 / 音乐控件等）
-├── data/
-│   └── articles.json   # 默认文章数据
-├── html/               # 旧版页面备份（含视频背景 Hero 设计）
-│   ├── index.html
-│   └── admin.html
+├── index.html          首页（列表 / 分页 / 关于）
+├── admin.html          本地草稿编辑器
+├── preview.html        草稿文章预览页（noindex）
+├── posts/              构建生成的文章静态页
+├── css/style.css       全站样式（CSS 变量 + 浅/深主题 + 响应式）
 ├── js/
-│   ├── app.js          # Vue 应用核心逻辑（文章加载 / 分页 / 详情）
-│   └── script.js       # 特效与工具函数（滚动显现 / 音乐控制等）
-├── media/              # 音频 / 视频 / 图片素材
-├── spec.md             # 项目规格说明
-├── checklist.md        # 质量检查清单
-└── tasks.md            # 任务记录
+│   ├── core.js        纯函数：数据规范化、分页、日期、消毒规则
+│   ├── ui.js          主题切换、提示条、页脚年份
+│   ├── sanitize.js    浏览器端 DOM 消毒
+│   ├── app.js          首页逻辑
+│   ├── admin.js        草稿编辑器逻辑
+│   └── post.js         文章页 / 草稿预览页逻辑
+├── data/articles.json  唯一的发布数据源
+├── media/bgyy.mp3      背景音乐（preload="none"，点击才加载）
+├── build.mjs           静态页与 sitemap 生成
+├── server.mjs          零依赖本地服务器
+├── tests/              核心逻辑单元测试
+├── favicon.svg / robots.txt / sitemap.xml
+├── spec.md / checklist.md / tasks.md
+└── LICENSE
 ```
 
-## 技术栈
+## 功能说明
 
-| 类别 | 选型 |
-|------|------|
-| 前端框架 | Vue.js 2.6.14 (CDN) |
-| CSS 框架 | Tailwind CSS Play CDN（含内联自定义色板配置） |
-| 字体 | Cormorant Garamond / Noto Sans SC (Google Fonts) |
-| 数据存储 | localStorage + JSON |
+- **主题**：导航右侧按钮切换浅/深主题，使用 CSS 变量，偏好保存在 `localStorage`，首屏渲染前应用以避免闪烁；支持 `prefers-reduced-motion`。
+- **入场动画**：纯 CSS `animation`，动态插入的文章卡片自动生效，不依赖 IntersectionObserver，不会出现元素永久隐藏。
+- **音乐**：`<audio preload="none">`，用户点击才请求 7MB 音频；播放被浏览器拦截时给出提示。如不需要，删除 `media/bgyy.mp3` 与 `index.html` 中的音乐控件即可。
+- **SEO / 分享**：每篇文章有独立 URL、canonical、OG 标签与 sitemap；`robots.txt` 排除后台与预览页。
+- **安全性**：正文消毒 + 所有用户文本用 `textContent` 写入；后台无鉴权、无服务端写入，不存在越权发布面。
 
-## 文档
+## 部署
 
-详细规格见 [spec.md](./spec.md)，质量清单见 [checklist.md](./checklist.md)。
+GitHub Pages 指向仓库根目录（`main` 分支）。`canonical`、OG URL 与 sitemap 使用 `https://drgju.github.io/JUweb/`；更换域名时请同步修改 `index.html`、`build.mjs` 的 `SITE_URL` 和 `robots.txt`。
+
+## 从旧版仓库迁移
+
+本目录是 v2 的完整项目。若覆盖到已有 `DRGJU/JUweb` 仓库，请一并删除以下旧文件，避免残留死代码与大体积素材：
+
+```
+html/index.html、html/admin.html     旧版重复页面（数据路径 404）
+js/script.js                        已失效的粒子/视频/侧栏特效
+media/bg.mp4、media/touxiang.png    仅旧备份页使用，约 3.4MB
+.trae/                              旧版规格归档
+```
+
+被新版覆盖的文件：`index.html`、`admin.html`、`css/style.css`、`js/app.js`、`data/articles.json`、`README.md`、`spec.md`、`checklist.md`、`tasks.md`、`.gitignore`。`media/bgyy.mp3` 继续保留。
+
+## 已知限制
+
+- 无后端、无评论、无全文搜索；草稿只在当前浏览器，跨设备需导出/导入。
+- 文章内容更新必须重新 `npm run build` 生成静态页，否则首页列表会指向不存在或过时的文章页。
+- 无浏览器端的端到端自动化测试；`checklist.md` 中标注「需人工确认」的项目请在目标浏览器中复核。

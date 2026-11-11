@@ -1,198 +1,88 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>墨迹 | 个人博客</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            body: '#f7f5f0',
-            card: '#ffffff',
-            alt: '#eee9df',
-            fg: '#1f2430',
-            muted: '#6b7280',
-            accent: '#8b5e3c',
-            'accent-light': '#a9764f',
-            theme: 'rgba(31, 36, 48, 0.1)'
-          },
-          fontFamily: {
-            display: ['"Cormorant Garamond"', '"Noto Sans SC"', 'serif']
-          }
-        }
-      }
-    };
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <meta name="description" content="墨迹：一个记录技术探索与日常思考的个人博客。">
+  <meta name="theme-color" content="#f7f5f0">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="墨迹 | 个人博客">
+  <meta property="og:description" content="记录技术探索与日常思考的个人博客。">
+  <meta property="og:url" content="https://drgju.github.io/JUweb/">
+  <link rel="canonical" href="https://drgju.github.io/JUweb/">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="stylesheet" href="./css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js" defer></script>
+  <script>
+    // 在首屏渲染前应用主题，避免闪烁
+    try {
+      var t = localStorage.getItem('juweb:theme');
+      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <script type="module" src="./js/app.js"></script>
 </head>
-<body class="min-h-screen flex flex-col bg-body text-fg">
-  <div class="flex-1 relative" id="app">
-    <nav class="fixed top-0 left-0 right-0 z-50 border-b border-theme">
-      <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-        <a href="#" @click.prevent="goHome" class="font-display text-2xl font-semibold text-fg cursor-pointer">墨迹</a>
-        <div class="flex items-center gap-8">
-          <a href="admin.html" v-if="isAdmin" class="text-sm text-muted hover:text-accent transition-colors">管理</a>
-        </div>
+<body>
+  <a class="skip-link" href="#articles">跳到正文</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./index.html">墨迹</a>
+      <nav class="header-nav" aria-label="主导航">
+        <a href="./index.html" aria-current="page">文章</a>
+        <a href="./admin.html">草稿编辑</a>
+        <button id="themeToggle" class="icon-btn" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="notice" class="notice" role="status" hidden></div>
+
+    <section id="articles" aria-labelledby="listTitle">
+      <div class="section-head reveal">
+        <h1 id="listTitle">最新文章</h1>
+        <span id="articleCount" class="count"></span>
       </div>
-    </nav>
+      <div id="articleList" class="article-list" aria-live="polite"></div>
+      <nav id="pagination" class="pagination" aria-label="文章分页"></nav>
+    </section>
 
-    <main id="articles" class="px-6 pb-20 pt-24" v-if="!isDetailView">
-      <div class="max-w-4xl mx-auto">
-        <div class="reveal">
-          <div class="flex items-center justify-between mb-10">
-            <h2 class="font-display text-2xl font-semibold text-fg">最新文章</h2>
-            <span class="text-muted text-sm">共 {{ articles.length }} 篇</span>
-          </div>
+    <section id="about" class="about reveal" aria-labelledby="aboutTitle">
+      <h2 id="aboutTitle">关于我</h2>
+      <div class="about-grid">
+        <div>
+          <p>一个热爱技术与文字的普通人。白天写代码，晚上写文章。喜欢探索新技术，也喜欢回味经典。</p>
+          <p>相信好的代码像诗一样优雅，好的文章像老友聊天一样自然。这个博客是我的数字花园，记录成长，分享收获。</p>
         </div>
-
-        <div class="space-y-6">
-          <p v-if="!articles.length" class="text-muted text-sm py-10 text-center">
-            暂无文章，敬请期待。
-          </p>
-          <article
-            v-for="(article, index) in paginatedArticles"
-            :key="article.id"
-            class="article-card p-6 reveal cursor-pointer"
-            :style="{ transitionDelay: (index % itemsPerPage) * 0.05 + 's' }"
-            @click="openArticle(article.id)"
-          >
-            <div class="flex items-start justify-between gap-4 mb-3">
-              <div class="flex items-center gap-3">
-                <span class="text-xs font-medium text-accent bg-alt px-2 py-1 rounded">{{ article.category }}</span>
-                <span class="text-xs text-muted">{{ article.date }}</span>
-              </div>
-            </div>
-            <h3 class="font-display text-xl font-semibold text-fg mb-2 hover-accent transition-colors">{{ article.title }}</h3>
-            <p class="text-muted text-sm leading-relaxed mb-4">{{ article.excerpt }}</p>
-            <div class="flex flex-wrap gap-2" @click.stop>
-              <span
-                v-for="tag in article.tags"
-                :key="tag"
-                class="tag text-xs px-2 py-1 rounded"
-              >{{ tag }}</span>
-            </div>
-          </article>
-        </div>
-
-        <div class="pagination-container" v-if="totalPages > 1">
-          <button
-            class="pagination-btn"
-            @click="changePage(currentPage - 1)"
-            :disabled="currentPage === 1"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-          </button>
-          <button
-            v-for="page in totalPages"
-            :key="page"
-            class="pagination-btn"
-            :class="{ active: currentPage === page }"
-            @click="changePage(page)"
-          >
-            {{ page }}
-          </button>
-          <button
-            class="pagination-btn"
-            @click="changePage(currentPage + 1)"
-            :disabled="currentPage === totalPages"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </main>
-
-    <section id="article-detail" class="px-6 pb-20 pt-24" v-if="isDetailView">
-      <div class="max-w-4xl mx-auto">
-        <button @click="closeArticle" class="flex items-center gap-2 text-muted hover:text-accent mb-6 transition-colors group">
-          <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-          </svg>
-          <span>返回列表</span>
-        </button>
-
-        <div class="article-detail-container" v-if="currentArticle">
-          <header class="mb-8 pb-6 border-b border-theme">
-            <div class="flex items-center gap-3 mb-3">
-              <span class="text-xs font-medium text-accent bg-alt px-2 py-1 rounded">{{ currentArticle.category }}</span>
-              <span class="text-xs text-muted">{{ currentArticle.date }}</span>
-            </div>
-            <h1 class="font-display text-3xl sm:text-4xl font-semibold text-fg leading-tight">{{ currentArticle.title }}</h1>
-            <div class="flex flex-wrap gap-2 mt-4" v-if="currentArticle.tags && currentArticle.tags.length">
-              <span v-for="tag in currentArticle.tags" :key="tag" class="tag text-xs px-2 py-1 rounded">{{ tag }}</span>
-            </div>
-          </header>
-          <article class="prose custom-prose" v-html="currentArticle.content"></article>
+        <div>
+          <h3>联系方式</h3>
+          <p><a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub / DRGJU</a></p>
         </div>
       </div>
     </section>
+  </main>
 
-    <section id="about" class="py-12 px-6" v-if="!isDetailView">
-      <div class="max-w-4xl mx-auto">
-        <div class="reveal">
-          <h2 class="font-display text-xl font-semibold text-fg mb-6">关于我</h2>
-          <div class="grid sm:grid-cols-3 gap-6">
-            <div class="sm:col-span-2">
-              <p class="text-muted leading-relaxed mb-3 text-sm">
-                一个热爱技术与文字的普通人。白天写代码，晚上写文章。
-                喜欢探索新技术，也喜欢回味经典。
-              </p>
-              <p class="text-muted leading-relaxed text-sm">
-                相信好的代码像诗一样优雅，好的文章像老友聊天一样自然。
-                这个博客是我的数字花园，记录成长，分享收获。
-              </p>
-            </div>
-            <div>
-              <h3 class="text-fg font-medium mb-2 text-sm">联系方式</h3>
-              <div class="space-y-1 text-xs text-muted">
-                <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub" class="flex items-center gap-2 hover:text-accent transition-colors">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.65.376c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1.265.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z"/></svg>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="py-8 px-6 border-t border-theme">
-      <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted">
-        <p>{{ currentYear }} 墨迹. All rights reserved.</p>
-        <p>用文字丈量世界</p>
-      </div>
-    </footer>
-  </div>
-
-  <audio id="bgMusic" src="./media/bgyy.mp3" loop>
-    您的浏览器不支持音频元素。
-  </audio>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span><span id="year"></span> 墨迹. All rights reserved.</span>
+      <span>用文字丈量世界</span>
+    </div>
+  </footer>
 
   <div class="music-controls">
-    <button id="playBtn" class="music-btn" aria-label="播放音乐">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+    <button id="playBtn" class="music-btn" type="button" aria-label="播放背景音乐">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.75 11.17l-3.2-2.14A1 1 0 0010 9.87v4.26a1 1 0 001.55.83l3.2-2.13a1 1 0 000-1.66z"/>
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
     </button>
-    <button id="pauseBtn" class="music-btn hidden" aria-label="暂停音乐">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <button id="pauseBtn" class="music-btn" type="button" aria-label="暂停背景音乐" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
     </button>
+    <audio id="bgMusic" src="./media/bgyy.mp3" loop preload="none"></audio>
   </div>
-
-  <script src="./js/app.js" defer></script>
-  <script src="./js/script.js" defer></script>
 </body>
 </html>

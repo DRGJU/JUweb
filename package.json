@@ -1,0 +1,13 @@
+{
+  "name": "juweb",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "墨迹个人博客 — 零外部依赖的静态站点",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node build.mjs",
+    "test": "node --test"
+  },
+  "license": "MIT"
+}

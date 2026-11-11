@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python 入门教程：从零开始掌握 Python 基础 | 墨迹</title>
+  <meta name="description" content="Python 是一门简洁优雅、功能强大的编程语言，非常适合作为第一门编程语言。本文将从环境搭建讲起，带你逐步掌握变量、数据类型、流程控制、函数等核心语法，为后续深入学习打下坚实基础。">
+  <meta name="theme-color" content="#f7f5f0">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Python 入门教程：从零开始掌握 Python 基础">
+  <meta property="og:description" content="Python 是一门简洁优雅、功能强大的编程语言，非常适合作为第一门编程语言。本文将从环境搭建讲起，带你逐步掌握变量、数据类型、流程控制、函数等核心语法，为后续深入学习打下坚实基础。">
+  <meta property="og:url" content="https://drgju.github.io/JUweb/posts/1.html">
+  <meta property="article:published_time" content="2024-01-01">
+  <link rel="canonical" href="https://drgju.github.io/JUweb/posts/1.html">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script>
+    try {
+      var t = localStorage.getItem('juweb:theme');
+      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <script type="module" src="../js/post.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#postContent">跳到正文</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html">墨迹</a>
+      <nav class="header-nav" aria-label="主导航">
+        <a href="../index.html">文章</a>
+        <a href="../admin.html">草稿编辑</a>
+        <button id="themeToggle" class="icon-btn" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <article>
+      <header class="post-header">
+        <a class="back-link" href="../index.html">&larr; 返回列表</a>
+        <h1 id="postTitle">Python 入门教程：从零开始掌握 Python 基础</h1>
+        <div class="card-meta">
+          <span id="postCategory" class="card-category">技术</span>
+          <span id="postDate" class="card-date">2024-01-01</span>
+        </div>
+        <div id="postTags" class="post-tags">
+          <span class="tag">Python</span>
+          <span class="tag">入门教程</span>
+          <span class="tag">编程基础</span>
+        </div>
+      </header>
+      <div id="postContent" class="prose"><p>Python 是一门简洁优雅、功能强大的编程语言。无论你是编程新手还是想学习一门新语言的开发者，Python 都是一个非常棒的选择。</p>
+      
+      <h2>1. 为什么选择 Python？</h2>
+      <p>Python 以其高可读性和简洁的语法著称，它允许开发者用更少的代码行表达概念。以下是 Python 的一些主要优势：</p>
+      <ul>
+        <li><strong>易于学习：</strong>Python 的语法非常接近英语，使得初学者能够快速上手。</li>
+        <li><strong>丰富的库：</strong>拥有庞大的标准库和第三方库，涵盖 Web 开发、数据分析、人工智能等领域。</li>
+        <li><strong>社区活跃：</strong>庞大的社区意味着你遇到的问题很容易找到解决方案。</li>
+      </ul>
+
+      <h2>2. 环境搭建</h2>
+      <p>在开始编写代码之前，我们需要先安装 Python。</p>
+      <ol>
+        <li>访问 <strong>python.org</strong> 下载最新版本的 Python。</li>
+        <li>运行安装程序，记得勾选 <strong>"Add Python to PATH"</strong>。</li>
+        <li>打开终端（Terminal 或 CMD），输入 <code>python --version</code> 验证安装。</li>
+      </ol>
+
+      <h2>3. Hello World</h2>
+      <p>学习新语言的第一步，永远是向世界问好。在 Python 中，只需一行代码：</p>
+      <pre><code>print("Hello, World!")</code></pre>
+
+      <h2>4. 变量与数据类型</h2>
+      <p>Python 是动态类型语言，不需要显式声明变量类型。</p>
+      <pre><code># 数字
+age = 25
+price = 19.99
+
+# 字符串
+name = "Alice"
+
+# 布尔值
+is_student = True</code></pre>
+
+      <h2>5. 流程控制</h2>
+      <p>Python 使用缩进来表示代码块，而不是大括号。</p>
+      <pre><code># 条件判断
+if age >= 18:
+    print("成年人")
+else:
+    print("未成年人")
+
+# 循环
+for i in range(5):
+    print(i)</code></pre>
+
+      <h2>6. 函数</h2>
+      <p>函数是组织好的、可重复使用的代码块。</p>
+      <pre><code>def greet(name):
+    return f"Hello, {name}!"
+
+message = greet("Bob")
+print(message)  # 输出: Hello, Bob!</code></pre>
+
+      <h2>结语</h2>
+      <p>Python 的世界非常广阔。掌握了这些基础后，你可以尝试学习文件操作、面向对象编程，或者探索 Web 开发、数据科学等有趣的方向。保持好奇心，多敲代码！</p></div>
+      <div id="postActions" class="post-actions"></div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span><span id="year"></span> 墨迹. All rights reserved.</span>
+      <span>用文字丈量世界</span>
+    </div>
+  </footer>
+
+  <script type="application/json" id="post-data">{"id":1,"title":"Python 入门教程：从零开始掌握 Python 基础","excerpt":"Python 是一门简洁优雅、功能强大的编程语言，非常适合作为第一门编程语言。本文将从环境搭建讲起，带你逐步掌握变量、数据类型、流程控制、函数等核心语法，为后续深入学习打下坚实基础。","date":"2024-01-01","category":"技术","tags":["Python","入门教程","编程基础"],"content":"\u003cp>Python 是一门简洁优雅、功能强大的编程语言。无论你是编程新手还是想学习一门新语言的开发者，Python 都是一个非常棒的选择。\u003c/p>\n      \n      \u003ch2>1. 为什么选择 Python？\u003c/h2>\n      \u003cp>Python 以其高可读性和简洁的语法著称，它允许开发者用更少的代码行表达概念。以下是 Python 的一些主要优势：\u003c/p>\n      \u003cul>\n        \u003cli>\u003cstrong>易于学习：\u003c/strong>Python 的语法非常接近英语，使得初学者能够快速上手。\u003c/li>\n        \u003cli>\u003cstrong>丰富的库：\u003c/strong>拥有庞大的标准库和第三方库，涵盖 Web 开发、数据分析、人工智能等领域。\u003c/li>\n        \u003cli>\u003cstrong>社区活跃：\u003c/strong>庞大的社区意味着你遇到的问题很容易找到解决方案。\u003c/li>\n      \u003c/ul>\n\n      \u003ch2>2. 环境搭建\u003c/h2>\n      \u003cp>在开始编写代码之前，我们需要先安装 Python。\u003c/p>\n      \u003col>\n        \u003cli>访问 \u003cstrong>python.org\u003c/strong> 下载最新版本的 Python。\u003c/li>\n        \u003cli>运行安装程序，记得勾选 \u003cstrong>\"Add Python to PATH\"\u003c/strong>。\u003c/li>\n        \u003cli>打开终端（Terminal 或 CMD），输入 \u003ccode>python --version\u003c/code> 验证安装。\u003c/li>\n      \u003c/ol>\n\n      \u003ch2>3. Hello World\u003c/h2>\n      \u003cp>学习新语言的第一步，永远是向世界问好。在 Python 中，只需一行代码：\u003c/p>\n      \u003cpre>\u003ccode>print(\"Hello, World!\")\u003c/code>\u003c/pre>\n\n      \u003ch2>4. 变量与数据类型\u003c/h2>\n      \u003cp>Python 是动态类型语言，不需要显式声明变量类型。\u003c/p>\n      \u003cpre>\u003ccode># 数字\nage = 25\nprice = 19.99\n\n# 字符串\nname = \"Alice\"\n\n# 布尔值\nis_student = True\u003c/code>\u003c/pre>\n\n      \u003ch2>5. 流程控制\u003c/h2>\n      \u003cp>Python 使用缩进来表示代码块，而不是大括号。\u003c/p>\n      \u003cpre>\u003ccode># 条件判断\nif age >= 18:\n    print(\"成年人\")\nelse:\n    print(\"未成年人\")\n\n# 循环\nfor i in range(5):\n    print(i)\u003c/code>\u003c/pre>\n\n      \u003ch2>6. 函数\u003c/h2>\n      \u003cp>函数是组织好的、可重复使用的代码块。\u003c/p>\n      \u003cpre>\u003ccode>def greet(name):\n    return f\"Hello, {name}!\"\n\nmessage = greet(\"Bob\")\nprint(message)  # 输出: Hello, Bob!\u003c/code>\u003c/pre>\n\n      \u003ch2>结语\u003c/h2>\n      \u003cp>Python 的世界非常广阔。掌握了这些基础后，你可以尝试学习文件操作、面向对象编程，或者探索 Web 开发、数据科学等有趣的方向。保持好奇心，多敲代码！\u003c/p>"}</script>
+</body>
+</html>
