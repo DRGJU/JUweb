@@ -34,7 +34,7 @@
 
 - 独立 `title`、`description`、canonical、OG、`article:published_time`。
 - 报头、返回目录链接、大标题、分类与日期、标签、静态消毒后的正文。
-- 标题与正文收进**居中的 68ch 阅读栏**（约 34 个汉字/行），与全宽报头、页脚形成对比；长标题不再受 26ch 限制而反复折行。
+- 标题区保持全宽原样（标题 `max-width: 26ch`、双线横跨容器）；只有正文收进**居中的 68ch 阅读栏**（约 34 个汉字/行）。
 - 内嵌 `<script type="application/json" id="post-data">` 供 `post.js` 二次渲染（正文已静态存在，脚本失败也不影响阅读）。
 - 保留 `#postTitle`、`#postCategory`、`#postDate`、`#postTags`、`#postContent`、`#postActions`、`#post-data`、`#notice`、`#year`。
 
