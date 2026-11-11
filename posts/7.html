@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Python 多环境配置指南：让开发、测试、生产互不干扰 | 墨迹</title>
-  <meta name="description" content="一套代码要在开发、测试、生产三套环境跑，依赖和配置却各不相同。本文讲清楚用虚拟环境隔离依赖、用锁定文件保证一致、用 .env 与环境变量分离配置的多环境实践。">
+  <title>用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry | 墨迹</title>
+  <meta name="description" content="不想再被 venv、pip、poetry、pyenv 来回折腾？Astral 出品的 uv 一个工具全包了。本文用 uv 为主线，讲清如何用它建环境、锁依赖、并用 .env 与 uv run 分离 dev/test/prod 多环境配置。">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Python 多环境配置指南：让开发、测试、生产互不干扰">
-  <meta property="og:description" content="一套代码要在开发、测试、生产三套环境跑，依赖和配置却各不相同。本文讲清楚用虚拟环境隔离依赖、用锁定文件保证一致、用 .env 与环境变量分离配置的多环境实践。">
+  <meta property="og:title" content="用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry">
+  <meta property="og:description" content="不想再被 venv、pip、poetry、pyenv 来回折腾？Astral 出品的 uv 一个工具全包了。本文用 uv 为主线，讲清如何用它建环境、锁依赖、并用 .env 与 uv run 分离 dev/test/prod 多环境配置。">
   <meta property="og:url" content="https://drgju.github.io/JUweb/posts/7.html">
   <meta property="article:published_time" content="2026-11-11">
   <link rel="canonical" href="https://drgju.github.io/JUweb/posts/7.html">
@@ -21,7 +21,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 5 期，2026-11-11</span>
+      <span class="masthead__edition">第 6 期，2026-11-11</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
@@ -34,90 +34,76 @@
     <article>
       <header class="post__head">
         <a class="post__back" href="../index.html">返回目录</a>
-        <h1 id="postTitle" class="post__title">Python 多环境配置指南：让开发、测试、生产互不干扰</h1>
+        <h1 id="postTitle" class="post__title">用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry</h1>
         <div class="post__meta">
           <span id="postCategory">技术</span>
           <time id="postDate" datetime="2026-11-11">2026-11-11</time>
         </div>
-        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">环境配置</span><span class="post__tag">虚拟环境</span><span class="post__tag">最佳实践</span></div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">uv</span><span class="post__tag">环境配置</span><span class="post__tag">虚拟环境</span></div>
       </header>
-      <div id="postContent" class="post__body"><p>随着项目变大，你迟早会遇到这样的问题：本地跑得好好的代码，一到测试或生产环境就报错；或者 A 项目要 Django 4，B 项目却卡在 Django 3。根源往往是<strong>环境混在一起</strong>。本文讲清楚如何用多环境配置，让开发、测试、生产各司其职、互不干扰。</p>
+      <div id="postContent" class="post__body"><p>如果你还在用 <code>venv</code> 建环境、<code>pip</code> 装包、<code>poetry</code> 管依赖，那一定体会过它们各自的摩擦：<code>pip</code> 慢、<code>poetry</code> 重、Python 版本还得靠 <code>pyenv</code> 额外管理。最近两年，<strong>uv</strong> 这类一体化工具把这些事一把梭了。本文用 uv 为主线，讲清楚怎么用它做 Python 的多环境配置。</p>
 
-<h2>1. 为什么需要多环境</h2>
-<p>一套代码通常要跑在三个地方：</p>
-<ul>
-  <li><strong>开发环境（dev）：</strong>你本机写代码，可以装调试工具、开详细日志。</li>
-  <li><strong>测试环境（test）：</strong>跑自动化测试，数据和配置尽量接近生产但不影响真实用户。</li>
-  <li><strong>生产环境（prod）：</strong>真实用户访问，追求稳定、安全、性能。</li>
-</ul>
-<p>它们的<strong>依赖版本</strong>和<strong>配置项</strong>（数据库地址、密钥、开关）往往不同，混在一起迟早出事。多环境配置的目标就是：<strong>代码同一份，依赖与配置按环境切换</strong>。</p>
+<h2>1. 为什么是 uv</h2>
+<p><strong>uv</strong> 是 Astral（也就是做 <code>ruff</code> 的那家公司）用 Rust 写的 Python 包与环境管理器，极快，且<strong>一个工具替代 venv、pip、pip-tools、poetry、pyenv</strong>：建环境、装依赖、锁版本、切 Python 版本，全包了。</p>
+<pre><code># 安装 uv
+pip install uv
+# 或官方脚本
+curl -LsSf https://astral.sh/uv/install.sh | sh</code></pre>
 
-<h2>2. 第一步：用虚拟环境隔离依赖</h2>
-<p>不要让所有项目共用系统级的 Python 包。用虚拟环境把每个项目的依赖装进独立目录：</p>
-<pre><code># 在项目根目录创建虚拟环境
-python -m venv .venv
+<h2>2. 一条命令建环境</h2>
+<p>uv 内置虚拟环境管理，还能自动下载指定版本的 Python，不再需要单独装 pyenv：</p>
+<pre><code># 创建虚拟环境（自动使用项目声明的 Python 版本）
+uv venv
 
-# 激活（Windows）
-.venv\Scripts\activate
-# 激活（macOS / Linux）
-source .venv/bin/activate
+# 需要特定版本？uv 会自己下载
+uv python install 3.12
+uv venv --python 3.12</code></pre>
 
-# 安装依赖
-pip install -r requirements.txt</code></pre>
-<p>激活后，<code>pip install</code> 只会装进当前项目的 <code>.venv</code>，不影响其他项目，也不污染系统。</p>
-
-<h2>3. 依赖管理工具怎么选</h2>
-<p>除了内置的 <code>venv</code>，还有更省心的工具：</p>
-<ul>
-  <li><strong>virtualenv：</strong><code>venv</code> 的前身，功能类似，兼容老版本 Python。</li>
-  <li><strong>Pipenv：</strong>自动管理虚拟环境 + 依赖锁定，一条命令搞定。</li>
-  <li><strong>Poetry：</strong>现代首选，统一管理依赖、构建与发布，<code>pyproject.toml</code> 一把梭。</li>
-</ul>
-<p>Poetry 示例：</p>
-<pre><code>poetry new myproject
+<h2>3. 依赖管理：uv add 与 uv.lock</h2>
+<p>uv 采用项目模式，依赖写在 <code>pyproject.toml</code>，并生成锁定文件 <code>uv.lock</code> 冻结整棵依赖树，保证所有人装到一模一样的版本：</p>
+<pre><code># 初始化项目并添加依赖
+uv init myproject
 cd myproject
-poetry add requests
-poetry install</code></pre>
+uv add requests flask
 
-<h2>4. 依赖清单与锁定文件</h2>
-<p>光有 <code>requirements.txt</code> 还不够——它常常只写顶层包，不锁定间接依赖的版本，导致「在我机器上能跑」。</p>
-<ul>
-  <li><strong>requirements.txt：</strong>适合简单项目，建议显式写出版本号。</li>
-  <li><strong>锁定文件（lock）：</strong>Poetry 的 <code>poetry.lock</code>、Pipenv 的 <code>Pipfile.lock</code> 会冻结全部依赖树，保证所有人装到一模一样的版本。</li>
-</ul>
-<pre><code># requirements.txt 示例：显式固定版本
-requests==2.31.0
-flask==3.0.0</code></pre>
+# 按锁定文件安装全部依赖（CI / 生产常用）
+uv sync</code></pre>
+<p>相比手写 <code>requirements.txt</code>，<code>uv.lock</code> 不用你手动固定每一个间接依赖，既省心又可靠。</p>
 
-<h2>5. 配置与密钥分离：用 .env</h2>
-<p>数据库地址、API 密钥等<strong>绝不能写死在代码里</strong>，也别提交进版本库。把它们放进 <code>.env</code> 文件，用 <code>python-dotenv</code> 读取：</p>
-<pre><code># .env（不要提交到 git，加入 .gitignore）
-DATABASE_URL=postgresql://user:pass@localhost:5432/dev
-DEBUG=true</code></pre>
-<pre><code># Python 中读取
-from dotenv import load_dotenv
-import os
+<h2>4. 跑起来：uv run</h2>
+<p>不用手动 <code>activate</code>，直接用 <code>uv run</code> 在受管环境里执行命令：</p>
+<pre><code>uv run python main.py
+uv run pytest</code></pre>
 
-load_dotenv()
+<h2>5. 多环境配置：用 .env 分离配置</h2>
+<p>依赖解决了，配置呢？数据库地址、密钥等仍然<strong>不能写死在代码里</strong>。<code>uv run</code> 会自动加载项目根目录的 <code>.env</code>，也可以用 <code>--env-file</code> 指定不同环境的文件：</p>
+<pre><code># .env.prod
+DATABASE_URL=postgresql://user:pass@db/prod
+DEBUG=false
+
+# 用生产配置运行
+uv run --env-file .env.prod python main.py</code></pre>
+<p>代码中照常通过环境变量读取：</p>
+<pre><code>import os
 db_url = os.environ.get("DATABASE_URL")
 debug = os.environ.get("DEBUG") == "true"</code></pre>
-<p>不同环境用不同的 <code>.env</code> 文件（如 <code>.env.dev</code>、<code>.env.prod</code>），部署时再指定加载哪一个。</p>
 
-<h2>6. 十二要素配置原则</h2>
-<p>业界公认的 <strong>12-Factor App</strong> 指出：配置应当来自<strong>环境变量</strong>，而不是代码或文件。这样同一份构建产物，靠环境变量就能适配任意环境，是 CI/CD 和多环境部署的基础。</p>
-
-<h2>7. 一个最小可用的多环境结构</h2>
+<h2>6. 一套代码，三套环境落地</h2>
+<p>把依赖与配置按环境分开，目录可以长这样：</p>
 <pre><code>myproject/
-├── .env.dev          # 开发配置
-├── .env.prod         # 生产配置
-├── pyproject.toml    # 依赖与项目元数据
-├── poetry.lock       # 锁定文件
-├── src/              # 源码
-└── tests/            # 测试</code></pre>
-<p>流程建议：本地用 <code>.env.dev</code> + <code>poetry install</code> 开发；CI 用测试配置跑 <code>tests/</code>；生产只部署构建产物并注入 <code>.env.prod</code> 的环境变量。</p>
+├── .env.dev        # 开发配置
+├── .env.prod       # 生产配置
+├── pyproject.toml  # uv 管理依赖
+├── uv.lock         # 锁定全部依赖
+├── src/
+└── tests/</code></pre>
+<p>推荐流程：本地 <code>uv venv</code> + <code>uv add</code> 开发，提交 <code>uv.lock</code>；CI 用测试配置跑 <code>uv run pytest</code>；生产用 <code>uv sync --frozen</code> 安装锁定版本，并通过 <code>--env-file .env.prod</code> 或注入环境变量加载生产配置。</p>
+
+<h2>7. 与十二要素（12-Factor）的关系</h2>
+<p>业界 <strong>12-Factor App</strong> 主张「配置来自环境变量」。uv 的 <code>--env-file</code> 与自动加载 <code>.env</code> 正好契合这一点：同一份构建产物，靠环境变量切换 dev / test / prod，是 CI/CD 和多环境部署的基石。</p>
 
 <h2>结语</h2>
-<p>多环境配置的核心就三句话：<strong>依赖用虚拟环境隔离并锁定版本，配置用环境变量与 .env 分离，同一份代码靠环境切换。</strong>把这套习惯建立起来，你会发现「在我机器上能跑」的尴尬会少很多，部署也顺滑得多。</p></div>
+<p>用 uv 做多环境配置，核心就三步：<strong>uv venv 隔离依赖、uv.lock 锁定版本、.env + uv run --env-file 分离配置</strong>。一个工具顶替过去四五个，速度快、心智负担小。把这套流程建立起来，多环境部署会顺滑很多。</p></div>
       <div id="postActions" class="post__actions"></div>
     </article>
   </main>
@@ -126,7 +112,7 @@ debug = os.environ.get("DEBUG") == "true"</code></pre>
     <div class="container colophon__inner">
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 5 期。</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 6 期。</p>
       </div>
       <div class="colophon__links">
         <a href="../index.html">文章归档</a>
@@ -136,7 +122,7 @@ debug = os.environ.get("DEBUG") == "true"</code></pre>
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
-  <script type="application/json" id="post-data">{"id":7,"title":"Python 多环境配置指南：让开发、测试、生产互不干扰","excerpt":"一套代码要在开发、测试、生产三套环境跑，依赖和配置却各不相同。本文讲清楚用虚拟环境隔离依赖、用锁定文件保证一致、用 .env 与环境变量分离配置的多环境实践。","date":"2026-11-11","category":"技术","tags":["Python","环境配置","虚拟环境","最佳实践"],"content":"\u003cp>随着项目变大，你迟早会遇到这样的问题：本地跑得好好的代码，一到测试或生产环境就报错；或者 A 项目要 Django 4，B 项目却卡在 Django 3。根源往往是\u003cstrong>环境混在一起\u003c/strong>。本文讲清楚如何用多环境配置，让开发、测试、生产各司其职、互不干扰。\u003c/p>\n\n\u003ch2>1. 为什么需要多环境\u003c/h2>\n\u003cp>一套代码通常要跑在三个地方：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>开发环境（dev）：\u003c/strong>你本机写代码，可以装调试工具、开详细日志。\u003c/li>\n  \u003cli>\u003cstrong>测试环境（test）：\u003c/strong>跑自动化测试，数据和配置尽量接近生产但不影响真实用户。\u003c/li>\n  \u003cli>\u003cstrong>生产环境（prod）：\u003c/strong>真实用户访问，追求稳定、安全、性能。\u003c/li>\n\u003c/ul>\n\u003cp>它们的\u003cstrong>依赖版本\u003c/strong>和\u003cstrong>配置项\u003c/strong>（数据库地址、密钥、开关）往往不同，混在一起迟早出事。多环境配置的目标就是：\u003cstrong>代码同一份，依赖与配置按环境切换\u003c/strong>。\u003c/p>\n\n\u003ch2>2. 第一步：用虚拟环境隔离依赖\u003c/h2>\n\u003cp>不要让所有项目共用系统级的 Python 包。用虚拟环境把每个项目的依赖装进独立目录：\u003c/p>\n\u003cpre>\u003ccode># 在项目根目录创建虚拟环境\npython -m venv .venv\n\n# 激活（Windows）\n.venv\\Scripts\\activate\n# 激活（macOS / Linux）\nsource .venv/bin/activate\n\n# 安装依赖\npip install -r requirements.txt\u003c/code>\u003c/pre>\n\u003cp>激活后，\u003ccode>pip install\u003c/code> 只会装进当前项目的 \u003ccode>.venv\u003c/code>，不影响其他项目，也不污染系统。\u003c/p>\n\n\u003ch2>3. 依赖管理工具怎么选\u003c/h2>\n\u003cp>除了内置的 \u003ccode>venv\u003c/code>，还有更省心的工具：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>virtualenv：\u003c/strong>\u003ccode>venv\u003c/code> 的前身，功能类似，兼容老版本 Python。\u003c/li>\n  \u003cli>\u003cstrong>Pipenv：\u003c/strong>自动管理虚拟环境 + 依赖锁定，一条命令搞定。\u003c/li>\n  \u003cli>\u003cstrong>Poetry：\u003c/strong>现代首选，统一管理依赖、构建与发布，\u003ccode>pyproject.toml\u003c/code> 一把梭。\u003c/li>\n\u003c/ul>\n\u003cp>Poetry 示例：\u003c/p>\n\u003cpre>\u003ccode>poetry new myproject\ncd myproject\npoetry add requests\npoetry install\u003c/code>\u003c/pre>\n\n\u003ch2>4. 依赖清单与锁定文件\u003c/h2>\n\u003cp>光有 \u003ccode>requirements.txt\u003c/code> 还不够——它常常只写顶层包，不锁定间接依赖的版本，导致「在我机器上能跑」。\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>requirements.txt：\u003c/strong>适合简单项目，建议显式写出版本号。\u003c/li>\n  \u003cli>\u003cstrong>锁定文件（lock）：\u003c/strong>Poetry 的 \u003ccode>poetry.lock\u003c/code>、Pipenv 的 \u003ccode>Pipfile.lock\u003c/code> 会冻结全部依赖树，保证所有人装到一模一样的版本。\u003c/li>\n\u003c/ul>\n\u003cpre>\u003ccode># requirements.txt 示例：显式固定版本\nrequests==2.31.0\nflask==3.0.0\u003c/code>\u003c/pre>\n\n\u003ch2>5. 配置与密钥分离：用 .env\u003c/h2>\n\u003cp>数据库地址、API 密钥等\u003cstrong>绝不能写死在代码里\u003c/strong>，也别提交进版本库。把它们放进 \u003ccode>.env\u003c/code> 文件，用 \u003ccode>python-dotenv\u003c/code> 读取：\u003c/p>\n\u003cpre>\u003ccode># .env（不要提交到 git，加入 .gitignore）\nDATABASE_URL=postgresql://user:pass@localhost:5432/dev\nDEBUG=true\u003c/code>\u003c/pre>\n\u003cpre>\u003ccode># Python 中读取\nfrom dotenv import load_dotenv\nimport os\n\nload_dotenv()\ndb_url = os.environ.get(\"DATABASE_URL\")\ndebug = os.environ.get(\"DEBUG\") == \"true\"\u003c/code>\u003c/pre>\n\u003cp>不同环境用不同的 \u003ccode>.env\u003c/code> 文件（如 \u003ccode>.env.dev\u003c/code>、\u003ccode>.env.prod\u003c/code>），部署时再指定加载哪一个。\u003c/p>\n\n\u003ch2>6. 十二要素配置原则\u003c/h2>\n\u003cp>业界公认的 \u003cstrong>12-Factor App\u003c/strong> 指出：配置应当来自\u003cstrong>环境变量\u003c/strong>，而不是代码或文件。这样同一份构建产物，靠环境变量就能适配任意环境，是 CI/CD 和多环境部署的基础。\u003c/p>\n\n\u003ch2>7. 一个最小可用的多环境结构\u003c/h2>\n\u003cpre>\u003ccode>myproject/\n├── .env.dev          # 开发配置\n├── .env.prod         # 生产配置\n├── pyproject.toml    # 依赖与项目元数据\n├── poetry.lock       # 锁定文件\n├── src/              # 源码\n└── tests/            # 测试\u003c/code>\u003c/pre>\n\u003cp>流程建议：本地用 \u003ccode>.env.dev\u003c/code> + \u003ccode>poetry install\u003c/code> 开发；CI 用测试配置跑 \u003ccode>tests/\u003c/code>；生产只部署构建产物并注入 \u003ccode>.env.prod\u003c/code> 的环境变量。\u003c/p>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>多环境配置的核心就三句话：\u003cstrong>依赖用虚拟环境隔离并锁定版本，配置用环境变量与 .env 分离，同一份代码靠环境切换。\u003c/strong>把这套习惯建立起来，你会发现「在我机器上能跑」的尴尬会少很多，部署也顺滑得多。\u003c/p>"}</script>
+  <script type="application/json" id="post-data">{"id":7,"title":"用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry","excerpt":"不想再被 venv、pip、poetry、pyenv 来回折腾？Astral 出品的 uv 一个工具全包了。本文用 uv 为主线，讲清如何用它建环境、锁依赖、并用 .env 与 uv run 分离 dev/test/prod 多环境配置。","date":"2026-11-11","category":"技术","tags":["Python","uv","环境配置","虚拟环境"],"content":"\u003cp>如果你还在用 \u003ccode>venv\u003c/code> 建环境、\u003ccode>pip\u003c/code> 装包、\u003ccode>poetry\u003c/code> 管依赖，那一定体会过它们各自的摩擦：\u003ccode>pip\u003c/code> 慢、\u003ccode>poetry\u003c/code> 重、Python 版本还得靠 \u003ccode>pyenv\u003c/code> 额外管理。最近两年，\u003cstrong>uv\u003c/strong> 这类一体化工具把这些事一把梭了。本文用 uv 为主线，讲清楚怎么用它做 Python 的多环境配置。\u003c/p>\n\n\u003ch2>1. 为什么是 uv\u003c/h2>\n\u003cp>\u003cstrong>uv\u003c/strong> 是 Astral（也就是做 \u003ccode>ruff\u003c/code> 的那家公司）用 Rust 写的 Python 包与环境管理器，极快，且\u003cstrong>一个工具替代 venv、pip、pip-tools、poetry、pyenv\u003c/strong>：建环境、装依赖、锁版本、切 Python 版本，全包了。\u003c/p>\n\u003cpre>\u003ccode># 安装 uv\npip install uv\n# 或官方脚本\ncurl -LsSf https://astral.sh/uv/install.sh | sh\u003c/code>\u003c/pre>\n\n\u003ch2>2. 一条命令建环境\u003c/h2>\n\u003cp>uv 内置虚拟环境管理，还能自动下载指定版本的 Python，不再需要单独装 pyenv：\u003c/p>\n\u003cpre>\u003ccode># 创建虚拟环境（自动使用项目声明的 Python 版本）\nuv venv\n\n# 需要特定版本？uv 会自己下载\nuv python install 3.12\nuv venv --python 3.12\u003c/code>\u003c/pre>\n\n\u003ch2>3. 依赖管理：uv add 与 uv.lock\u003c/h2>\n\u003cp>uv 采用项目模式，依赖写在 \u003ccode>pyproject.toml\u003c/code>，并生成锁定文件 \u003ccode>uv.lock\u003c/code> 冻结整棵依赖树，保证所有人装到一模一样的版本：\u003c/p>\n\u003cpre>\u003ccode># 初始化项目并添加依赖\nuv init myproject\ncd myproject\nuv add requests flask\n\n# 按锁定文件安装全部依赖（CI / 生产常用）\nuv sync\u003c/code>\u003c/pre>\n\u003cp>相比手写 \u003ccode>requirements.txt\u003c/code>，\u003ccode>uv.lock\u003c/code> 不用你手动固定每一个间接依赖，既省心又可靠。\u003c/p>\n\n\u003ch2>4. 跑起来：uv run\u003c/h2>\n\u003cp>不用手动 \u003ccode>activate\u003c/code>，直接用 \u003ccode>uv run\u003c/code> 在受管环境里执行命令：\u003c/p>\n\u003cpre>\u003ccode>uv run python main.py\nuv run pytest\u003c/code>\u003c/pre>\n\n\u003ch2>5. 多环境配置：用 .env 分离配置\u003c/h2>\n\u003cp>依赖解决了，配置呢？数据库地址、密钥等仍然\u003cstrong>不能写死在代码里\u003c/strong>。\u003ccode>uv run\u003c/code> 会自动加载项目根目录的 \u003ccode>.env\u003c/code>，也可以用 \u003ccode>--env-file\u003c/code> 指定不同环境的文件：\u003c/p>\n\u003cpre>\u003ccode># .env.prod\nDATABASE_URL=postgresql://user:pass@db/prod\nDEBUG=false\n\n# 用生产配置运行\nuv run --env-file .env.prod python main.py\u003c/code>\u003c/pre>\n\u003cp>代码中照常通过环境变量读取：\u003c/p>\n\u003cpre>\u003ccode>import os\ndb_url = os.environ.get(\"DATABASE_URL\")\ndebug = os.environ.get(\"DEBUG\") == \"true\"\u003c/code>\u003c/pre>\n\n\u003ch2>6. 一套代码，三套环境落地\u003c/h2>\n\u003cp>把依赖与配置按环境分开，目录可以长这样：\u003c/p>\n\u003cpre>\u003ccode>myproject/\n├── .env.dev        # 开发配置\n├── .env.prod       # 生产配置\n├── pyproject.toml  # uv 管理依赖\n├── uv.lock         # 锁定全部依赖\n├── src/\n└── tests/\u003c/code>\u003c/pre>\n\u003cp>推荐流程：本地 \u003ccode>uv venv\u003c/code> + \u003ccode>uv add\u003c/code> 开发，提交 \u003ccode>uv.lock\u003c/code>；CI 用测试配置跑 \u003ccode>uv run pytest\u003c/code>；生产用 \u003ccode>uv sync --frozen\u003c/code> 安装锁定版本，并通过 \u003ccode>--env-file .env.prod\u003c/code> 或注入环境变量加载生产配置。\u003c/p>\n\n\u003ch2>7. 与十二要素（12-Factor）的关系\u003c/h2>\n\u003cp>业界 \u003cstrong>12-Factor App\u003c/strong> 主张「配置来自环境变量」。uv 的 \u003ccode>--env-file\u003c/code> 与自动加载 \u003ccode>.env\u003c/code> 正好契合这一点：同一份构建产物，靠环境变量切换 dev / test / prod，是 CI/CD 和多环境部署的基石。\u003c/p>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>用 uv 做多环境配置，核心就三步：\u003cstrong>uv venv 隔离依赖、uv.lock 锁定版本、.env + uv run --env-file 分离配置\u003c/strong>。一个工具顶替过去四五个，速度快、心智负担小。把这套流程建立起来，多环境部署会顺滑很多。\u003c/p>"}</script>
   <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
   <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
