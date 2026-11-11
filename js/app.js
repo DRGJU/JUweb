@@ -29,12 +29,7 @@ new Vue({
     currentArticle: null,
     isDetailView: false,
     isAdmin: false,
-    currentYear: new Date().getFullYear(),
-    currentDate: new Date().toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    })
+    currentYear: new Date().getFullYear()
   },
   computed: {
     paginatedArticles() {

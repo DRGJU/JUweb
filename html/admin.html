@@ -12,6 +12,27 @@
     }
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            body: '#f7f5f0',
+            card: '#ffffff',
+            alt: '#eee9df',
+            fg: '#1f2430',
+            muted: '#6b7280',
+            accent: '#8b5e3c',
+            'accent-light': '#a9764f',
+            theme: 'rgba(31, 36, 48, 0.1)'
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', '"Noto Sans SC"', 'serif']
+          }
+        }
+      }
+    };
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
@@ -120,7 +141,7 @@
           
           <div class="flex gap-4">
             <button type="submit" class="px-4 py-2 bg-accent text-white rounded hover:bg-accent-light transition-colors">保存</button>
-            <button type="button" @click="resetForm" class="px-4 py-2 border border-theme rounded hover:bg-bg-alt transition-colors">重置</button>
+            <button type="button" @click="resetForm" class="px-4 py-2 border border-theme rounded hover:bg-alt transition-colors">重置</button>
           </div>
         </form>
       </div>
@@ -168,26 +189,29 @@
           }
         },
         saveArticle() {
-          // 处理标签
-          this.form.tags = this.form.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
+          // 处理标签（tagsInput 仅用于表单输入，不持久化）
+          const tags = this.form.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
           
           // 设置日期
           if (!this.form.date) {
             const today = new Date();
             this.form.date = today.toISOString().split('T')[0];
           }
+
+          const articleData = { ...this.form, tags };
+          delete articleData.tagsInput;
           
           if (this.isEditing) {
             // 编辑现有文章
             const index = this.articles.findIndex(a => a.id === this.form.id);
             if (index !== -1) {
-              this.articles[index] = { ...this.form };
+              this.articles[index] = { ...articleData };
             }
           } else {
             // 添加新文章
             const newId = this.articles.length > 0 ? Math.max(...this.articles.map(a => a.id)) + 1 : 1;
-            this.form.id = newId;
-            this.articles.push({ ...this.form });
+            articleData.id = newId;
+            this.articles.push({ ...articleData });
           }
           
           // 保存到本地存储
