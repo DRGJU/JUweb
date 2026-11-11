@@ -27,6 +27,9 @@
     }
   }
 
+  // 旧版特效（视频背景/粒子/sidebar）已随首页改版移除，仅保留 html/index.html 备份页用到的部分
+  const isLegacyBackupPage = document.body.hasAttribute('data-legacy-effects');
+
   function initScrollReveal() {
     const revealEls = document.querySelectorAll('.reveal');
     if (!revealEls.length) return;
@@ -799,16 +802,22 @@
     if (window.__JUWEB_APP_INITIALIZED) return;
     window.__JUWEB_APP_INITIALIZED = true;
 
-    initVideoBackground();
+    // 基础功能：所有页面通用
     initScrollReveal();
     initMusicControl();
-    initClickEffect();
-    initRippleEffect();
-    initAdvancedCursorEffect();
-    initMagneticEffect();
-    initParticleAnimation();
-    initParticleText();
-    initSidebar();
+
+    // 旧版特效仅在备份页（html/index.html，带 data-legacy-effects 标记）启用，
+    // 避免在主页上创建无用的 canvas、监听器与定时器
+    if (isLegacyBackupPage) {
+      initVideoBackground();
+      initClickEffect();
+      initRippleEffect();
+      initAdvancedCursorEffect();
+      initMagneticEffect();
+      initParticleAnimation();
+      initParticleText();
+      initSidebar();
+    }
   }
 
   window.initScrollReveal = initScrollReveal;

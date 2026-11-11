@@ -30,9 +30,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js" defer></script>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-body text-fg">
   <div class="flex-1 relative" id="app">
     <nav class="fixed top-0 left-0 right-0 z-50 border-b border-theme">
       <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -53,11 +53,14 @@
         </div>
 
         <div class="space-y-6">
+          <p v-if="!articles.length" class="text-muted text-sm py-10 text-center">
+            暂无文章，敬请期待。
+          </p>
           <article
             v-for="(article, index) in paginatedArticles"
             :key="article.id"
             class="article-card p-6 reveal cursor-pointer"
-            :style="{ transitionDelay: index * 0.05 + 's' }"
+            :style="{ transitionDelay: (index % itemsPerPage) * 0.05 + 's' }"
             @click="openArticle(article.id)"
           >
             <div class="flex items-start justify-between gap-4 mb-3">
@@ -121,7 +124,14 @@
 
         <div class="article-detail-container" v-if="currentArticle">
           <header class="mb-8 pb-6 border-b border-theme">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-xs font-medium text-accent bg-alt px-2 py-1 rounded">{{ currentArticle.category }}</span>
+              <span class="text-xs text-muted">{{ currentArticle.date }}</span>
+            </div>
             <h1 class="font-display text-3xl sm:text-4xl font-semibold text-fg leading-tight">{{ currentArticle.title }}</h1>
+            <div class="flex flex-wrap gap-2 mt-4" v-if="currentArticle.tags && currentArticle.tags.length">
+              <span v-for="tag in currentArticle.tags" :key="tag" class="tag text-xs px-2 py-1 rounded">{{ tag }}</span>
+            </div>
           </header>
           <article class="prose custom-prose" v-html="currentArticle.content"></article>
         </div>
@@ -146,10 +156,8 @@
             <div>
               <h3 class="text-fg font-medium mb-2 text-sm">联系方式</h3>
               <div class="space-y-1 text-xs text-muted">
-                <a href="https://github.com/DRGJU" target="_blank" class="flex items-center gap-2 hover:text-accent transition-colors">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.333-.914-.12-.914.09-.914.125 0 .13.06.835.399 1.161 1.646 2.793 1.999 2.793 1.999 1.704 1.05 3.646 1.11 3.646 1.11.09.028.111-.032.111-.032.111-.482.376-1.018.827-1.547-.138-.018-.611-.177-1.128-.367-.038-.018-.118-.078-.118-.078-.001 0-.001-.004-.001-.005-.548-.334-1.343-.486-2.373-.486C7.528 14.626 6.1 17.359 6.1 17.359c.708.648 1.727.913 2.646.894.48.039.842.049 1.151.049.712 0 1.338-.078 1.909-.298.406-.16.754-.42.914-.684.233-.35.379-.773.379-1.305 0-.018-.001-.037-.002-.056.928-.208 1.947-.349 2.778-.349 1.227 0 2.001.097 2.393.301.603.32 1.385.694 2.179 1.347.907-.8 1.818-1.628 2.476-2.405-.336-.184-.76-.425-1.305-.773-.514-.33-1.312-.634-2.309-.904.326-.649.986-1.306 2.102-1.787 1.13-.49 2.461-.112 3.589.678-1.37-.448-3.035-.68-4.734-.68-5.567 0-10.2 4.38-10.2 9.847 0 4.849 3.298 8.9 7.646 9.799.163.026.298.019.452-.02.146-.04.405-.109.63-.211C11.935 22.79 11.633 23 12 23c.486 0 .953-.188 1.318-.527.35-.324.569-.776.569-1.284v-1.348c0-.548-.437-.96-.958-.978C7.937 19.149 4.5 15.23 4.5 10.351c0-2.683 1.147-5.271 3.125-7.036.094-.09.214-.153.359-.15.146.003.278.056.374.17C8.854 3.626 10.233 3.5 11.666 3.5c6.265 0 10.397 4.098 10.397 11.173 0 .703-.04 1.612-.186 2.717.677.585 1.293 1.215 1.916 1.881.599-.633 1.114-1.304 1.553-2.011.938-1.51 1.394-3.187 1.394-4.925C26.614 4.22 20.503 0 12 0Z"/>
-                  </svg>
+                <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub" class="flex items-center gap-2 hover:text-accent transition-colors">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.65.376c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1.265.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z"/></svg>
                 </a>
               </div>
             </div>
@@ -184,7 +192,7 @@
     </button>
   </div>
 
-  <script src="./js/app.js"></script>
-  <script src="./js/script.js"></script>
+  <script src="./js/app.js" defer></script>
+  <script src="./js/script.js" defer></script>
 </body>
 </html>
