@@ -1,7 +1,23 @@
 {
-  "version": 12,
+  "version": 13,
   "updatedAt": "2026-11-12",
   "articles": [
+    {
+      "id": 11,
+      "title": "用 WinPE 与优启通（EasyU）制作系统盘：从写入 U 盘到各种实战用法",
+      "excerpt": "手把手教你用优启通（EasyU）把 U 盘做成可启动 WinPE 系统盘，并讲清它能做的八件事：装系统、分区、备份还原、清密码、修引导、救数据、硬件检测与网克。",
+      "date": "2026-11-12",
+      "category": "技术",
+      "tags": [
+        "WinPE",
+        "优启通",
+        "EasyU",
+        "系统盘",
+        "U盘启动",
+        "系统维护"
+      ],
+      "content": "<figure>\n  <img src=\"https://images.pexels.com/photos/28928337/pexels-photo-28928337.jpeg?auto=compress&cs=tinysrgb&w=1280\" alt=\"蓝天映衬下的现代建筑结构，线条利落\">\n  <figcaption>现代建筑的几何结构 · 图源 Pexels（免费授权）</figcaption>\n</figure>\n<p>当电脑开不了机、系统崩溃、忘记登录密码，或者想给新硬盘装系统时，一个提前做好的「系统盘」往往能救命。本文带你用 <strong>WinPE</strong> 与国产常用的 <strong>优启通（EasyU）</strong> 制作一枚可启动 U 盘，并讲清它到底能帮你做哪些事。</p>\n\n<h2>一、先搞清楚：WinPE 与优启通是什么</h2>\n<p><strong>WinPE（Windows Preinstallation Environment）</strong> 是微软提供的一个轻量级 Windows 预安装环境。它不依赖你硬盘上的系统，可以从 U 盘、光盘独立启动，进入一个最小化的「临时 Windows」桌面，用来装系统、修引导、拷数据。</p>\n<p><strong>优启通（EasyU）</strong> 是国内 IT 圈流行的 WinPE 封装工具，它把 WinPE、常用维护软件（分区、备份、引导修复、密码清除等）和一键写入程序打包好，让普通人也能几步做出一枚好用的系统盘。</p>\n\n<h2>二、准备工作</h2>\n<ul>\n  <li>一枚容量 ≥ 8GB 的 U 盘（做维护盘 16GB 更从容，若要内置系统镜像则 ≥ 32GB）；</li>\n  <li>提前把 U 盘里的数据备份走——写入会<strong>清空整个 U 盘</strong>；</li>\n  <li>到优启通官网下载最新版 <code>EasyU</code> 安装包（认准官方渠道，避免被植入流氓软件）；</li>\n  <li>目标电脑关机，插好 U 盘。</li>\n</ul>\n\n<h2>三、用优启通写入系统盘</h2>\n<ol>\n  <li>在<strong>正常电脑</strong>上打开优启通（建议右键「以管理员身份运行」）；</li>\n  <li>在界面中选择你的 U 盘，模式通常选 <strong>三分区（UD + EFI + 普通隐藏）</strong>，这样既能兼容老电脑的 Legacy/BIOS 启动，也能兼容新电脑的 UEFI 启动；</li>\n  <li>点击「全新制作」，等待进度完成；</li>\n  <li>可选：把 Windows 原版镜像（<code>.iso</code> 或解压后的 <code>install.wim</code>）拷进 U 盘的可见分区，方便离线装机。</li>\n</ol>\n<pre><code># 写入完成后，U 盘通常会出现这些部分：\n#   UD 区      —— 隐藏的 PE 启动区（老电脑用）\n#   EFI 区     —— 隐藏的 EFI 启动文件（新电脑用）\n#   可见分区   —— 你拷镜像、放工具的地方\n</code></pre>\n\n<h2>四、从系统盘启动</h2>\n<ol>\n  <li>把 U 盘插到目标电脑，开机；</li>\n  <li>在开机画面出现时连按启动菜单快捷键：常见为 <code>F12</code> / <code>F11</code> / <code>Esc</code>（不同品牌不同，笔记本多为 F12）；</li>\n  <li>在启动菜单里选择你的 U 盘（带 UEFI 前缀的选 UEFI 项）；</li>\n  <li>稍等片刻进入优启通的主菜单，选择「Windows PE」即可进入维护桌面。</li>\n</ol>\n<blockquote>若启动菜单里看不到 U 盘，进 BIOS 把「Secure Boot」关闭，并确认启动模式（UEFI/Legacy）与 U 盘写入模式匹配。</blockquote>\n\n<h2>五、系统盘到底能做什么</h2>\n\n<h3>1. 安装 / 重装 Windows</h3>\n<p>进入 PE 后，用内置的 <strong>CGI 备份还原</strong> 或 <strong>WinNTSetup</strong> 选择系统镜像与安装分区，几分钟就能完成装/重装。相比官方安装盘，PE 还能先分区、后进系统，更灵活。</p>\n\n<h3>2. 分区与格式化</h3>\n<p>用 <strong>DiskGenius</strong> 可以新建/删除/调整分区、4K 对齐、把磁盘从 MBR 转 GPT（装 Win11 需要 GPT），还能修复损坏的分区表。</p>\n\n<h3>3. 系统备份与还原</h3>\n<p>系统还健康时，在 PE 里用 CGI 给 C 盘做一次<strong>增量备份</strong>；以后中招或变慢，几分钟还原回干净状态，比重装省事。</p>\n\n<h3>4. 忘记开机密码</h3>\n<p>内置的 <strong>NTPWEdit</strong> 可以清空或重置本地账户密码，帮你摆脱「进不去系统」的窘境（仅限本地账户，微软在线账户另需其他手段）。</p>\n\n<h3>5. 引导修复</h3>\n<p>系统文件在、却卡在「正在启动」或反复蓝屏？用 PE 里的<strong>引导修复工具</strong>重建 BCD 引导记录，往往能起死回生。</p>\n\n<h3>6. 数据抢救</h3>\n<p>系统崩了但硬盘没坏时，进 PE 把桌面、文档、照片拷到移动硬盘或另一块盘，<strong>数据无价，先抢救再重装</strong>。</p>\n\n<h3>7. 硬盘与硬件检测</h3>\n<p>PE 里常带硬盘坏道检测、SMART 健康度查看、内存测试等小工具，能快速判断是不是硬件出了问题。</p>\n\n<h3>8. 网克与 Ghost</h3>\n<p>机房、网吧批量装机时，可用 PE 配合 Ghost / 网络同传，把一台机器的镜像快速克隆到几十台。</p>\n\n<h2>六、几个必须记住的注意点</h2>\n<ul>\n  <li><strong>先备份，再操作</strong>：分区、格式化、Ghost 都会毁掉数据，动手前确认已备份；</li>\n  <li><strong>UEFI 与 Legacy 别混用</strong>：新电脑用 UEFI + GPT，老电脑用 Legacy + MBR；</li>\n  <li><strong>下载正版工具</strong>：PE 工具常被捆绑流氓软件，务必从官网获取；</li>\n  <li><strong>系统盘≠系统安装盘</strong>：它装的是「维护环境」，真正的 Windows 镜像需要你另外准备。</li>\n</ul>\n\n<p>一枚做好的优启通系统盘，就像随身带的「电脑急救包」。花十分钟提前做好，关键时刻能省下几小时的折腾。建议现在就做一枚，贴上标签收好。</p>"
+    },
     {
       "id": 1,
       "title": "Python 入门教程：从零开始掌握 Python 基础",
