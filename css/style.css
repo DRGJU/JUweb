@@ -127,6 +127,9 @@
 .post__body p { margin-bottom: var(--space-lg); max-width: none; }
 .post__body a { color: var(--color-accent); text-decoration: underline; }
 .post__body img { margin-block: var(--space-lg); }
+.post__body figure { margin-block: var(--space-2xl); }
+.post__body figure img { margin-block: 0; }
+.post__body figcaption { margin-top: var(--space-sm); font-size: var(--text-sm); color: var(--color-muted); }
 .post__body pre { padding: var(--space-md); background: var(--color-paper-2); overflow-x: auto; }
 .post__body code { background: var(--color-paper-2); padding-inline: var(--space-2xs); }
 .post__body pre code { background: none; padding: 0; }
