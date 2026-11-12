@@ -9,7 +9,7 @@
 - **首屏姿态**：Index（标题、一句、一个动作；归档行紧随）。
 - **Chrome**：nav 为 edge-aligned 报头（字标、期号、链接、主题按钮），双线规则收口；首页页脚为**刊记 band**（关于我与页脚合并，方案 A，用户确认），文章页保留简化 statement close。两枚悬浮控件独立于页脚，固定在左右下角。
 - **Signature**：首页是双线规则下按日期排列的归档行；收尾是换纸 band 里的超大刊名字标。
-- **Imagery**：克制使用。优先用字号、规则、栏宽构造体量；文章可插入**网络检索的免费授权图**（Pexels / Unsplash 等 CC0 或可商用图，注明来源），**不使用 AI 生成图**。当前环境无法本地化时允许外链图床直链。
+- **Imagery**：每篇新文章**默认配图**。文章须插入一张**网络检索的免费授权图**（Pexels / Unsplash 等 CC0 或可商用图，注明来源），**不使用 AI 生成图**；图片以 `<figure>` + `<img>` + `<figcaption>` 置于正文开头，样式用 `.post__body figure` 元素选择器（白名单不允许 figure 带 class）。当前环境无法本地化时允许外链图床直链（`https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg`）。
 
 ## 规则
 

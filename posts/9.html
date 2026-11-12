@@ -21,7 +21,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 10 期，2026-11-12</span>
+      <span class="masthead__edition">第 11 期，2026-11-12</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
@@ -41,7 +41,12 @@
         </div>
         <div id="postTags" class="post__tags"><span class="post__tag">沙箱</span><span class="post__tag">安全</span><span class="post__tag">容器</span><span class="post__tag">隔离</span><span class="post__tag">验证</span></div>
       </header>
-      <div id="postContent" class="post__body"><p>当你拿到一段来源不明、或只是想确认「它到底会做什么」的程序时，直接在本机运行风险很大：它可能改写系统文件、外联网络、甚至尝试提权。沙箱（Sandbox）的价值，就是给程序一个「受限的小房间」——在里面它该跑能跑，但出不了门、动不了宿主。</p>
+      <div id="postContent" class="post__body"><figure>
+  <img src="https://images.pexels.com/photos/31343288/pexels-photo-31343288.jpeg" alt="屏幕上的彩色代码" />
+  <figcaption>屏幕上的彩色代码 · 图源 Pexels / peaky（免费授权）</figcaption>
+</figure>
+
+<p>当你拿到一段来源不明、或只是想确认「它到底会做什么」的程序时，直接在本机运行风险很大：它可能改写系统文件、外联网络、甚至尝试提权。沙箱（Sandbox）的价值，就是给程序一个「受限的小房间」——在里面它该跑能跑，但出不了门、动不了宿主。</p>
 <h2>为什么需要沙箱</h2>
 <p>验证程序的常见诉求有三类：确认行为是否符合预期、隔离潜在有害操作、复现第三方或评判环境。沙箱让这些事在不信任代码的前提下变得安全——文件系统、网络、进程、系统调用都被边界框住，跑完即焚，宿主毫发无伤。</p>
 <h2>常见沙箱方案</h2>
@@ -79,7 +84,7 @@
     <div class="container colophon__inner">
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 10 期。</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 11 期。</p>
       </div>
       <div class="colophon__links">
         <a href="../index.html">文章归档</a>
@@ -89,7 +94,7 @@
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
-  <script type="application/json" id="post-data">{"id":9,"title":"用沙箱验证程序：在隔离环境里安全运行不信任的代码","excerpt":"沙箱能在受限的隔离环境中运行程序，既能验证行为又不污染宿主。本文梳理容器、Firejail、gVisor 等常见方案，以及一套可复用的验证流程。","date":"2026-11-12","category":"技术","tags":["沙箱","安全","容器","隔离","验证"],"content":"\u003cp>当你拿到一段来源不明、或只是想确认「它到底会做什么」的程序时，直接在本机运行风险很大：它可能改写系统文件、外联网络、甚至尝试提权。沙箱（Sandbox）的价值，就是给程序一个「受限的小房间」——在里面它该跑能跑，但出不了门、动不了宿主。\u003c/p>\n\u003ch2>为什么需要沙箱\u003c/h2>\n\u003cp>验证程序的常见诉求有三类：确认行为是否符合预期、隔离潜在有害操作、复现第三方或评判环境。沙箱让这些事在不信任代码的前提下变得安全——文件系统、网络、进程、系统调用都被边界框住，跑完即焚，宿主毫发无伤。\u003c/p>\n\u003ch2>常见沙箱方案\u003c/h2>\n\u003cul>\n\u003cli>\u003cstrong>容器（Docker / Podman）\u003c/strong>：最常用。用命名空间（namespace）做轻量隔离，适合跑构建、跑测试、复现运行环境。\u003c/li>\n\u003cli>\u003cstrong>Firejail\u003c/strong>：轻量用户态沙箱，针对命令行与桌面程序，限制文件系统与网络访问。\u003c/li>\n\u003cli>\u003cstrong>systemd-nspawn\u003c/strong>：介于容器与虚拟机之间的系统容器，启动一个独立的 Linux 系统实例。\u003c/li>\n\u003cli>\u003cstrong>gVisor / Kata\u003c/strong>：用用户态内核拦截系统调用，隔离更强，常用于多租户云环境。\u003c/li>\n\u003cli>\u003cstrong>虚拟机\u003c/strong>：完整硬件虚拟化，隔离最彻底，代价是更重、更慢。\u003c/li>\n\u003cli>\u003cstrong>在线沙箱\u003c/strong>：各类判题系统、在线执行环境开箱即用，零本地配置，适合快速验证。\u003c/li>\n\u003c/ul>\n\u003ch2>隔离要覆盖哪些维度\u003c/h2>\n\u003cp>一个合格的验证沙箱至少应覆盖四个维度：\u003cstrong>文件系统\u003c/strong>（只读挂载、拒绝写入宿主）、\u003cstrong>网络\u003c/strong>（默认断网，按需开白名单）、\u003cstrong>进程\u003c/strong>（限制 PID 数量与权限）、\u003cstrong>系统调用\u003c/strong>（用 seccomp 裁剪危险调用）。四维都收口，才算把「房间」真正封住。\u003c/p>\n\u003ch2>一个最小验证流程\u003c/h2>\n\u003cp>以 Docker 为例，把待验证程序放进只读容器、断网运行，再检查退出码与挂载点变化：\u003c/p>\n\u003cpre>\u003ccode>docker run --rm \\\n  --network none \\\n  --read-only \\\n  -v \"$PWD/app:/app:ro\" \\\n  alpine:3.20 sh -c \"cd /app &amp;&amp; ./run.sh; echo EXIT=$?\"\u003c/code>\u003c/pre>\n\u003cp>这条命令做了四件事：\u003ccode>--network none\u003c/code> 断网、\u003ccode>--read-only\u003c/code> 让根文件系统只读、把代码以只读方式挂入、最后打印退出码。跑完看退出码与挂载目录是否被改动，就能判断程序是否「安分」。\u003c/p>\n\u003ch2>注意事项\u003c/h2>\n\u003cul>\n\u003cli>沙箱不是万能保险箱：容器共享内核，仍存在逃逸风险，高威胁场景改用虚拟机。\u003c/li>\n\u003cli>默认最小权限：不要图省事给 \u003ccode>--privileged\u003c/code>，也不要挂载 Docker socket。\u003c/li>\n\u003cli>限制资源：用 \u003ccode>--memory\u003c/code>、\u003ccode>--cpus\u003c/code> 防止程序把机器跑瘫。\u003c/li>\n\u003cli>验证要有对照：同一份代码在干净沙箱跑两次，行为一致才可信。\u003c/li>\n\u003c/ul>\n\u003cp>把「先隔离、再运行、后核对」变成习惯，你就能放心地验证任何来路的程序，而不必担心弄脏自己的机器。\u003c/p>"}</script>
+  <script type="application/json" id="post-data">{"id":9,"title":"用沙箱验证程序：在隔离环境里安全运行不信任的代码","excerpt":"沙箱能在受限的隔离环境中运行程序，既能验证行为又不污染宿主。本文梳理容器、Firejail、gVisor 等常见方案，以及一套可复用的验证流程。","date":"2026-11-12","category":"技术","tags":["沙箱","安全","容器","隔离","验证"],"content":"\u003cfigure>\n  \u003cimg src=\"https://images.pexels.com/photos/31343288/pexels-photo-31343288.jpeg\" alt=\"屏幕上的彩色代码\">\n  \u003cfigcaption>屏幕上的彩色代码 · 图源 Pexels / peaky（免费授权）\u003c/figcaption>\n\u003c/figure>\n\n\u003cp>当你拿到一段来源不明、或只是想确认「它到底会做什么」的程序时，直接在本机运行风险很大：它可能改写系统文件、外联网络、甚至尝试提权。沙箱（Sandbox）的价值，就是给程序一个「受限的小房间」——在里面它该跑能跑，但出不了门、动不了宿主。\u003c/p>\n\u003ch2>为什么需要沙箱\u003c/h2>\n\u003cp>验证程序的常见诉求有三类：确认行为是否符合预期、隔离潜在有害操作、复现第三方或评判环境。沙箱让这些事在不信任代码的前提下变得安全——文件系统、网络、进程、系统调用都被边界框住，跑完即焚，宿主毫发无伤。\u003c/p>\n\u003ch2>常见沙箱方案\u003c/h2>\n\u003cul>\n\u003cli>\u003cstrong>容器（Docker / Podman）\u003c/strong>：最常用。用命名空间（namespace）做轻量隔离，适合跑构建、跑测试、复现运行环境。\u003c/li>\n\u003cli>\u003cstrong>Firejail\u003c/strong>：轻量用户态沙箱，针对命令行与桌面程序，限制文件系统与网络访问。\u003c/li>\n\u003cli>\u003cstrong>systemd-nspawn\u003c/strong>：介于容器与虚拟机之间的系统容器，启动一个独立的 Linux 系统实例。\u003c/li>\n\u003cli>\u003cstrong>gVisor / Kata\u003c/strong>：用用户态内核拦截系统调用，隔离更强，常用于多租户云环境。\u003c/li>\n\u003cli>\u003cstrong>虚拟机\u003c/strong>：完整硬件虚拟化，隔离最彻底，代价是更重、更慢。\u003c/li>\n\u003cli>\u003cstrong>在线沙箱\u003c/strong>：各类判题系统、在线执行环境开箱即用，零本地配置，适合快速验证。\u003c/li>\n\u003c/ul>\n\u003ch2>隔离要覆盖哪些维度\u003c/h2>\n\u003cp>一个合格的验证沙箱至少应覆盖四个维度：\u003cstrong>文件系统\u003c/strong>（只读挂载、拒绝写入宿主）、\u003cstrong>网络\u003c/strong>（默认断网，按需开白名单）、\u003cstrong>进程\u003c/strong>（限制 PID 数量与权限）、\u003cstrong>系统调用\u003c/strong>（用 seccomp 裁剪危险调用）。四维都收口，才算把「房间」真正封住。\u003c/p>\n\u003ch2>一个最小验证流程\u003c/h2>\n\u003cp>以 Docker 为例，把待验证程序放进只读容器、断网运行，再检查退出码与挂载点变化：\u003c/p>\n\u003cpre>\u003ccode>docker run --rm \\\n  --network none \\\n  --read-only \\\n  -v \"$PWD/app:/app:ro\" \\\n  alpine:3.20 sh -c \"cd /app &amp;&amp; ./run.sh; echo EXIT=$?\"\u003c/code>\u003c/pre>\n\u003cp>这条命令做了四件事：\u003ccode>--network none\u003c/code> 断网、\u003ccode>--read-only\u003c/code> 让根文件系统只读、把代码以只读方式挂入、最后打印退出码。跑完看退出码与挂载目录是否被改动，就能判断程序是否「安分」。\u003c/p>\n\u003ch2>注意事项\u003c/h2>\n\u003cul>\n\u003cli>沙箱不是万能保险箱：容器共享内核，仍存在逃逸风险，高威胁场景改用虚拟机。\u003c/li>\n\u003cli>默认最小权限：不要图省事给 \u003ccode>--privileged\u003c/code>，也不要挂载 Docker socket。\u003c/li>\n\u003cli>限制资源：用 \u003ccode>--memory\u003c/code>、\u003ccode>--cpus\u003c/code> 防止程序把机器跑瘫。\u003c/li>\n\u003cli>验证要有对照：同一份代码在干净沙箱跑两次，行为一致才可信。\u003c/li>\n\u003c/ul>\n\u003cp>把「先隔离、再运行、后核对」变成习惯，你就能放心地验证任何来路的程序，而不必担心弄脏自己的机器。\u003c/p>"}</script>
   <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
   <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
