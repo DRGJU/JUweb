@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>用沙箱验证程序：在隔离环境里安全运行不信任的代码 | 墨迹</title>
-  <meta name="description" content="沙箱能在受限的隔离环境中运行程序，既能验证行为又不污染宿主。本文梳理容器、Firejail、gVisor 等常见方案，以及一套可复用的验证流程。">
+  <title>用沙箱验证程序：隔离模型、可复制的容器配方与结果判读 | 墨迹</title>
+  <meta name="description" content="不只是 docker run --network none。从威胁模型与隔离层次对比讲起，给出一份带 cap-drop、只读根文件系统、资源限额的完整验证配方，讲清如何观察文件/网络/系统调用变化、怎样设计判定标准，以及容器不是安全边界这一关键局限。">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="用沙箱验证程序：在隔离环境里安全运行不信任的代码">
-  <meta property="og:description" content="沙箱能在受限的隔离环境中运行程序，既能验证行为又不污染宿主。本文梳理容器、Firejail、gVisor 等常见方案，以及一套可复用的验证流程。">
+  <meta property="og:title" content="用沙箱验证程序：隔离模型、可复制的容器配方与结果判读">
+  <meta property="og:description" content="不只是 docker run --network none。从威胁模型与隔离层次对比讲起，给出一份带 cap-drop、只读根文件系统、资源限额的完整验证配方，讲清如何观察文件/网络/系统调用变化、怎样设计判定标准，以及容器不是安全边界这一关键局限。">
   <meta property="og:url" content="https://drgju.github.io/JUweb/posts/9.html">
   <meta property="article:published_time" content="2026-11-12">
   <link rel="canonical" href="https://drgju.github.io/JUweb/posts/9.html">
@@ -21,7 +21,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 14 期，2026-11-12</span>
+      <span class="masthead__edition">第 17 期，2026-11-12</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
@@ -34,48 +34,150 @@
     <article>
       <header class="post__head">
         <a class="post__back" href="../index.html">返回目录</a>
-        <h1 id="postTitle" class="post__title">用沙箱验证程序：在隔离环境里安全运行不信任的代码</h1>
+        <h1 id="postTitle" class="post__title">用沙箱验证程序：隔离模型、可复制的容器配方与结果判读</h1>
         <div class="post__meta">
           <span id="postCategory">技术</span>
           <time id="postDate" datetime="2026-11-12">2026-11-12</time>
         </div>
-        <div id="postTags" class="post__tags"><span class="post__tag">沙箱</span><span class="post__tag">安全</span><span class="post__tag">容器</span><span class="post__tag">隔离</span><span class="post__tag">验证</span></div>
+        <div id="postTags" class="post__tags"><span class="post__tag">沙箱</span><span class="post__tag">安全</span><span class="post__tag">Docker</span><span class="post__tag">隔离</span><span class="post__tag">seccomp</span><span class="post__tag">程序验证</span></div>
       </header>
       <div id="postContent" class="post__body"><figure>
-  <img src="https://images.pexels.com/photos/31343288/pexels-photo-31343288.jpeg" alt="屏幕上的彩色代码" />
-  <figcaption>屏幕上的彩色代码 · 图源 Pexels / peaky（免费授权）</figcaption>
+  <img src="https://images.pexels.com/photos/40097286/pexels-photo-40097286.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="曲线玻璃建筑的秩序与边界感" />
+  <figcaption>曲线玻璃建筑 · 图源 Pexels（免费授权）</figcaption>
 </figure>
+<p>「这段代码不知道安不安全，先跑一下看看」——这句话本身就藏着两个问题：<strong>跑在哪里</strong>，以及<strong>看什么才算看懂了</strong>。很多人以为 <code>docker run --network none</code> 就万事大吉，结果容器共享宿主机内核、挂载了 socket、以 root 运行，一旦碰到内核漏洞照样出事。这篇从威胁模型出发，给一份能直接复制的验证配方，再讲清楚结果该怎么判读、以及沙箱能力的天花板在哪。</p>
 
-<p>当你拿到一段来源不明、或只是想确认「它到底会做什么」的程序时，直接在本机运行风险很大：它可能改写系统文件、外联网络、甚至尝试提权。沙箱（Sandbox）的价值，就是给程序一个「受限的小房间」——在里面它该跑能跑，但出不了门、动不了宿主。</p>
-<h2>为什么需要沙箱</h2>
-<p>验证程序的常见诉求有三类：确认行为是否符合预期、隔离潜在有害操作、复现第三方或评判环境。沙箱让这些事在不信任代码的前提下变得安全——文件系统、网络、进程、系统调用都被边界框住，跑完即焚，宿主毫发无伤。</p>
-<h2>常见沙箱方案</h2>
-<ul>
-<li><strong>容器（Docker / Podman）</strong>：最常用。用命名空间（namespace）做轻量隔离，适合跑构建、跑测试、复现运行环境。</li>
-<li><strong>Firejail</strong>：轻量用户态沙箱，针对命令行与桌面程序，限制文件系统与网络访问。</li>
-<li><strong>systemd-nspawn</strong>：介于容器与虚拟机之间的系统容器，启动一个独立的 Linux 系统实例。</li>
-<li><strong>gVisor / Kata</strong>：用用户态内核拦截系统调用，隔离更强，常用于多租户云环境。</li>
-<li><strong>虚拟机</strong>：完整硬件虚拟化，隔离最彻底，代价是更重、更慢。</li>
-<li><strong>在线沙箱</strong>：各类判题系统、在线执行环境开箱即用，零本地配置，适合快速验证。</li>
-</ul>
-<h2>隔离要覆盖哪些维度</h2>
-<p>一个合格的验证沙箱至少应覆盖四个维度：<strong>文件系统</strong>（只读挂载、拒绝写入宿主）、<strong>网络</strong>（默认断网，按需开白名单）、<strong>进程</strong>（限制 PID 数量与权限）、<strong>系统调用</strong>（用 seccomp 裁剪危险调用）。四维都收口，才算把「房间」真正封住。</p>
-<h2>一个最小验证流程</h2>
-<p>以 Docker 为例，把待验证程序放进只读容器、断网运行，再检查退出码与挂载点变化：</p>
-<pre><code>docker run --rm \
+<h2>一、先写威胁模型，再选隔离手段</h2>
+<p>不可信程序的攻击面可以拆成六个维度，选沙箱时逐项对照：</p>
+<table>
+<thead><tr><th>维度</th><th>典型风险</th><th>对应的隔离手段</th></tr></thead>
+<tbody>
+<tr><td>文件系统</td><td>读写家目录、篡改 SSH 密钥、加密勒索</td><td>只读根文件系统、限定挂载、临时 tmpfs</td></tr>
+<tr><td>网络</td><td>回连 C2、外传数据、扫描内网</td><td><code>--network none</code>、独立 netns、出口白名单</td></tr>
+<tr><td>进程</td><td>fork 炸弹、窥探宿主进程、ptrace</td><td>pids cgroup、PID namespace、禁 ptrace</td></tr>
+<tr><td>权限</td><td>root 提权、加载内核模块、访问设备</td><td>非 root 用户、<code>--cap-drop ALL</code>、no-new-privileges</td></tr>
+<tr><td>系统调用</td><td>利用内核漏洞逃逸</td><td>seccomp profile、gVisor 用户态内核、VM 硬件隔离</td></tr>
+<tr><td>资源</td><td>CPU/内存/磁盘打满拖垮宿主</td><td>cgroup 限额、磁盘配额、超时强杀</td></tr>
+</tbody>
+</table>
+<p>注意最后两行：<strong>容器只隔离前四项的「视图」，不隔离内核本身</strong>。这正是容器与虚拟机的分水岭。</p>
+
+<h2>二、隔离层次对比：不是越重越好</h2>
+<table>
+<thead><tr><th>方案</th><th>隔离边界</th><th>启动开销</th><th>适用</th></tr></thead>
+<tbody>
+<tr><td>普通进程 + ulimit</td><td>几乎无隔离</td><td>极低</td><td>只防「写崩自己」，不防恶意代码</td></tr>
+<tr><td>chroot</td><td>仅文件系统视图</td><td>极低</td><td>历史方案，root 可轻易逃出，不推荐单独用</td></tr>
+<tr><td>容器（Docker/Podman）</td><td>共享宿主内核，靠 namespace + cgroup + capabilities</td><td>百毫秒级</td><td>日常验证、CI、依赖构建</td></tr>
+<tr><td>容器 + 严格 seccomp / gVisor</td><td>系统调用被大幅收窄或由用户态内核接管</td><td>秒级</td><td>跑来路不明的包、多租户场景</td></tr>
+<tr><td>Kata / 轻量 VM</td><td>每个容器一个独立内核</td><td>秒级</td><td>需要真安全边界</td></tr>
+<tr><td>完整虚拟机 / 快照</td><td>硬件级隔离 + 可一键回滚</td><td>十秒级</td><td>恶意样本分析、高风险验证</td></tr>
+<tr><td>WebAssembly</td><td>默认无 I/O 能力，按显式授权给接口</td><td>毫秒级</td><td>插件、沙箱内跑单个函数</td></tr>
+</tbody>
+</table>
+<blockquote>选择原则：<strong>风险来自「代码有多不可信」，不是「你有多小心」</strong>。验证自己写的小脚本用容器足够；分析来源不明的二进制，就该用一次性虚拟机 + 快照 + 隔离网段。</blockquote>
+
+<h2>三、一份可直接复制的 Docker 验证配方</h2>
+<pre><code>mkdir -p /tmp/sandbox/{in,out}
+cp suspicious.py /tmp/sandbox/in/
+
+docker run --rm \
   --network none \
   --read-only \
-  -v "$PWD/app:/app:ro" \
-  alpine:3.20 sh -c "cd /app &amp;&amp; ./run.sh; echo EXIT=$?"</code></pre>
-<p>这条命令做了四件事：<code>--network none</code> 断网、<code>--read-only</code> 让根文件系统只读、把代码以只读方式挂入、最后打印退出码。跑完看退出码与挂载目录是否被改动，就能判断程序是否「安分」。</p>
-<h2>注意事项</h2>
+  --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+  --cap-drop ALL \
+  --security-opt no-new-privileges \
+  --security-opt seccomp=./seccomp-default.json \
+  --pids-limit 64 \
+  --memory 256m --memory-swap 256m \
+  --cpus 0.5 \
+  --user 65534:65534 \
+  -v /tmp/sandbox/in:/input:ro \
+  -v /tmp/sandbox/out:/output:rw \
+  --stop-timeout 10 \
+  python:3.12-slim \
+  timeout 30s python /input/suspicious.py
+</code></pre>
+<table>
+<thead><tr><th>参数</th><th>挡住了什么</th><th>漏了会怎样</th></tr></thead>
+<tbody>
+<tr><td><code>--network none</code></td><td>一切网络收发</td><td>数据外传、下载二阶段载荷</td></tr>
+<tr><td><code>--read-only</code> + tmpfs</td><td>写入镜像层</td><td>程序可持久化驻留、改系统文件</td></tr>
+<tr><td><code>--cap-drop ALL</code></td><td>root 的能力位（挂载、raw socket、chown...）</td><td>容器内 root 仍能做出格操作</td></tr>
+<tr><td><code>no-new-privileges</code></td><td>通过 setuid 提权</td><td>setuid 二进制成为提权跳板</td></tr>
+<tr><td><code>seccomp</code></td><td>危险系统调用</td><td>内核攻击面暴露</td></tr>
+<tr><td><code>--pids-limit</code> / <code>--memory</code> / <code>--cpus</code></td><td>资源耗尽</td><td>fork 炸弹、OOM 拖垮宿主</td></tr>
+<tr><td><code>--user 65534</code></td><td>以 root 身份运行</td><td>与内核漏洞叠加时后果放大</td></tr>
+<tr><td><code>timeout 30s</code></td><td>永久挂起</td><td>验证任务卡死不返回</td></tr>
+<tr><td><code>-v ...:ro</code></td><td>输入被篡改</td><td>样本被程序自己改掉，结论失真</td></tr>
+</tbody>
+</table>
+<p><strong>三个最容易犯的错</strong>：把 <code>/var/run/docker.sock</code> 挂进容器（等于把宿主机 root 交出去）；用 <code>--privileged</code> 图省事（等于关掉全部隔离）；以及忘记 <code>--rm</code> 与超时，让验证容器长期驻留。</p>
+
+<h2>四、观察：不看行为就等于没验证</h2>
+<p>「跑完了没报错」不等于安全。至少要采集四类证据：</p>
+<ol>
+  <li><strong>退出码与输出</strong>：<code>echo $?</code>、stdout/stderr 全量留存；超时被杀要单独标记，不能当成正常结束。</li>
+  <li><strong>文件变化</strong>：验证前后对目录做快照比对。</li>
+  <li><strong>网络意图</strong>：即便禁网，也要知道它<em>想</em>连谁——用 DNS 黑洞或假 DNS 记录解析请求。</li>
+  <li><strong>系统调用</strong>：<code>strace</code> 记录 open/connect/execve，这是判断意图最直接的证据。</li>
+</ol>
+<pre><code># 文件变化（在宿主机对输出目录做快照）
+find /tmp/sandbox/out -type f -printf '%P %s\n' | sort &gt; after.txt
+diff -u before.txt after.txt
+
+# 系统调用轨迹
+strace -f -e trace=file,network,process -o trace.log \
+  python suspicious.py
+grep -E 'connect\(|execve\(|openat\(' trace.log | head -40
+</code></pre>
+<p>更严格的做法是把 <code>--network none</code> 换成一个<strong>受控的隔离网桥</strong>：容器能发流量，但出口连到一台记录一切的哑主机（无真实外网）。这样能看到完整的回连地址、payload 与协议，比直接禁网信息量大得多——前提是这台机器与生产网络彻底隔离。</p>
+
+<h2>五、判定标准：先写「预期」，再跑</h2>
+<p>没有基线的观察很容易自我说服。跑之前先列一张表：</p>
+<table>
+<thead><tr><th>检查项</th><th>预期</th><th>异常意味着</th></tr></thead>
+<tbody>
+<tr><td>读取的文件</td><td>仅 <code>/input</code> 与运行时库</td><td>尝试读 <code>/etc</code>、家目录 → 有探测行为</td></tr>
+<tr><td>写出的文件</td><td>仅 <code>/output</code> 中约定文件</td><td>往 /tmp、/root 写 → 有驻留意图</td></tr>
+<tr><td>网络请求</td><td>零</td><td>任何 connect / DNS 查询都要解释</td></tr>
+<tr><td>子进程</td><td>零或白名单内</td><td><code>execve("/bin/sh")</code> 是典型危险信号</td></tr>
+<tr><td>退出码</td><td>0</td><td>信号 9 = 超时被杀，需要单独复跑</td></tr>
+<tr><td>资源曲线</td><td>短时平稳</td><td>CPU 长期打满 → 挖矿或死循环</td></tr>
+</tbody>
+</table>
+<p>同时准备<strong>对照组</strong>：同一配方跑一个已知无害脚本，确认你的观察工具本身工作正常。只在实验组看到的现象才有意义。另外记住：<strong>一次没作恶 ≠ 安全</strong>。带时间触发、环境检测（检查是否在 VM / 是否有调试器）、或只在特定输入下激活的逻辑，都需要多轮、多环境、带变异输入地跑。</p>
+
+<h2>六、典型落地场景</h2>
 <ul>
-<li>沙箱不是万能保险箱：容器共享内核，仍存在逃逸风险，高威胁场景改用虚拟机。</li>
-<li>默认最小权限：不要图省事给 <code>--privileged</code>，也不要挂载 Docker socket。</li>
-<li>限制资源：用 <code>--memory</code>、<code>--cpus</code> 防止程序把机器跑瘫。</li>
-<li>验证要有对照：同一份代码在干净沙箱跑两次，行为一致才可信。</li>
+  <li><strong>安装第三方包前</strong>：重点看 <code>postinstall</code> / <code>setup.py</code> 阶段。先在沙箱里装一遍并采集网络与文件变化，再决定要不要装到开发机。</li>
+  <li><strong>CI 跑 PR 代码</strong>：Runner 必须是一次性、无长期凭据、禁访问内网与云元数据地址（169.254.169.254）。PR 触发的 workflow 尤其要防 token 泄露。</li>
+  <li><strong>教学 / 在线判题</strong>：需要极低启动开销，可用 gVisor 或 Wasm 沙箱，配合严格的时间与内存限额。</li>
+  <li><strong>恶意样本分析</strong>：超出容器能力范围，用离线一次性 VM、快照回滚、专用隔离网段，且由具备相应资质的人员在合规环境下进行。</li>
 </ul>
-<p>把「先隔离、再运行、后核对」变成习惯，你就能放心地验证任何来路的程序，而不必担心弄脏自己的机器。</p></div>
+
+<h2>七、必须承认的局限</h2>
+<ul>
+  <li><strong>共享内核</strong>：容器不是安全边界。内核 0day、错误的 seccomp 白名单、挂载进去的设备节点，都可能成为逃逸路径。</li>
+  <li><strong>侧信道与信息泄露</strong>：<code>/proc</code>、<code>/sys</code>、CPU 缓存、宿主机名与环境变量都会暴露宿主信息，足以让恶意代码判断「我在沙箱里」从而隐藏行为。</li>
+  <li><strong>时间与随机性</strong>：沙箱内的时钟、熵源与真实环境不同，依赖它们的行为可能不出现。</li>
+  <li><strong>DNS / 元数据泄漏</strong>：即使禁网，DNS 查询或云元数据接口也常被忽略，需单独封禁。</li>
+  <li><strong>镜像本身可信吗</strong>：用一个来路不明的基础镜像做沙箱，等于把问题提前引入了。</li>
+</ul>
+
+<h2>八、排障与检查清单</h2>
+<table>
+<thead><tr><th>现象</th><th>原因</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td>容器一启动就 permission denied</td><td>非 root 用户写只读文件系统</td><td>给 <code>/output</code> 与 tmpfs 可写权限，别直接去掉 <code>--read-only</code></td></tr>
+<tr><td>程序在沙箱里直接退出</td><td>检测到容器环境后自我终止</td><td>用 VM 复跑；对比 <code>/.dockerenv</code>、cgroup 信息</td></tr>
+<tr><td>结果和裸机不一致</td><td>缺依赖、glibc 版本、DNS 或时区差异</td><td>固定镜像 digest；显式注入 TZ 与依赖</td></tr>
+<tr><td>验证跑很久不结束</td><td>死循环或等待网络超时</td><td>内外双超时、pids-limit</td></tr>
+<tr><td>磁盘被写爆</td><td>只限了内存没限磁盘</td><td>tmpfs size、输出目录配额、<code>--storage-opt size=</code></td></tr>
+</tbody>
+</table>
+<p>动手前的固定清单：镜像来源与 digest 已确认 · 无敏感挂载（尤其 docker.sock） · 非 root · 禁网或隔离网段 · 只读根 + 有界可写目录 · 资源与超时双限额 · 证据采集已就位 · 预期行为表已写好 · 环境可一键销毁回滚。</p>
+<p>沙箱给的不是「安全」这个结论，而是<strong>一组可复查的证据</strong>。把配方、基线和判定表一起版本化，验证才从「感觉没问题」变成工程上可复现、可审计的步骤。</p></div>
       <div id="postActions" class="post__actions"></div>
     </article>
   </main>
@@ -84,7 +186,7 @@
     <div class="container colophon__inner">
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 14 期。</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 17 期。</p>
       </div>
       <div class="colophon__links">
         <a href="../index.html">文章归档</a>
@@ -94,7 +196,7 @@
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
-  <script type="application/json" id="post-data">{"id":9,"title":"用沙箱验证程序：在隔离环境里安全运行不信任的代码","excerpt":"沙箱能在受限的隔离环境中运行程序，既能验证行为又不污染宿主。本文梳理容器、Firejail、gVisor 等常见方案，以及一套可复用的验证流程。","date":"2026-11-12","category":"技术","tags":["沙箱","安全","容器","隔离","验证"],"content":"\u003cfigure>\n  \u003cimg src=\"https://images.pexels.com/photos/31343288/pexels-photo-31343288.jpeg\" alt=\"屏幕上的彩色代码\">\n  \u003cfigcaption>屏幕上的彩色代码 · 图源 Pexels / peaky（免费授权）\u003c/figcaption>\n\u003c/figure>\n\n\u003cp>当你拿到一段来源不明、或只是想确认「它到底会做什么」的程序时，直接在本机运行风险很大：它可能改写系统文件、外联网络、甚至尝试提权。沙箱（Sandbox）的价值，就是给程序一个「受限的小房间」——在里面它该跑能跑，但出不了门、动不了宿主。\u003c/p>\n\u003ch2>为什么需要沙箱\u003c/h2>\n\u003cp>验证程序的常见诉求有三类：确认行为是否符合预期、隔离潜在有害操作、复现第三方或评判环境。沙箱让这些事在不信任代码的前提下变得安全——文件系统、网络、进程、系统调用都被边界框住，跑完即焚，宿主毫发无伤。\u003c/p>\n\u003ch2>常见沙箱方案\u003c/h2>\n\u003cul>\n\u003cli>\u003cstrong>容器（Docker / Podman）\u003c/strong>：最常用。用命名空间（namespace）做轻量隔离，适合跑构建、跑测试、复现运行环境。\u003c/li>\n\u003cli>\u003cstrong>Firejail\u003c/strong>：轻量用户态沙箱，针对命令行与桌面程序，限制文件系统与网络访问。\u003c/li>\n\u003cli>\u003cstrong>systemd-nspawn\u003c/strong>：介于容器与虚拟机之间的系统容器，启动一个独立的 Linux 系统实例。\u003c/li>\n\u003cli>\u003cstrong>gVisor / Kata\u003c/strong>：用用户态内核拦截系统调用，隔离更强，常用于多租户云环境。\u003c/li>\n\u003cli>\u003cstrong>虚拟机\u003c/strong>：完整硬件虚拟化，隔离最彻底，代价是更重、更慢。\u003c/li>\n\u003cli>\u003cstrong>在线沙箱\u003c/strong>：各类判题系统、在线执行环境开箱即用，零本地配置，适合快速验证。\u003c/li>\n\u003c/ul>\n\u003ch2>隔离要覆盖哪些维度\u003c/h2>\n\u003cp>一个合格的验证沙箱至少应覆盖四个维度：\u003cstrong>文件系统\u003c/strong>（只读挂载、拒绝写入宿主）、\u003cstrong>网络\u003c/strong>（默认断网，按需开白名单）、\u003cstrong>进程\u003c/strong>（限制 PID 数量与权限）、\u003cstrong>系统调用\u003c/strong>（用 seccomp 裁剪危险调用）。四维都收口，才算把「房间」真正封住。\u003c/p>\n\u003ch2>一个最小验证流程\u003c/h2>\n\u003cp>以 Docker 为例，把待验证程序放进只读容器、断网运行，再检查退出码与挂载点变化：\u003c/p>\n\u003cpre>\u003ccode>docker run --rm \\\n  --network none \\\n  --read-only \\\n  -v \"$PWD/app:/app:ro\" \\\n  alpine:3.20 sh -c \"cd /app &amp;&amp; ./run.sh; echo EXIT=$?\"\u003c/code>\u003c/pre>\n\u003cp>这条命令做了四件事：\u003ccode>--network none\u003c/code> 断网、\u003ccode>--read-only\u003c/code> 让根文件系统只读、把代码以只读方式挂入、最后打印退出码。跑完看退出码与挂载目录是否被改动，就能判断程序是否「安分」。\u003c/p>\n\u003ch2>注意事项\u003c/h2>\n\u003cul>\n\u003cli>沙箱不是万能保险箱：容器共享内核，仍存在逃逸风险，高威胁场景改用虚拟机。\u003c/li>\n\u003cli>默认最小权限：不要图省事给 \u003ccode>--privileged\u003c/code>，也不要挂载 Docker socket。\u003c/li>\n\u003cli>限制资源：用 \u003ccode>--memory\u003c/code>、\u003ccode>--cpus\u003c/code> 防止程序把机器跑瘫。\u003c/li>\n\u003cli>验证要有对照：同一份代码在干净沙箱跑两次，行为一致才可信。\u003c/li>\n\u003c/ul>\n\u003cp>把「先隔离、再运行、后核对」变成习惯，你就能放心地验证任何来路的程序，而不必担心弄脏自己的机器。\u003c/p>"}</script>
+  <script type="application/json" id="post-data">{"id":9,"title":"用沙箱验证程序：隔离模型、可复制的容器配方与结果判读","excerpt":"不只是 docker run --network none。从威胁模型与隔离层次对比讲起，给出一份带 cap-drop、只读根文件系统、资源限额的完整验证配方，讲清如何观察文件/网络/系统调用变化、怎样设计判定标准，以及容器不是安全边界这一关键局限。","date":"2026-11-12","category":"技术","tags":["沙箱","安全","Docker","隔离","seccomp","程序验证"],"content":"\u003cfigure>\n  \u003cimg src=\"https://images.pexels.com/photos/40097286/pexels-photo-40097286.jpeg?auto=compress&cs=tinysrgb&w=1280\" alt=\"曲线玻璃建筑的秩序与边界感\">\n  \u003cfigcaption>曲线玻璃建筑 · 图源 Pexels（免费授权）\u003c/figcaption>\n\u003c/figure>\n\u003cp>「这段代码不知道安不安全，先跑一下看看」——这句话本身就藏着两个问题：\u003cstrong>跑在哪里\u003c/strong>，以及\u003cstrong>看什么才算看懂了\u003c/strong>。很多人以为 \u003ccode>docker run --network none\u003c/code> 就万事大吉，结果容器共享宿主机内核、挂载了 socket、以 root 运行，一旦碰到内核漏洞照样出事。这篇从威胁模型出发，给一份能直接复制的验证配方，再讲清楚结果该怎么判读、以及沙箱能力的天花板在哪。\u003c/p>\n\n\u003ch2>一、先写威胁模型，再选隔离手段\u003c/h2>\n\u003cp>不可信程序的攻击面可以拆成六个维度，选沙箱时逐项对照：\u003c/p>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>维度\u003c/th>\u003cth>典型风险\u003c/th>\u003cth>对应的隔离手段\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>文件系统\u003c/td>\u003ctd>读写家目录、篡改 SSH 密钥、加密勒索\u003c/td>\u003ctd>只读根文件系统、限定挂载、临时 tmpfs\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>网络\u003c/td>\u003ctd>回连 C2、外传数据、扫描内网\u003c/td>\u003ctd>\u003ccode>--network none\u003c/code>、独立 netns、出口白名单\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>进程\u003c/td>\u003ctd>fork 炸弹、窥探宿主进程、ptrace\u003c/td>\u003ctd>pids cgroup、PID namespace、禁 ptrace\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>权限\u003c/td>\u003ctd>root 提权、加载内核模块、访问设备\u003c/td>\u003ctd>非 root 用户、\u003ccode>--cap-drop ALL\u003c/code>、no-new-privileges\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>系统调用\u003c/td>\u003ctd>利用内核漏洞逃逸\u003c/td>\u003ctd>seccomp profile、gVisor 用户态内核、VM 硬件隔离\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>资源\u003c/td>\u003ctd>CPU/内存/磁盘打满拖垮宿主\u003c/td>\u003ctd>cgroup 限额、磁盘配额、超时强杀\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>注意最后两行：\u003cstrong>容器只隔离前四项的「视图」，不隔离内核本身\u003c/strong>。这正是容器与虚拟机的分水岭。\u003c/p>\n\n\u003ch2>二、隔离层次对比：不是越重越好\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>方案\u003c/th>\u003cth>隔离边界\u003c/th>\u003cth>启动开销\u003c/th>\u003cth>适用\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>普通进程 + ulimit\u003c/td>\u003ctd>几乎无隔离\u003c/td>\u003ctd>极低\u003c/td>\u003ctd>只防「写崩自己」，不防恶意代码\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>chroot\u003c/td>\u003ctd>仅文件系统视图\u003c/td>\u003ctd>极低\u003c/td>\u003ctd>历史方案，root 可轻易逃出，不推荐单独用\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>容器（Docker/Podman）\u003c/td>\u003ctd>共享宿主内核，靠 namespace + cgroup + capabilities\u003c/td>\u003ctd>百毫秒级\u003c/td>\u003ctd>日常验证、CI、依赖构建\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>容器 + 严格 seccomp / gVisor\u003c/td>\u003ctd>系统调用被大幅收窄或由用户态内核接管\u003c/td>\u003ctd>秒级\u003c/td>\u003ctd>跑来路不明的包、多租户场景\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Kata / 轻量 VM\u003c/td>\u003ctd>每个容器一个独立内核\u003c/td>\u003ctd>秒级\u003c/td>\u003ctd>需要真安全边界\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>完整虚拟机 / 快照\u003c/td>\u003ctd>硬件级隔离 + 可一键回滚\u003c/td>\u003ctd>十秒级\u003c/td>\u003ctd>恶意样本分析、高风险验证\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>WebAssembly\u003c/td>\u003ctd>默认无 I/O 能力，按显式授权给接口\u003c/td>\u003ctd>毫秒级\u003c/td>\u003ctd>插件、沙箱内跑单个函数\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cblockquote>选择原则：\u003cstrong>风险来自「代码有多不可信」，不是「你有多小心」\u003c/strong>。验证自己写的小脚本用容器足够；分析来源不明的二进制，就该用一次性虚拟机 + 快照 + 隔离网段。\u003c/blockquote>\n\n\u003ch2>三、一份可直接复制的 Docker 验证配方\u003c/h2>\n\u003cpre>\u003ccode>mkdir -p /tmp/sandbox/{in,out}\ncp suspicious.py /tmp/sandbox/in/\n\ndocker run --rm \\\n  --network none \\\n  --read-only \\\n  --tmpfs /tmp:rw,noexec,nosuid,size=64m \\\n  --cap-drop ALL \\\n  --security-opt no-new-privileges \\\n  --security-opt seccomp=./seccomp-default.json \\\n  --pids-limit 64 \\\n  --memory 256m --memory-swap 256m \\\n  --cpus 0.5 \\\n  --user 65534:65534 \\\n  -v /tmp/sandbox/in:/input:ro \\\n  -v /tmp/sandbox/out:/output:rw \\\n  --stop-timeout 10 \\\n  python:3.12-slim \\\n  timeout 30s python /input/suspicious.py\n\u003c/code>\u003c/pre>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>参数\u003c/th>\u003cth>挡住了什么\u003c/th>\u003cth>漏了会怎样\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>\u003ccode>--network none\u003c/code>\u003c/td>\u003ctd>一切网络收发\u003c/td>\u003ctd>数据外传、下载二阶段载荷\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>--read-only\u003c/code> + tmpfs\u003c/td>\u003ctd>写入镜像层\u003c/td>\u003ctd>程序可持久化驻留、改系统文件\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>--cap-drop ALL\u003c/code>\u003c/td>\u003ctd>root 的能力位（挂载、raw socket、chown...）\u003c/td>\u003ctd>容器内 root 仍能做出格操作\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>no-new-privileges\u003c/code>\u003c/td>\u003ctd>通过 setuid 提权\u003c/td>\u003ctd>setuid 二进制成为提权跳板\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>seccomp\u003c/code>\u003c/td>\u003ctd>危险系统调用\u003c/td>\u003ctd>内核攻击面暴露\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>--pids-limit\u003c/code> / \u003ccode>--memory\u003c/code> / \u003ccode>--cpus\u003c/code>\u003c/td>\u003ctd>资源耗尽\u003c/td>\u003ctd>fork 炸弹、OOM 拖垮宿主\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>--user 65534\u003c/code>\u003c/td>\u003ctd>以 root 身份运行\u003c/td>\u003ctd>与内核漏洞叠加时后果放大\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>timeout 30s\u003c/code>\u003c/td>\u003ctd>永久挂起\u003c/td>\u003ctd>验证任务卡死不返回\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>-v ...:ro\u003c/code>\u003c/td>\u003ctd>输入被篡改\u003c/td>\u003ctd>样本被程序自己改掉，结论失真\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>\u003cstrong>三个最容易犯的错\u003c/strong>：把 \u003ccode>/var/run/docker.sock\u003c/code> 挂进容器（等于把宿主机 root 交出去）；用 \u003ccode>--privileged\u003c/code> 图省事（等于关掉全部隔离）；以及忘记 \u003ccode>--rm\u003c/code> 与超时，让验证容器长期驻留。\u003c/p>\n\n\u003ch2>四、观察：不看行为就等于没验证\u003c/h2>\n\u003cp>「跑完了没报错」不等于安全。至少要采集四类证据：\u003c/p>\n\u003col>\n  \u003cli>\u003cstrong>退出码与输出\u003c/strong>：\u003ccode>echo $?\u003c/code>、stdout/stderr 全量留存；超时被杀要单独标记，不能当成正常结束。\u003c/li>\n  \u003cli>\u003cstrong>文件变化\u003c/strong>：验证前后对目录做快照比对。\u003c/li>\n  \u003cli>\u003cstrong>网络意图\u003c/strong>：即便禁网，也要知道它\u003cem>想\u003c/em>连谁——用 DNS 黑洞或假 DNS 记录解析请求。\u003c/li>\n  \u003cli>\u003cstrong>系统调用\u003c/strong>：\u003ccode>strace\u003c/code> 记录 open/connect/execve，这是判断意图最直接的证据。\u003c/li>\n\u003c/ol>\n\u003cpre>\u003ccode># 文件变化（在宿主机对输出目录做快照）\nfind /tmp/sandbox/out -type f -printf '%P %s\\n' | sort &gt; after.txt\ndiff -u before.txt after.txt\n\n# 系统调用轨迹\nstrace -f -e trace=file,network,process -o trace.log \\\n  python suspicious.py\ngrep -E 'connect\\(|execve\\(|openat\\(' trace.log | head -40\n\u003c/code>\u003c/pre>\n\u003cp>更严格的做法是把 \u003ccode>--network none\u003c/code> 换成一个\u003cstrong>受控的隔离网桥\u003c/strong>：容器能发流量，但出口连到一台记录一切的哑主机（无真实外网）。这样能看到完整的回连地址、payload 与协议，比直接禁网信息量大得多——前提是这台机器与生产网络彻底隔离。\u003c/p>\n\n\u003ch2>五、判定标准：先写「预期」，再跑\u003c/h2>\n\u003cp>没有基线的观察很容易自我说服。跑之前先列一张表：\u003c/p>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>检查项\u003c/th>\u003cth>预期\u003c/th>\u003cth>异常意味着\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>读取的文件\u003c/td>\u003ctd>仅 \u003ccode>/input\u003c/code> 与运行时库\u003c/td>\u003ctd>尝试读 \u003ccode>/etc\u003c/code>、家目录 → 有探测行为\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>写出的文件\u003c/td>\u003ctd>仅 \u003ccode>/output\u003c/code> 中约定文件\u003c/td>\u003ctd>往 /tmp、/root 写 → 有驻留意图\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>网络请求\u003c/td>\u003ctd>零\u003c/td>\u003ctd>任何 connect / DNS 查询都要解释\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>子进程\u003c/td>\u003ctd>零或白名单内\u003c/td>\u003ctd>\u003ccode>execve(\"/bin/sh\")\u003c/code> 是典型危险信号\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>退出码\u003c/td>\u003ctd>0\u003c/td>\u003ctd>信号 9 = 超时被杀，需要单独复跑\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>资源曲线\u003c/td>\u003ctd>短时平稳\u003c/td>\u003ctd>CPU 长期打满 → 挖矿或死循环\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>同时准备\u003cstrong>对照组\u003c/strong>：同一配方跑一个已知无害脚本，确认你的观察工具本身工作正常。只在实验组看到的现象才有意义。另外记住：\u003cstrong>一次没作恶 ≠ 安全\u003c/strong>。带时间触发、环境检测（检查是否在 VM / 是否有调试器）、或只在特定输入下激活的逻辑，都需要多轮、多环境、带变异输入地跑。\u003c/p>\n\n\u003ch2>六、典型落地场景\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>安装第三方包前\u003c/strong>：重点看 \u003ccode>postinstall\u003c/code> / \u003ccode>setup.py\u003c/code> 阶段。先在沙箱里装一遍并采集网络与文件变化，再决定要不要装到开发机。\u003c/li>\n  \u003cli>\u003cstrong>CI 跑 PR 代码\u003c/strong>：Runner 必须是一次性、无长期凭据、禁访问内网与云元数据地址（169.254.169.254）。PR 触发的 workflow 尤其要防 token 泄露。\u003c/li>\n  \u003cli>\u003cstrong>教学 / 在线判题\u003c/strong>：需要极低启动开销，可用 gVisor 或 Wasm 沙箱，配合严格的时间与内存限额。\u003c/li>\n  \u003cli>\u003cstrong>恶意样本分析\u003c/strong>：超出容器能力范围，用离线一次性 VM、快照回滚、专用隔离网段，且由具备相应资质的人员在合规环境下进行。\u003c/li>\n\u003c/ul>\n\n\u003ch2>七、必须承认的局限\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>共享内核\u003c/strong>：容器不是安全边界。内核 0day、错误的 seccomp 白名单、挂载进去的设备节点，都可能成为逃逸路径。\u003c/li>\n  \u003cli>\u003cstrong>侧信道与信息泄露\u003c/strong>：\u003ccode>/proc\u003c/code>、\u003ccode>/sys\u003c/code>、CPU 缓存、宿主机名与环境变量都会暴露宿主信息，足以让恶意代码判断「我在沙箱里」从而隐藏行为。\u003c/li>\n  \u003cli>\u003cstrong>时间与随机性\u003c/strong>：沙箱内的时钟、熵源与真实环境不同，依赖它们的行为可能不出现。\u003c/li>\n  \u003cli>\u003cstrong>DNS / 元数据泄漏\u003c/strong>：即使禁网，DNS 查询或云元数据接口也常被忽略，需单独封禁。\u003c/li>\n  \u003cli>\u003cstrong>镜像本身可信吗\u003c/strong>：用一个来路不明的基础镜像做沙箱，等于把问题提前引入了。\u003c/li>\n\u003c/ul>\n\n\u003ch2>八、排障与检查清单\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>现象\u003c/th>\u003cth>原因\u003c/th>\u003cth>处理\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>容器一启动就 permission denied\u003c/td>\u003ctd>非 root 用户写只读文件系统\u003c/td>\u003ctd>给 \u003ccode>/output\u003c/code> 与 tmpfs 可写权限，别直接去掉 \u003ccode>--read-only\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>程序在沙箱里直接退出\u003c/td>\u003ctd>检测到容器环境后自我终止\u003c/td>\u003ctd>用 VM 复跑；对比 \u003ccode>/.dockerenv\u003c/code>、cgroup 信息\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>结果和裸机不一致\u003c/td>\u003ctd>缺依赖、glibc 版本、DNS 或时区差异\u003c/td>\u003ctd>固定镜像 digest；显式注入 TZ 与依赖\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>验证跑很久不结束\u003c/td>\u003ctd>死循环或等待网络超时\u003c/td>\u003ctd>内外双超时、pids-limit\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>磁盘被写爆\u003c/td>\u003ctd>只限了内存没限磁盘\u003c/td>\u003ctd>tmpfs size、输出目录配额、\u003ccode>--storage-opt size=\u003c/code>\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>动手前的固定清单：镜像来源与 digest 已确认 · 无敏感挂载（尤其 docker.sock） · 非 root · 禁网或隔离网段 · 只读根 + 有界可写目录 · 资源与超时双限额 · 证据采集已就位 · 预期行为表已写好 · 环境可一键销毁回滚。\u003c/p>\n\u003cp>沙箱给的不是「安全」这个结论，而是\u003cstrong>一组可复查的证据\u003c/strong>。把配方、基线和判定表一起版本化，验证才从「感觉没问题」变成工程上可复现、可审计的步骤。\u003c/p>"}</script>
   <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
   <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

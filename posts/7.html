@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry | 墨迹</title>
-  <meta name="description" content="不想再被 venv、pip、poetry、pyenv 来回折腾？Astral 出品的 uv 一个工具全包了。本文用 uv 为主线，讲清如何用它建环境、锁依赖、并用 .env 与 uv run 分离 dev/test/prod 多环境配置。">
+  <title>用 uv 管理 Python 多环境：从解析原理到 CI 与生产落地 | 墨迹</title>
+  <meta name="description" content="uv 不只是「更快的 pip」。讲清它如何用 Rust + 全局缓存 + 硬链接统一 Python 版本/虚拟环境/依赖/工具，给出 pyproject.toml、uv.lock、PEP 723 内联脚本、依赖分组、--env-file 与 uv sync --frozen 的完整多环境方案，附迁移与排障表。">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry">
-  <meta property="og:description" content="不想再被 venv、pip、poetry、pyenv 来回折腾？Astral 出品的 uv 一个工具全包了。本文用 uv 为主线，讲清如何用它建环境、锁依赖、并用 .env 与 uv run 分离 dev/test/prod 多环境配置。">
+  <meta property="og:title" content="用 uv 管理 Python 多环境：从解析原理到 CI 与生产落地">
+  <meta property="og:description" content="uv 不只是「更快的 pip」。讲清它如何用 Rust + 全局缓存 + 硬链接统一 Python 版本/虚拟环境/依赖/工具，给出 pyproject.toml、uv.lock、PEP 723 内联脚本、依赖分组、--env-file 与 uv sync --frozen 的完整多环境方案，附迁移与排障表。">
   <meta property="og:url" content="https://drgju.github.io/JUweb/posts/7.html">
   <meta property="article:published_time" content="2026-11-11">
   <link rel="canonical" href="https://drgju.github.io/JUweb/posts/7.html">
@@ -21,7 +21,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 14 期，2026-11-11</span>
+      <span class="masthead__edition">第 17 期，2026-11-11</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
@@ -34,76 +34,205 @@
     <article>
       <header class="post__head">
         <a class="post__back" href="../index.html">返回目录</a>
-        <h1 id="postTitle" class="post__title">用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry</h1>
+        <h1 id="postTitle" class="post__title">用 uv 管理 Python 多环境：从解析原理到 CI 与生产落地</h1>
         <div class="post__meta">
           <span id="postCategory">技术</span>
           <time id="postDate" datetime="2026-11-11">2026-11-11</time>
         </div>
-        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">uv</span><span class="post__tag">环境配置</span><span class="post__tag">虚拟环境</span></div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">uv</span><span class="post__tag">环境配置</span><span class="post__tag">依赖管理</span><span class="post__tag">pyproject.toml</span><span class="post__tag">CI</span></div>
       </header>
-      <div id="postContent" class="post__body"><p>如果你还在用 <code>venv</code> 建环境、<code>pip</code> 装包、<code>poetry</code> 管依赖，那一定体会过它们各自的摩擦：<code>pip</code> 慢、<code>poetry</code> 重、Python 版本还得靠 <code>pyenv</code> 额外管理。最近两年，<strong>uv</strong> 这类一体化工具把这些事一把梭了。本文用 uv 为主线，讲清楚怎么用它做 Python 的多环境配置。</p>
+      <div id="postContent" class="post__body"><figure>
+  <img src="https://images.pexels.com/photos/20273065/pexels-photo-20273065.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="现代建筑玻璃幕墙的反射与秩序" />
+  <figcaption>建筑玻璃幕墙反射 · 图源 Pexels（免费授权）</figcaption>
+</figure>
+<p>过去配一套 Python 环境要拼四样东西：<code>pyenv</code> 管解释器、<code>venv</code> 建环境、<code>pip</code> 装包、<code>pip-tools</code> 或 <code>Poetry</code> 锁版本。它们各自有自己的缓存、配置和锁文件格式，拼起来又慢又容易不一致。<strong>uv</strong> 做的事，是把这四层合并成一个有统一数据模型的工具。这篇不谈「快多少倍」，重点讲它的模型、多环境怎么落地，以及从旧工具迁过来会踩什么。</p>
 
-<h2>1. 为什么是 uv</h2>
-<p><strong>uv</strong> 是 Astral（也就是做 <code>ruff</code> 的那家公司）用 Rust 写的 Python 包与环境管理器，极快，且<strong>一个工具替代 venv、pip、pip-tools、poetry、pyenv</strong>：建环境、装依赖、锁版本、切 Python 版本，全包了。</p>
-<pre><code># 安装 uv
-pip install uv
-# 或官方脚本
-curl -LsSf https://astral.sh/uv/install.sh | sh</code></pre>
+<h2>一、为什么快：不是换了语言这么简单</h2>
+<p>uv 由 Astral 用 Rust 编写，但速度优势主要来自<strong>架构决策</strong>，而非单纯的语言：</p>
+<ul>
+  <li><strong>统一解析器</strong>：一次性求解整个依赖图并生成 <code>uv.lock</code>，不再边装边解析、反复回溯；</li>
+  <li><strong>全局内容寻址缓存</strong>：下载过的 wheel 在 <code>~/.cache/uv</code> 只存一份；</li>
+  <li><strong>硬链接 / copy-on-write 安装</strong>：新建虚拟环境时把缓存里的包链接进 <code>site-packages</code>，几乎不复制文件，也不额外占磁盘；</li>
+  <li><strong>并行下载与安装</strong>：I/O 与解压全部并发；</li>
+  <li><strong>自带 Python 版本管理</strong>：<code>uv python install</code> 会下载 Astral 预构建的解释器，不必先装 pyenv。</li>
+</ul>
+<blockquote>推论：在 CI 里，只要缓存目录命中，<code>uv sync</code> 常常比「恢复一个打包好的 venv」还快。所以现代做法是缓存 uv 的 cache 目录，而不是缓存虚拟环境本身。</blockquote>
 
-<h2>2. 一条命令建环境</h2>
-<p>uv 内置虚拟环境管理，还能自动下载指定版本的 Python，不再需要单独装 pyenv：</p>
-<pre><code># 创建虚拟环境（自动使用项目声明的 Python 版本）
-uv venv
+<h2>二、三个工作模型，别混用</h2>
+<table>
+<thead><tr><th>模型</th><th>入口</th><th>适用</th><th>产物</th></tr></thead>
+<tbody>
+<tr><td>项目</td><td><code>uv init</code> / <code>uv add</code></td><td>正式项目、多人协作、要部署</td><td><code>pyproject.toml</code> + <code>uv.lock</code> + <code>.venv</code></td></tr>
+<tr><td>脚本</td><td><code>uv run script.py</code></td><td>单文件小工具、一次性分析脚本</td><td>PEP 723 内联元数据，环境自动托管</td></tr>
+<tr><td>工具</td><td><code>uvx</code> / <code>uv tool</code></td><td>命令行程序（ruff、black、httpie）</td><td>独立隔离环境 + 可执行入口</td></tr>
+</tbody>
+</table>
 
-# 需要特定版本？uv 会自己下载
-uv python install 3.12
-uv venv --python 3.12</code></pre>
+<h2>三、项目模式：从零到可复现</h2>
+<pre><code>uv init myapp --python 3.12
+cd myapp
+uv add "fastapi&gt;=0.110" httpx
+uv add --group dev pytest ruff
+uv tree                     # 查看依赖树，找冲突源头
+uv run python -m pytest     # 不必手动 activate
+</code></pre>
+<p>生成的 <code>pyproject.toml</code> 里，运行依赖在 <code>[project.dependencies]</code>，开发依赖在 <code>[dependency-groups]</code>：</p>
+<pre><code>[project]
+name = "myapp"
+version = "0.1.0"
+requires-python = "&gt;=3.12"
+dependencies = ["fastapi&gt;=0.110", "httpx"]
 
-<h2>3. 依赖管理：uv add 与 uv.lock</h2>
-<p>uv 采用项目模式，依赖写在 <code>pyproject.toml</code>，并生成锁定文件 <code>uv.lock</code> 冻结整棵依赖树，保证所有人装到一模一样的版本：</p>
-<pre><code># 初始化项目并添加依赖
-uv init myproject
-cd myproject
-uv add requests flask
+[dependency-groups]
+dev = ["pytest", "ruff"]
+test = ["pytest", "pytest-cov"]
+</code></pre>
+<p><strong>几个容易忽略的点</strong>：</p>
+<ul>
+  <li><code>uv.lock</code> 是<strong>通用锁文件</strong>，记录全平台解析结果，应提交进 Git；它让 Windows 开发、Linux CI 装到同一套版本。</li>
+  <li><code>uv run</code> 会先隐式同步环境（等价于 <code>uv sync</code> 再执行），所以团队里不会再出现「我忘激活 venv，包装到全局去了」。</li>
+  <li><code>uv lock --upgrade-package X</code> 只升一个包，避免 <code>uv lock --upgrade</code> 把整个依赖树一起掀翻。</li>
+  <li><code>requires-python</code> 会约束解析范围，写太宽会让解析器为兼容旧版本选出很旧的依赖。</li>
+</ul>
 
-# 按锁定文件安装全部依赖（CI / 生产常用）
-uv sync</code></pre>
-<p>相比手写 <code>requirements.txt</code>，<code>uv.lock</code> 不用你手动固定每一个间接依赖，既省心又可靠。</p>
+<h2>四、多环境：把「环境」表达成配置，而不是目录</h2>
+<p>常见误区是为 dev/test/prod 各建一个虚拟环境。<strong>环境之间真正不同的通常只有两件事：装哪些依赖分组、注入什么配置</strong>。代码和解释器应保持一致。</p>
+<pre><code># 本地开发：装默认 + dev 组
+uv sync --group dev
 
-<h2>4. 跑起来：uv run</h2>
-<p>不用手动 <code>activate</code>，直接用 <code>uv run</code> 在受管环境里执行命令：</p>
-<pre><code>uv run python main.py
-uv run pytest</code></pre>
+# CI 测试：只装 test 组，严格按锁文件，不改锁
+uv sync --frozen --group test --no-dev
+uv run pytest -q
 
-<h2>5. 多环境配置：用 .env 分离配置</h2>
-<p>依赖解决了，配置呢？数据库地址、密钥等仍然<strong>不能写死在代码里</strong>。<code>uv run</code> 会自动加载项目根目录的 <code>.env</code>，也可以用 <code>--env-file</code> 指定不同环境的文件：</p>
-<pre><code># .env.prod
-DATABASE_URL=postgresql://user:pass@db/prod
-DEBUG=false
+# 生产：只装运行依赖，不装任何开发组
+uv sync --frozen --no-dev --no-install-project
+</code></pre>
+<table>
+<thead><tr><th>参数</th><th>语义</th><th>用在哪</th></tr></thead>
+<tbody>
+<tr><td><code>--frozen</code></td><td>严格按 <code>uv.lock</code> 安装，不解析、不改写锁文件</td><td>CI / 生产必备，保证与本地一致</td></tr>
+<tr><td><code>--no-dev</code></td><td>不装默认 dev 组</td><td>生产镜像</td></tr>
+<tr><td><code>--group NAME</code></td><td>额外安装指定依赖组</td><td>CI 装 test、文档组等</td></tr>
+<tr><td><code>--no-install-project</code></td><td>只装依赖，不把项目本身装进环境</td><td>多阶段构建、只复制 site-packages 时</td></tr>
+<tr><td><code>--active</code></td><td>装进当前已激活的 VIRTUAL_ENV</td><td>对接既有 IDE / 系统环境</td></tr>
+</tbody>
+</table>
 
-# 用生产配置运行
-uv run --env-file .env.prod python main.py</code></pre>
-<p>代码中照常通过环境变量读取：</p>
-<pre><code>import os
-db_url = os.environ.get("DATABASE_URL")
-debug = os.environ.get("DEBUG") == "true"</code></pre>
+<h3>配置与密钥分离</h3>
+<p>环境差异放在<strong>环境变量</strong>而不是代码分支里（12-Factor）。uv 支持 <code>--env-file</code>，且变量会传给被启动的进程：</p>
+<pre><code># .env.dev / .env.test / .env.prod 均不入库，只在 .gitignore 里留 .env
+uv run --env-file .env.dev  python main.py
+uv run --env-file .env.prod uvicorn app:app --host 0.0.0.0
+</code></pre>
+<pre><code># 建议的目录结构
+myapp/
+├── pyproject.toml        # 依赖声明（入库）
+├── uv.lock               # 锁定版本（入库）
+├── .python-version       # 固定解释器版本（入库）
+├── .env.example          # 配置项模板（入库，无真实值）
+├── .env.dev              # 本地配置（不入库）
+├── src/myapp/            # 源码
+└── tests/
+</code></pre>
+<blockquote>不要把 <code>.env.prod</code> 打进镜像。生产环境由编排系统（K8s Secret、CI 变量）注入，镜像里只留代码和依赖。</blockquote>
 
-<h2>6. 一套代码，三套环境落地</h2>
-<p>把依赖与配置按环境分开，目录可以长这样：</p>
-<pre><code>myproject/
-├── .env.dev        # 开发配置
-├── .env.prod       # 生产配置
-├── pyproject.toml  # uv 管理依赖
-├── uv.lock         # 锁定全部依赖
-├── src/
-└── tests/</code></pre>
-<p>推荐流程：本地 <code>uv venv</code> + <code>uv add</code> 开发，提交 <code>uv.lock</code>；CI 用测试配置跑 <code>uv run pytest</code>；生产用 <code>uv sync --frozen</code> 安装锁定版本，并通过 <code>--env-file .env.prod</code> 或注入环境变量加载生产配置。</p>
+<h2>五、PEP 723：单文件脚本的杀手锏</h2>
+<p>一个数据分析脚本想用 pandas，又不想为它建项目？把依赖直接写在文件头：</p>
+<pre><code># /// script
+# requires-python = "&gt;=3.11"
+# dependencies = ["pandas&gt;=2.2", "matplotlib"]
+# ///
+import pandas as pd
+print(pd.read_csv("data.csv").describe())
+</code></pre>
+<pre><code>uv run report.py                  # 自动建临时环境、装依赖、执行
+uv run --with rich report.py      # 临时再加一个依赖，不改文件
+uv add --script report.py polars  # 把依赖固化进脚本头
+</code></pre>
+<p>环境由 uv 托管在缓存里，脚本可以随手发给同事，对方只要有 uv 就能跑。<strong>这比「发个 requirements.txt 让人自己建环境」可靠得多</strong>，也适合放在 CI 里跑零散维护任务。</p>
 
-<h2>7. 与十二要素（12-Factor）的关系</h2>
-<p>业界 <strong>12-Factor App</strong> 主张「配置来自环境变量」。uv 的 <code>--env-file</code> 与自动加载 <code>.env</code> 正好契合这一点：同一份构建产物，靠环境变量切换 dev / test / prod，是 CI/CD 和多环境部署的基石。</p>
+<h2>六、命令行工具：uvx 取代 pipx</h2>
+<pre><code>uvx ruff check .              # 临时运行，不装到项目
+uv tool install ruff          # 常驻安装到独立隔离环境
+uv tool list / uv tool upgrade --all
+uvx --from "httpie&gt;=3" http GET https://example.com
+</code></pre>
+<p>每个工具独享一个环境，<strong>工具之间的依赖不会互相污染，也不会污染项目</strong>。这解决了「全局 pip 装了 black 又装 yapf，版本打架」的老问题。</p>
 
-<h2>结语</h2>
-<p>用 uv 做多环境配置，核心就三步：<strong>uv venv 隔离依赖、uv.lock 锁定版本、.env + uv run --env-file 分离配置</strong>。一个工具顶替过去四五个，速度快、心智负担小。把这套流程建立起来，多环境部署会顺滑很多。</p></div>
+<h2>七、Monorepo 与私有源</h2>
+<pre><code># 根 pyproject.toml
+[tool.uv.workspace]
+members = ["packages/*"]
+
+# 成员间互相依赖
+[tool.uv.sources]
+core = { workspace = true }
+</code></pre>
+<p>工作区共享同一份 <code>uv.lock</code>，一次解析所有成员，避免各子包锁到不同版本。私有索引用 <code>[[tool.uv.index]]</code> 或 <code>UV_INDEX_URL</code> 配置，<code>UV_NO_INDEX=1</code> 可强制完全离线（内网气隙环境常用）。</p>
+
+<h2>八、从旧工具迁移</h2>
+<table>
+<thead><tr><th>原来</th><th>uv 等价</th><th>注意</th></tr></thead>
+<tbody>
+<tr><td><code>python -m venv .venv</code></td><td><code>uv venv</code></td><td>uv 会自动挑 <code>.python-version</code> 指定的解释器</td></tr>
+<tr><td><code>pip install -r requirements.txt</code></td><td><code>uv pip install -r requirements.txt</code></td><td>过渡期可直接用 pip 兼容子命令</td></tr>
+<tr><td><code>pip-compile</code></td><td><code>uv pip compile</code></td><td>或直接转 <code>uv.lock</code></td></tr>
+<tr><td><code>poetry add</code></td><td><code>uv add</code></td><td><code>poetry.lock</code> 不能直接复用，需重新解析</td></tr>
+<tr><td><code>pyenv install 3.12</code></td><td><code>uv python install 3.12</code></td><td>uv 管的是自己下载的解释器，不接管系统 Python</td></tr>
+<tr><td><code>pipx run ruff</code></td><td><code>uvx ruff</code></td><td>概念一一对应，速度更快</td></tr>
+</tbody>
+</table>
+
+<h2>九、CI 与生产镜像</h2>
+<pre><code># GitHub Actions 片段
+- uses: astral-sh/setup-uv@v5
+  with:
+    enable-cache: true
+    cache-dependency-glob: "uv.lock"
+- run: uv python install
+- run: uv sync --frozen --group test
+- run: uv run pytest -q
+</code></pre>
+<pre><code># 多阶段 Dockerfile：构建期装依赖，运行期只复制环境
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+
+FROM python:3.12-slim-bookworm
+WORKDIR /app
+COPY --from=builder /app/.venv /app/.venv
+COPY src/ ./src/
+ENV PATH="/app/.venv/bin:$PATH"
+CMD ["python", "-m", "myapp"]
+</code></pre>
+<p>要点：构建阶段先只 COPY 两个清单文件再 <code>uv sync</code>，能最大化利用 Docker 层缓存；运行镜像里<strong>不需要 uv 本身</strong>，只带 <code>.venv</code>，体积更小、攻击面更小。</p>
+
+<h2>十、排障表</h2>
+<table>
+<thead><tr><th>现象</th><th>原因</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td><code>uv sync</code> 在 CI 报锁文件过期</td><td>pyproject.toml 改了但没重跑 <code>uv lock</code></td><td>本地 <code>uv lock</code> 并提交新的 <code>uv.lock</code>；CI 用 <code>--frozen</code> 显式暴露问题</td></tr>
+<tr><td>找不到指定 Python 版本</td><td>系统没装且未允许自动下载</td><td><code>uv python install 3.12</code>；或设 <code>UV_PYTHON_DOWNLOADS=never</code> 走系统解释器</td></tr>
+<tr><td>内网装包超时</td><td>默认走 PyPI</td><td>配 <code>UV_INDEX_URL</code> / <code>[[tool.uv.index]]</code>；气隙环境用 <code>UV_NO_INDEX=1</code> + 本地 wheelhouse</td></tr>
+<tr><td>缓存把磁盘占满</td><td>全局缓存长期累积</td><td><code>uv cache prune</code>；CI 里按 <code>uv.lock</code> 哈希做缓存键</td></tr>
+<tr><td>Windows 上包装到了奇怪位置</td><td>曾手动 activate 过别的 venv</td><td>清掉 <code>VIRTUAL_ENV</code>；用 <code>uv run</code> 而不是手动激活</td></tr>
+<tr><td>改了源码但 <code>uv run</code> 用的还是旧代码</td><td>项目被以非 editable 方式安装</td><td><code>uv add --editable .</code> 或检查 build-system 配置</td></tr>
+<tr><td>依赖解析与 pip 结果不同</td><td>uv 用统一解析、严格遵循 requires-python</td><td>用 <code>uv tree</code> 定位；必要时 <code>uv pip install</code> 过渡</td></tr>
+</tbody>
+</table>
+
+<h2>十一、命令速查</h2>
+<pre><code>uv python install 3.12 / uv python list / uv python pin 3.12
+uv init / uv venv / uv add / uv remove / uv lock --upgrade
+uv sync --frozen / uv run / uv tree
+uv run --with X script.py      # PEP 723 脚本
+uvx ruff check .               # 临时工具
+uv tool install / uv tool upgrade --all
+uv pip compile / uv pip install -r requirements.txt   # 兼容层
+uv cache prune / uv cache dir
+</code></pre>
+<p>把 uv 的价值理解成「<strong>统一的数据模型</strong>」而不是「更快的 pip」，多环境方案自然就清晰了：一份 <code>pyproject.toml</code> 声明依赖、一份 <code>uv.lock</code> 冻结版本、依赖分组区分用途、环境变量注入差异、CI 与生产一律 <code>--frozen</code>。环境不再是一个个需要手工维护的目录，而是可复现的构建产物。</p></div>
       <div id="postActions" class="post__actions"></div>
     </article>
   </main>
@@ -112,7 +241,7 @@ debug = os.environ.get("DEBUG") == "true"</code></pre>
     <div class="container colophon__inner">
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 14 期。</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 17 期。</p>
       </div>
       <div class="colophon__links">
         <a href="../index.html">文章归档</a>
@@ -122,7 +251,7 @@ debug = os.environ.get("DEBUG") == "true"</code></pre>
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
-  <script type="application/json" id="post-data">{"id":7,"title":"用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry","excerpt":"不想再被 venv、pip、poetry、pyenv 来回折腾？Astral 出品的 uv 一个工具全包了。本文用 uv 为主线，讲清如何用它建环境、锁依赖、并用 .env 与 uv run 分离 dev/test/prod 多环境配置。","date":"2026-11-11","category":"技术","tags":["Python","uv","环境配置","虚拟环境"],"content":"\u003cp>如果你还在用 \u003ccode>venv\u003c/code> 建环境、\u003ccode>pip\u003c/code> 装包、\u003ccode>poetry\u003c/code> 管依赖，那一定体会过它们各自的摩擦：\u003ccode>pip\u003c/code> 慢、\u003ccode>poetry\u003c/code> 重、Python 版本还得靠 \u003ccode>pyenv\u003c/code> 额外管理。最近两年，\u003cstrong>uv\u003c/strong> 这类一体化工具把这些事一把梭了。本文用 uv 为主线，讲清楚怎么用它做 Python 的多环境配置。\u003c/p>\n\n\u003ch2>1. 为什么是 uv\u003c/h2>\n\u003cp>\u003cstrong>uv\u003c/strong> 是 Astral（也就是做 \u003ccode>ruff\u003c/code> 的那家公司）用 Rust 写的 Python 包与环境管理器，极快，且\u003cstrong>一个工具替代 venv、pip、pip-tools、poetry、pyenv\u003c/strong>：建环境、装依赖、锁版本、切 Python 版本，全包了。\u003c/p>\n\u003cpre>\u003ccode># 安装 uv\npip install uv\n# 或官方脚本\ncurl -LsSf https://astral.sh/uv/install.sh | sh\u003c/code>\u003c/pre>\n\n\u003ch2>2. 一条命令建环境\u003c/h2>\n\u003cp>uv 内置虚拟环境管理，还能自动下载指定版本的 Python，不再需要单独装 pyenv：\u003c/p>\n\u003cpre>\u003ccode># 创建虚拟环境（自动使用项目声明的 Python 版本）\nuv venv\n\n# 需要特定版本？uv 会自己下载\nuv python install 3.12\nuv venv --python 3.12\u003c/code>\u003c/pre>\n\n\u003ch2>3. 依赖管理：uv add 与 uv.lock\u003c/h2>\n\u003cp>uv 采用项目模式，依赖写在 \u003ccode>pyproject.toml\u003c/code>，并生成锁定文件 \u003ccode>uv.lock\u003c/code> 冻结整棵依赖树，保证所有人装到一模一样的版本：\u003c/p>\n\u003cpre>\u003ccode># 初始化项目并添加依赖\nuv init myproject\ncd myproject\nuv add requests flask\n\n# 按锁定文件安装全部依赖（CI / 生产常用）\nuv sync\u003c/code>\u003c/pre>\n\u003cp>相比手写 \u003ccode>requirements.txt\u003c/code>，\u003ccode>uv.lock\u003c/code> 不用你手动固定每一个间接依赖，既省心又可靠。\u003c/p>\n\n\u003ch2>4. 跑起来：uv run\u003c/h2>\n\u003cp>不用手动 \u003ccode>activate\u003c/code>，直接用 \u003ccode>uv run\u003c/code> 在受管环境里执行命令：\u003c/p>\n\u003cpre>\u003ccode>uv run python main.py\nuv run pytest\u003c/code>\u003c/pre>\n\n\u003ch2>5. 多环境配置：用 .env 分离配置\u003c/h2>\n\u003cp>依赖解决了，配置呢？数据库地址、密钥等仍然\u003cstrong>不能写死在代码里\u003c/strong>。\u003ccode>uv run\u003c/code> 会自动加载项目根目录的 \u003ccode>.env\u003c/code>，也可以用 \u003ccode>--env-file\u003c/code> 指定不同环境的文件：\u003c/p>\n\u003cpre>\u003ccode># .env.prod\nDATABASE_URL=postgresql://user:pass@db/prod\nDEBUG=false\n\n# 用生产配置运行\nuv run --env-file .env.prod python main.py\u003c/code>\u003c/pre>\n\u003cp>代码中照常通过环境变量读取：\u003c/p>\n\u003cpre>\u003ccode>import os\ndb_url = os.environ.get(\"DATABASE_URL\")\ndebug = os.environ.get(\"DEBUG\") == \"true\"\u003c/code>\u003c/pre>\n\n\u003ch2>6. 一套代码，三套环境落地\u003c/h2>\n\u003cp>把依赖与配置按环境分开，目录可以长这样：\u003c/p>\n\u003cpre>\u003ccode>myproject/\n├── .env.dev        # 开发配置\n├── .env.prod       # 生产配置\n├── pyproject.toml  # uv 管理依赖\n├── uv.lock         # 锁定全部依赖\n├── src/\n└── tests/\u003c/code>\u003c/pre>\n\u003cp>推荐流程：本地 \u003ccode>uv venv\u003c/code> + \u003ccode>uv add\u003c/code> 开发，提交 \u003ccode>uv.lock\u003c/code>；CI 用测试配置跑 \u003ccode>uv run pytest\u003c/code>；生产用 \u003ccode>uv sync --frozen\u003c/code> 安装锁定版本，并通过 \u003ccode>--env-file .env.prod\u003c/code> 或注入环境变量加载生产配置。\u003c/p>\n\n\u003ch2>7. 与十二要素（12-Factor）的关系\u003c/h2>\n\u003cp>业界 \u003cstrong>12-Factor App\u003c/strong> 主张「配置来自环境变量」。uv 的 \u003ccode>--env-file\u003c/code> 与自动加载 \u003ccode>.env\u003c/code> 正好契合这一点：同一份构建产物，靠环境变量切换 dev / test / prod，是 CI/CD 和多环境部署的基石。\u003c/p>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>用 uv 做多环境配置，核心就三步：\u003cstrong>uv venv 隔离依赖、uv.lock 锁定版本、.env + uv run --env-file 分离配置\u003c/strong>。一个工具顶替过去四五个，速度快、心智负担小。把这套流程建立起来，多环境部署会顺滑很多。\u003c/p>"}</script>
+  <script type="application/json" id="post-data">{"id":7,"title":"用 uv 管理 Python 多环境：从解析原理到 CI 与生产落地","excerpt":"uv 不只是「更快的 pip」。讲清它如何用 Rust + 全局缓存 + 硬链接统一 Python 版本/虚拟环境/依赖/工具，给出 pyproject.toml、uv.lock、PEP 723 内联脚本、依赖分组、--env-file 与 uv sync --frozen 的完整多环境方案，附迁移与排障表。","date":"2026-11-11","category":"技术","tags":["Python","uv","环境配置","依赖管理","pyproject.toml","CI"],"content":"\u003cfigure>\n  \u003cimg src=\"https://images.pexels.com/photos/20273065/pexels-photo-20273065.jpeg?auto=compress&cs=tinysrgb&w=1280\" alt=\"现代建筑玻璃幕墙的反射与秩序\">\n  \u003cfigcaption>建筑玻璃幕墙反射 · 图源 Pexels（免费授权）\u003c/figcaption>\n\u003c/figure>\n\u003cp>过去配一套 Python 环境要拼四样东西：\u003ccode>pyenv\u003c/code> 管解释器、\u003ccode>venv\u003c/code> 建环境、\u003ccode>pip\u003c/code> 装包、\u003ccode>pip-tools\u003c/code> 或 \u003ccode>Poetry\u003c/code> 锁版本。它们各自有自己的缓存、配置和锁文件格式，拼起来又慢又容易不一致。\u003cstrong>uv\u003c/strong> 做的事，是把这四层合并成一个有统一数据模型的工具。这篇不谈「快多少倍」，重点讲它的模型、多环境怎么落地，以及从旧工具迁过来会踩什么。\u003c/p>\n\n\u003ch2>一、为什么快：不是换了语言这么简单\u003c/h2>\n\u003cp>uv 由 Astral 用 Rust 编写，但速度优势主要来自\u003cstrong>架构决策\u003c/strong>，而非单纯的语言：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>统一解析器\u003c/strong>：一次性求解整个依赖图并生成 \u003ccode>uv.lock\u003c/code>，不再边装边解析、反复回溯；\u003c/li>\n  \u003cli>\u003cstrong>全局内容寻址缓存\u003c/strong>：下载过的 wheel 在 \u003ccode>~/.cache/uv\u003c/code> 只存一份；\u003c/li>\n  \u003cli>\u003cstrong>硬链接 / copy-on-write 安装\u003c/strong>：新建虚拟环境时把缓存里的包链接进 \u003ccode>site-packages\u003c/code>，几乎不复制文件，也不额外占磁盘；\u003c/li>\n  \u003cli>\u003cstrong>并行下载与安装\u003c/strong>：I/O 与解压全部并发；\u003c/li>\n  \u003cli>\u003cstrong>自带 Python 版本管理\u003c/strong>：\u003ccode>uv python install\u003c/code> 会下载 Astral 预构建的解释器，不必先装 pyenv。\u003c/li>\n\u003c/ul>\n\u003cblockquote>推论：在 CI 里，只要缓存目录命中，\u003ccode>uv sync\u003c/code> 常常比「恢复一个打包好的 venv」还快。所以现代做法是缓存 uv 的 cache 目录，而不是缓存虚拟环境本身。\u003c/blockquote>\n\n\u003ch2>二、三个工作模型，别混用\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>模型\u003c/th>\u003cth>入口\u003c/th>\u003cth>适用\u003c/th>\u003cth>产物\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>项目\u003c/td>\u003ctd>\u003ccode>uv init\u003c/code> / \u003ccode>uv add\u003c/code>\u003c/td>\u003ctd>正式项目、多人协作、要部署\u003c/td>\u003ctd>\u003ccode>pyproject.toml\u003c/code> + \u003ccode>uv.lock\u003c/code> + \u003ccode>.venv\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>脚本\u003c/td>\u003ctd>\u003ccode>uv run script.py\u003c/code>\u003c/td>\u003ctd>单文件小工具、一次性分析脚本\u003c/td>\u003ctd>PEP 723 内联元数据，环境自动托管\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>工具\u003c/td>\u003ctd>\u003ccode>uvx\u003c/code> / \u003ccode>uv tool\u003c/code>\u003c/td>\u003ctd>命令行程序（ruff、black、httpie）\u003c/td>\u003ctd>独立隔离环境 + 可执行入口\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\n\u003ch2>三、项目模式：从零到可复现\u003c/h2>\n\u003cpre>\u003ccode>uv init myapp --python 3.12\ncd myapp\nuv add \"fastapi&gt;=0.110\" httpx\nuv add --group dev pytest ruff\nuv tree                     # 查看依赖树，找冲突源头\nuv run python -m pytest     # 不必手动 activate\n\u003c/code>\u003c/pre>\n\u003cp>生成的 \u003ccode>pyproject.toml\u003c/code> 里，运行依赖在 \u003ccode>[project.dependencies]\u003c/code>，开发依赖在 \u003ccode>[dependency-groups]\u003c/code>：\u003c/p>\n\u003cpre>\u003ccode>[project]\nname = \"myapp\"\nversion = \"0.1.0\"\nrequires-python = \"&gt;=3.12\"\ndependencies = [\"fastapi&gt;=0.110\", \"httpx\"]\n\n[dependency-groups]\ndev = [\"pytest\", \"ruff\"]\ntest = [\"pytest\", \"pytest-cov\"]\n\u003c/code>\u003c/pre>\n\u003cp>\u003cstrong>几个容易忽略的点\u003c/strong>：\u003c/p>\n\u003cul>\n  \u003cli>\u003ccode>uv.lock\u003c/code> 是\u003cstrong>通用锁文件\u003c/strong>，记录全平台解析结果，应提交进 Git；它让 Windows 开发、Linux CI 装到同一套版本。\u003c/li>\n  \u003cli>\u003ccode>uv run\u003c/code> 会先隐式同步环境（等价于 \u003ccode>uv sync\u003c/code> 再执行），所以团队里不会再出现「我忘激活 venv，包装到全局去了」。\u003c/li>\n  \u003cli>\u003ccode>uv lock --upgrade-package X\u003c/code> 只升一个包，避免 \u003ccode>uv lock --upgrade\u003c/code> 把整个依赖树一起掀翻。\u003c/li>\n  \u003cli>\u003ccode>requires-python\u003c/code> 会约束解析范围，写太宽会让解析器为兼容旧版本选出很旧的依赖。\u003c/li>\n\u003c/ul>\n\n\u003ch2>四、多环境：把「环境」表达成配置，而不是目录\u003c/h2>\n\u003cp>常见误区是为 dev/test/prod 各建一个虚拟环境。\u003cstrong>环境之间真正不同的通常只有两件事：装哪些依赖分组、注入什么配置\u003c/strong>。代码和解释器应保持一致。\u003c/p>\n\u003cpre>\u003ccode># 本地开发：装默认 + dev 组\nuv sync --group dev\n\n# CI 测试：只装 test 组，严格按锁文件，不改锁\nuv sync --frozen --group test --no-dev\nuv run pytest -q\n\n# 生产：只装运行依赖，不装任何开发组\nuv sync --frozen --no-dev --no-install-project\n\u003c/code>\u003c/pre>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>参数\u003c/th>\u003cth>语义\u003c/th>\u003cth>用在哪\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>\u003ccode>--frozen\u003c/code>\u003c/td>\u003ctd>严格按 \u003ccode>uv.lock\u003c/code> 安装，不解析、不改写锁文件\u003c/td>\u003ctd>CI / 生产必备，保证与本地一致\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>--no-dev\u003c/code>\u003c/td>\u003ctd>不装默认 dev 组\u003c/td>\u003ctd>生产镜像\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>--group NAME\u003c/code>\u003c/td>\u003ctd>额外安装指定依赖组\u003c/td>\u003ctd>CI 装 test、文档组等\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>--no-install-project\u003c/code>\u003c/td>\u003ctd>只装依赖，不把项目本身装进环境\u003c/td>\u003ctd>多阶段构建、只复制 site-packages 时\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>--active\u003c/code>\u003c/td>\u003ctd>装进当前已激活的 VIRTUAL_ENV\u003c/td>\u003ctd>对接既有 IDE / 系统环境\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\n\u003ch3>配置与密钥分离\u003c/h3>\n\u003cp>环境差异放在\u003cstrong>环境变量\u003c/strong>而不是代码分支里（12-Factor）。uv 支持 \u003ccode>--env-file\u003c/code>，且变量会传给被启动的进程：\u003c/p>\n\u003cpre>\u003ccode># .env.dev / .env.test / .env.prod 均不入库，只在 .gitignore 里留 .env\nuv run --env-file .env.dev  python main.py\nuv run --env-file .env.prod uvicorn app:app --host 0.0.0.0\n\u003c/code>\u003c/pre>\n\u003cpre>\u003ccode># 建议的目录结构\nmyapp/\n├── pyproject.toml        # 依赖声明（入库）\n├── uv.lock               # 锁定版本（入库）\n├── .python-version       # 固定解释器版本（入库）\n├── .env.example          # 配置项模板（入库，无真实值）\n├── .env.dev              # 本地配置（不入库）\n├── src/myapp/            # 源码\n└── tests/\n\u003c/code>\u003c/pre>\n\u003cblockquote>不要把 \u003ccode>.env.prod\u003c/code> 打进镜像。生产环境由编排系统（K8s Secret、CI 变量）注入，镜像里只留代码和依赖。\u003c/blockquote>\n\n\u003ch2>五、PEP 723：单文件脚本的杀手锏\u003c/h2>\n\u003cp>一个数据分析脚本想用 pandas，又不想为它建项目？把依赖直接写在文件头：\u003c/p>\n\u003cpre>\u003ccode># /// script\n# requires-python = \"&gt;=3.11\"\n# dependencies = [\"pandas&gt;=2.2\", \"matplotlib\"]\n# ///\nimport pandas as pd\nprint(pd.read_csv(\"data.csv\").describe())\n\u003c/code>\u003c/pre>\n\u003cpre>\u003ccode>uv run report.py                  # 自动建临时环境、装依赖、执行\nuv run --with rich report.py      # 临时再加一个依赖，不改文件\nuv add --script report.py polars  # 把依赖固化进脚本头\n\u003c/code>\u003c/pre>\n\u003cp>环境由 uv 托管在缓存里，脚本可以随手发给同事，对方只要有 uv 就能跑。\u003cstrong>这比「发个 requirements.txt 让人自己建环境」可靠得多\u003c/strong>，也适合放在 CI 里跑零散维护任务。\u003c/p>\n\n\u003ch2>六、命令行工具：uvx 取代 pipx\u003c/h2>\n\u003cpre>\u003ccode>uvx ruff check .              # 临时运行，不装到项目\nuv tool install ruff          # 常驻安装到独立隔离环境\nuv tool list / uv tool upgrade --all\nuvx --from \"httpie&gt;=3\" http GET https://example.com\n\u003c/code>\u003c/pre>\n\u003cp>每个工具独享一个环境，\u003cstrong>工具之间的依赖不会互相污染，也不会污染项目\u003c/strong>。这解决了「全局 pip 装了 black 又装 yapf，版本打架」的老问题。\u003c/p>\n\n\u003ch2>七、Monorepo 与私有源\u003c/h2>\n\u003cpre>\u003ccode># 根 pyproject.toml\n[tool.uv.workspace]\nmembers = [\"packages/*\"]\n\n# 成员间互相依赖\n[tool.uv.sources]\ncore = { workspace = true }\n\u003c/code>\u003c/pre>\n\u003cp>工作区共享同一份 \u003ccode>uv.lock\u003c/code>，一次解析所有成员，避免各子包锁到不同版本。私有索引用 \u003ccode>[[tool.uv.index]]\u003c/code> 或 \u003ccode>UV_INDEX_URL\u003c/code> 配置，\u003ccode>UV_NO_INDEX=1\u003c/code> 可强制完全离线（内网气隙环境常用）。\u003c/p>\n\n\u003ch2>八、从旧工具迁移\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>原来\u003c/th>\u003cth>uv 等价\u003c/th>\u003cth>注意\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>\u003ccode>python -m venv .venv\u003c/code>\u003c/td>\u003ctd>\u003ccode>uv venv\u003c/code>\u003c/td>\u003ctd>uv 会自动挑 \u003ccode>.python-version\u003c/code> 指定的解释器\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>pip install -r requirements.txt\u003c/code>\u003c/td>\u003ctd>\u003ccode>uv pip install -r requirements.txt\u003c/code>\u003c/td>\u003ctd>过渡期可直接用 pip 兼容子命令\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>pip-compile\u003c/code>\u003c/td>\u003ctd>\u003ccode>uv pip compile\u003c/code>\u003c/td>\u003ctd>或直接转 \u003ccode>uv.lock\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>poetry add\u003c/code>\u003c/td>\u003ctd>\u003ccode>uv add\u003c/code>\u003c/td>\u003ctd>\u003ccode>poetry.lock\u003c/code> 不能直接复用，需重新解析\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>pyenv install 3.12\u003c/code>\u003c/td>\u003ctd>\u003ccode>uv python install 3.12\u003c/code>\u003c/td>\u003ctd>uv 管的是自己下载的解释器，不接管系统 Python\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>pipx run ruff\u003c/code>\u003c/td>\u003ctd>\u003ccode>uvx ruff\u003c/code>\u003c/td>\u003ctd>概念一一对应，速度更快\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\n\u003ch2>九、CI 与生产镜像\u003c/h2>\n\u003cpre>\u003ccode># GitHub Actions 片段\n- uses: astral-sh/setup-uv@v5\n  with:\n    enable-cache: true\n    cache-dependency-glob: \"uv.lock\"\n- run: uv python install\n- run: uv sync --frozen --group test\n- run: uv run pytest -q\n\u003c/code>\u003c/pre>\n\u003cpre>\u003ccode># 多阶段 Dockerfile：构建期装依赖，运行期只复制环境\nFROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder\nWORKDIR /app\nCOPY pyproject.toml uv.lock ./\nRUN uv sync --frozen --no-dev --no-install-project\n\nFROM python:3.12-slim-bookworm\nWORKDIR /app\nCOPY --from=builder /app/.venv /app/.venv\nCOPY src/ ./src/\nENV PATH=\"/app/.venv/bin:$PATH\"\nCMD [\"python\", \"-m\", \"myapp\"]\n\u003c/code>\u003c/pre>\n\u003cp>要点：构建阶段先只 COPY 两个清单文件再 \u003ccode>uv sync\u003c/code>，能最大化利用 Docker 层缓存；运行镜像里\u003cstrong>不需要 uv 本身\u003c/strong>，只带 \u003ccode>.venv\u003c/code>，体积更小、攻击面更小。\u003c/p>\n\n\u003ch2>十、排障表\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>现象\u003c/th>\u003cth>原因\u003c/th>\u003cth>处理\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>\u003ccode>uv sync\u003c/code> 在 CI 报锁文件过期\u003c/td>\u003ctd>pyproject.toml 改了但没重跑 \u003ccode>uv lock\u003c/code>\u003c/td>\u003ctd>本地 \u003ccode>uv lock\u003c/code> 并提交新的 \u003ccode>uv.lock\u003c/code>；CI 用 \u003ccode>--frozen\u003c/code> 显式暴露问题\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>找不到指定 Python 版本\u003c/td>\u003ctd>系统没装且未允许自动下载\u003c/td>\u003ctd>\u003ccode>uv python install 3.12\u003c/code>；或设 \u003ccode>UV_PYTHON_DOWNLOADS=never\u003c/code> 走系统解释器\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>内网装包超时\u003c/td>\u003ctd>默认走 PyPI\u003c/td>\u003ctd>配 \u003ccode>UV_INDEX_URL\u003c/code> / \u003ccode>[[tool.uv.index]]\u003c/code>；气隙环境用 \u003ccode>UV_NO_INDEX=1\u003c/code> + 本地 wheelhouse\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>缓存把磁盘占满\u003c/td>\u003ctd>全局缓存长期累积\u003c/td>\u003ctd>\u003ccode>uv cache prune\u003c/code>；CI 里按 \u003ccode>uv.lock\u003c/code> 哈希做缓存键\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Windows 上包装到了奇怪位置\u003c/td>\u003ctd>曾手动 activate 过别的 venv\u003c/td>\u003ctd>清掉 \u003ccode>VIRTUAL_ENV\u003c/code>；用 \u003ccode>uv run\u003c/code> 而不是手动激活\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>改了源码但 \u003ccode>uv run\u003c/code> 用的还是旧代码\u003c/td>\u003ctd>项目被以非 editable 方式安装\u003c/td>\u003ctd>\u003ccode>uv add --editable .\u003c/code> 或检查 build-system 配置\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>依赖解析与 pip 结果不同\u003c/td>\u003ctd>uv 用统一解析、严格遵循 requires-python\u003c/td>\u003ctd>用 \u003ccode>uv tree\u003c/code> 定位；必要时 \u003ccode>uv pip install\u003c/code> 过渡\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\n\u003ch2>十一、命令速查\u003c/h2>\n\u003cpre>\u003ccode>uv python install 3.12 / uv python list / uv python pin 3.12\nuv init / uv venv / uv add / uv remove / uv lock --upgrade\nuv sync --frozen / uv run / uv tree\nuv run --with X script.py      # PEP 723 脚本\nuvx ruff check .               # 临时工具\nuv tool install / uv tool upgrade --all\nuv pip compile / uv pip install -r requirements.txt   # 兼容层\nuv cache prune / uv cache dir\n\u003c/code>\u003c/pre>\n\u003cp>把 uv 的价值理解成「\u003cstrong>统一的数据模型\u003c/strong>」而不是「更快的 pip」，多环境方案自然就清晰了：一份 \u003ccode>pyproject.toml\u003c/code> 声明依赖、一份 \u003ccode>uv.lock\u003c/code> 冻结版本、依赖分组区分用途、环境变量注入差异、CI 与生产一律 \u003ccode>--frozen\u003c/code>。环境不再是一个个需要手工维护的目录，而是可复现的构建产物。\u003c/p>"}</script>
   <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
   <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

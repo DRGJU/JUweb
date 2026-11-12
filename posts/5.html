@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Windows 11 终端美化指南：从默认黑框到高颜值命令行 | 墨迹</title>
-  <meta name="description" content="Windows 11 自带的 Windows Terminal 远比老式 cmd 强大。本文带你一步步美化终端：更换等宽 Nerd 字体、自定义配色与亚克力背景、用 Oh My Posh 打造炫酷提示符，把命令行变成赏心悦目的工作台。">
+  <title>Windows 11 终端美化完全指南：从渲染原理到可维护的配置体系 | 墨迹</title>
+  <meta name="description" content="不止是换个配色。讲清终端 / Shell / ConPTY 三层关系、Nerd Font 与 PUA 字形的原理、settings.json 逐项配置、Oh My Posh 与 PSReadLine，附完整可复制配置与乱码、透明失效、SSH 主题不生效等排障表。">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Windows 11 终端美化指南：从默认黑框到高颜值命令行">
-  <meta property="og:description" content="Windows 11 自带的 Windows Terminal 远比老式 cmd 强大。本文带你一步步美化终端：更换等宽 Nerd 字体、自定义配色与亚克力背景、用 Oh My Posh 打造炫酷提示符，把命令行变成赏心悦目的工作台。">
+  <meta property="og:title" content="Windows 11 终端美化完全指南：从渲染原理到可维护的配置体系">
+  <meta property="og:description" content="不止是换个配色。讲清终端 / Shell / ConPTY 三层关系、Nerd Font 与 PUA 字形的原理、settings.json 逐项配置、Oh My Posh 与 PSReadLine，附完整可复制配置与乱码、透明失效、SSH 主题不生效等排障表。">
   <meta property="og:url" content="https://drgju.github.io/JUweb/posts/5.html">
   <meta property="article:published_time" content="2026-11-11">
   <link rel="canonical" href="https://drgju.github.io/JUweb/posts/5.html">
@@ -21,7 +21,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 14 期，2026-11-11</span>
+      <span class="masthead__edition">第 17 期，2026-11-11</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
@@ -34,106 +34,191 @@
     <article>
       <header class="post__head">
         <a class="post__back" href="../index.html">返回目录</a>
-        <h1 id="postTitle" class="post__title">Windows 11 终端美化指南：从默认黑框到高颜值命令行</h1>
+        <h1 id="postTitle" class="post__title">Windows 11 终端美化完全指南：从渲染原理到可维护的配置体系</h1>
         <div class="post__meta">
           <span id="postCategory">技术</span>
           <time id="postDate" datetime="2026-11-11">2026-11-11</time>
         </div>
-        <div id="postTags" class="post__tags"><span class="post__tag">Windows</span><span class="post__tag">终端美化</span><span class="post__tag">Windows Terminal</span><span class="post__tag">Oh My Posh</span></div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Windows Terminal</span><span class="post__tag">PowerShell</span><span class="post__tag">Oh My Posh</span><span class="post__tag">Nerd Font</span><span class="post__tag">终端美化</span><span class="post__tag">效率工具</span></div>
       </header>
-      <div id="postContent" class="post__body"><p>Windows 11 自带的 <strong>Windows Terminal</strong> 远比老式 cmd 黑框强大：多标签页、GPU 加速渲染、亚克力透明背景，还能自由更换字体与配色。本文带你一步步把默认终端美化成一个赏心悦目的工作台。</p>
+      <div id="postContent" class="post__body"><figure>
+  <img src="https://images.pexels.com/photos/9458996/pexels-photo-9458996.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="黑白现代建筑，立面线条克制" />
+  <figcaption>黑白建筑立面 · 图源 Pexels（免费授权）</figcaption>
+</figure>
+<p>大多数「终端美化教程」给你一份 <code>settings.json</code> 和一张效果图，复制完确实好看，但一旦出现方块乱码、透明失效、连上服务器图标全没了，就完全不知道该查哪里。这篇从<strong>渲染链路</strong>讲起，把每个配置项背后的原因说清楚，最后给一套能长期维护、不拖慢启动的配置体系。</p>
 
-<h2>1. 为什么要从 cmd 换到 Windows Terminal</h2>
-<p>旧版命令提示符（cmd）只能单窗口、字体丑、不可定制。Windows Terminal 是微软官方开源的现代终端，支持：</p>
+<h2>一、先厘清三层：终端、Shell、控制台</h2>
+<p>三者被混为一谈，是绝大多数困惑的来源：</p>
+<table>
+<thead><tr><th>层</th><th>职责</th><th>典型实现</th></tr></thead>
+<tbody>
+<tr><td>终端模拟器</td><td>画窗口、渲染字符与颜色、处理键盘鼠标、管标签页</td><td>Windows Terminal、Alacritty、WezTerm、iTerm2</td></tr>
+<tr><td>Shell</td><td>解析命令、展开变量、管作业与历史</td><td>PowerShell 7、bash、zsh、fish、cmd</td></tr>
+<tr><td>控制台宿主</td><td>提供字符 I/O 管道，把 Shell 的输出交给终端</td><td>ConPTY（现代）、conhost.exe（旧）</td></tr>
+</tbody>
+</table>
+<p><strong>关键结论</strong>：字体、配色、透明度、背景图属于<em>终端层</em>（<code>settings.json</code>）；提示符长什么样、有没有 Git 状态属于<em>Shell 层</em>（Oh My Posh + <code>$PROFILE</code>）。两者分开配置，改错了地方就会「明明配了却没变化」。</p>
+<p>Windows Terminal 通过 <strong>ConPTY</strong> 与 Shell 通信，它把传统的 Windows 控制台 API 翻译成标准 PTY 字节流，因此 ANSI 转义序列才能正常工作——这也是彩色提示符、进度条、全屏 TUI 能在 Windows 上跑起来的前提。老版 conhost 对 24 位真彩支持残缺，遇色块异常先确认自己没在跑 <code>conhost</code>。</p>
+
+<h2>二、字体：为什么必须装 Nerd Font</h2>
+<p>提示符里那些漂亮的分支、锁、语言图标，本质是<strong>字符</strong>，不是图片。它们落在 Unicode 的<strong>私有使用区（PUA, U+E000–U+F8FF）</strong>，普通字体没有对应字形，系统只能画一个「豆腐块」。</p>
+<p><strong>Nerd Font</strong> 项目把 Font Awesome、Octicons、Powerline 等图标集补丁进等宽字体，并把 Powerline 需要的三角分隔符补到正确码位。常用选择：</p>
 <ul>
-  <li><strong>多标签 / 多窗格：</strong>一个窗口里同时跑 PowerShell、WSL、cmd。</li>
-  <li><strong>等宽 Nerd 字体：</strong>正确显示各种图标与连字。</li>
-  <li><strong>亚克力与透明度：</strong>让终端融入桌面壁纸。</li>
-  <li><strong>完整配色方案：</strong>一键切换 Catppuccin、Tokyo Night 等主题。</li>
+  <li><code>CaskaydiaCove Nerd Font</code>（Cascadia Code 的 Nerd 版，与 Windows Terminal 最搭）；</li>
+  <li><code>JetBrainsMono Nerd Font</code>、<code>FiraCode Nerd Font</code>（连字漂亮）。</li>
 </ul>
+<pre><code># 用 winget 装（推荐，可批量可复现）
+winget install --id DEVCOM.JetBrainsMonoNerdFont -e
+# 或 Scoop
+scoop bucket add nerd-fonts
+scoop install CascadiaCode-NF
+</code></pre>
+<p>装完在「设置 → 字体」里确认为<strong>所有用户安装</strong>，只装给当前用户有时终端读不到。然后在 <code>settings.json</code> 里写<strong>完整字体名</strong>（不是文件名）：</p>
+<pre><code>"font": {
+  "face": "CaskaydiaCove Nerd Font",
+  "size": 11,
+  "weight": "normal"
+}
+</code></pre>
+<blockquote>字重别选 <code>light</code> 配透明背景，低对比度下长文极易疲劳。连字（ligatures）会把 <code>=&gt;</code>、<code>!=</code> 画成连体符号，喜欢与否因人而异，但<strong>调试时容易误读</strong>，代码审阅场景建议关掉。</blockquote>
 
-<h2>2. 第一步：安装并设为默认</h2>
-<p>Windows 11 已自带 Windows Terminal；若没有，用 winget 安装：</p>
-<pre><code>winget install --id Microsoft.WindowsTerminal -e</code></pre>
-<p>安装后在「设置 → 系统 → 面向开发人员」中，把<strong>终端</strong>的默认改为 Windows Terminal。</p>
-
-<h2>3. 第二步：换上等宽 Nerd 字体</h2>
-<p>很多图标（如 git 分支符号）需要 Nerd Font 才能显示，普通 Consolas 会变成豆腐块。推荐：</p>
-<ul>
-  <li><strong>Cascadia Code NF</strong>（微软官方，连字优雅）</li>
-  <li><strong>Fira Code NF</strong>（程序员最爱，连字丰富）</li>
-</ul>
-<p>从 <a href="https://www.nerdfonts.com" title="Nerd Fonts 官网" rel="noopener noreferrer">Nerd Fonts 官网</a> 下载安装后，打开终端设置（<code>Ctrl + ,</code>）→ 外观 → 字体，选择 <code>CascadiaCode NF</code>。</p>
-
-<h2>4. 第三步：配色方案与主题</h2>
-<p>Windows Terminal 内置几十种配色，也可导入社区主题。打开设置 → 配色方案，挑一款喜欢的，例如 <strong>Catppuccin Mocha</strong> 或 <strong>Tokyo Night</strong>。想全局统一，可在 <code>settings.json</code> 的 <code>profiles.defaults</code> 里指定：</p>
+<h2>三、settings.json 逐项拆解</h2>
+<p>在 Windows Terminal 里按 <code>Ctrl+,</code> 打开设置，左下「打开 JSON 文件」直接编辑。下面是一份可直接使用的最小完整配置：</p>
 <pre><code>{
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "defaultProfile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+  "initialCols": 120,
+  "initialRows": 32,
+  "copyOnSelect": true,
   "profiles": {
     "defaults": {
-      "font": { "face": "CascadiaCode NF", "size": 11 },
-      "colorScheme": "Catppuccin Mocha"
-    }
-  }
-}</code></pre>
-
-<h2>5. 第四步：亚克力背景与透明度</h2>
-<p>让终端半透明、透出桌面，是最容易出效果的一步：</p>
-<pre><code>{
-  "profiles": {
-    "defaults": {
-      "useAcrylic": true,
-      "acrylicOpacity": 0.85,
-      "background": "#1e1e2e"
-    }
-  }
-}</code></pre>
-<p><code>acrylicOpacity</code> 越接近 1 越不透明；调到 <code>0.7</code> 左右能隐约看到壁纸，质感最佳。</p>
-
-<h2>6. 第五步：用 Oh My Posh 美化提示符</h2>
-<p><strong>Oh My Posh</strong> 能把 PowerShell / bash / zsh 的提示符变成带 Git 状态、路径、耗时等信息的炫酷状态栏。</p>
-<h3>6.1 安装</h3>
-<pre><code>winget install JanDeDobbeleer.OhMyPosh -e
-oh-my-posh font install</code></pre>
-<h3>6.2 应用主题</h3>
-<p>在 PowerShell 中执行（主题路径可在 <code>$env:POSH_THEMES_PATH</code> 查看）：</p>
-<pre><code>oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\catppuccin.omp.json" | Invoke-Expression</code></pre>
-<h3>6.3 写入 $PROFILE 持久化</h3>
-<p>让每次启动自动加载：</p>
-<pre><code>notepad $PROFILE</code></pre>
-<p>在打开的文件里加入上面那条 <code>oh-my-posh init ...</code> 命令并保存即可。</p>
-
-<h2>7. 一份可直接用的 settings.json</h2>
-<p>把下面内容合并进 Windows Terminal 的 <code>settings.json</code>（设置 → 打开 JSON 文件），即可同时拥有字体、配色、透明背景：</p>
-<pre><code>{
-  "profiles": {
-    "defaults": {
-      "font": { "face": "CascadiaCode NF", "size": 11 },
+      "font": { "face": "CaskaydiaCove Nerd Font", "size": 11 },
       "colorScheme": "Catppuccin Mocha",
+      "opacity": 92,
       "useAcrylic": true,
-      "acrylicOpacity": 0.82,
-      "background": "#1e1e2e",
-      "cursorShape": "filledBox"
-    }
+      "padding": "12, 10",
+      "cursorShape": "bar",
+      "antialiasingMode": "cleartype",
+      "scrollbarState": "hidden",
+      "startingDirectory": "."
+    },
+    "list": []
   },
-  "schemes": [
-    {
-      "name": "Catppuccin Mocha",
-      "background": "#1e1e2e",
-      "foreground": "#cdd6f4",
-      "cursorColor": "#f5e0dc",
-      "black": "#45475a",
-      "red": "#f38ba8",
-      "green": "#a6e3a1",
-      "yellow": "#f9e2af",
-      "blue": "#89b4fa",
-      "purple": "#cba6f7",
-      "white": "#bac2de"
-    }
+  "schemes": [],
+  "actions": [
+    { "command": { "action": "copy", "singleLine": false }, "keys": "ctrl+c" },
+    { "command": "paste", "keys": "ctrl+v" },
+    { "command": { "action": "splitPane", "split": "auto" }, "keys": "alt+shift+d" },
+    { "command": "togglePaneZoom", "keys": "ctrl+shift+z" }
   ]
-}</code></pre>
+}
+</code></pre>
+<table>
+<thead><tr><th>配置</th><th>作用</th><th>取舍</th></tr></thead>
+<tbody>
+<tr><td><code>profiles.defaults</code></td><td>一次写给 PowerShell / cmd / WSL / SSH 全部 profile</td><td>优于逐个 profile 重复配置</td></tr>
+<tr><td><code>opacity</code> + <code>useAcrylic</code></td><td>亚克力模糊透明</td><td>会额外占 GPU；远程桌面、虚拟机里常被禁用而表现为不透明</td></tr>
+<tr><td><code>startingDirectory</code></td><td>启动目录；写 <code>.</code> 继承调用者位置</td><td>从资源管理器右键打开时特别有用</td></tr>
+<tr><td><code>scrollbarState</code></td><td>隐藏滚动条</td><td>纯视觉；排查长日志时反而碍事</td></tr>
+<tr><td><code>actions</code></td><td>键位绑定（旧版叫 <code>keybindings</code>）</td><td>新版统一用 <code>actions</code>，旧键会被覆盖</td></tr>
+<tr><td><code>bellStyle</code></td><td>响铃方式</td><td>设为 <code>none</code> 可去掉编译完成时的烦人提示音</td></tr>
+</tbody>
+</table>
 
-<h2>结语</h2>
-<p>到这里，你的 Windows 11 终端已经拥有了 Nerd 字体、协调配色、亚克力背景和精致的 Oh My Posh 提示符。一个好看的终端不仅能提升心情，也能让日常的命令行工作更顺手。继续探索主题与配置，把它调成属于你自己的样子吧。</p></div>
+<h3>配色：16 色不是随便挑的</h3>
+<p>终端程序只输出<strong>语义色号</strong>（black / red / green / yellow / blue / magenta / cyan / white 及各自的 bright 版本），具体显示成什么由 <code>colorScheme</code> 决定。所以换主题只是改一张 16 色映射表，程序完全不用改。自定义写法：</p>
+<pre><code>{
+  "name": "My Ink",
+  "background": "#1E1E2E",
+  "foreground": "#CDD6F4",
+  "cursorColor": "#F5E0DC",
+  "selectionBackground": "#585B7080",
+  "black": "#45475A",  "red": "#F38BA8",
+  "green": "#A6E3A1", "yellow": "#F9E2AF",
+  "blue": "#89B4FA",  "magenta": "#F5C2E7",
+  "cyan": "#94E2D5",  "white": "#BAC2DE",
+  "brightBlack": "#585B70", "brightRed": "#F38BA8",
+  "brightGreen": "#A6E3A1", "brightYellow": "#F9E2AF",
+  "brightBlue": "#89B4FA", "brightMagenta": "#F5C2E7",
+  "brightCyan": "#94E2D5", "brightWhite": "#A6ADC8"
+}
+</code></pre>
+<p>把它放进顶层 <code>schemes</code> 数组，再在 defaults 里引用 <code>"colorScheme": "My Ink"</code>。挑选时优先保证 <code>foreground</code> 与 <code>background</code> 的对比度，以及 <code>yellow</code> / <code>cyan</code> 在背景上清晰可读——很多「好看」的主题把注释色压得太暗，实际写代码很累。</p>
+
+<h2>四、提示符：Oh My Posh</h2>
+<p>终端画窗口，提示符由 Shell 生成。<strong>Oh My Posh</strong> 是跨 Shell 的提示符引擎，用 JSON 描述「显示哪些段（segment）」：</p>
+<pre><code>winget install --id JanDeDobbeleer.OhMyPosh -e
+# 查看可用主题
+Get-ChildItem "$env:POSH_THEMES_PATH" | Select-Object Name
+# 编辑 PowerShell 配置（会自动创建文件）
+notepad $PROFILE
+</code></pre>
+<p>在 <code>$PROFILE</code> 里只需两行：</p>
+<pre><code>oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\jandedobbeleer.omp.json" | Invoke-Expression
+Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+</code></pre>
+<p>第一次改 <code>$PROFILE</code> 常见报错「无法加载文件，因为在此系统上禁止运行脚本」，这是 PowerShell 执行策略，只需给<strong>当前用户</strong>放开：</p>
+<pre><code>Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+</code></pre>
+<table>
+<thead><tr><th>方案</th><th>优势</th><th>代价</th></tr></thead>
+<tbody>
+<tr><td>Oh My Posh</td><td>主题生态最大、跨 pwsh/bash/zsh、配置可读</td><td>依赖 Nerd Font；段太多会让每行启动变慢</td></tr>
+<tr><td>Starship</td><td>Rust 单二进制、极快、TOML 配置简洁</td><td>某些 Windows 特有段（如 IIS、注册表）不如 OMP 丰富</td></tr>
+<tr><td>纯手写 <code>prompt</code> 函数</td><td>零依赖、完全可控、启动最快</td><td>Git 状态、退出码、时长等要自己实现</td></tr>
+</tbody>
+</table>
+<p>提示符段不是越多越好：每多一个 <code>git</code>、<code>kubectl</code>、<code>azure</code> 段，每次回车都可能触发一次子进程。大仓库里明显卡顿，建议只保留路径、Git 状态、上条命令耗时与退出码。</p>
+
+<h2>五、Shell 层的体验增强</h2>
+<pre><code>Install-Module PSReadLine -Force -SkipPublisherCheck
+Install-Module Terminal-Icons -Repository PSGallery
+winget install --id ajeetdsouza.zoxide -e
+</code></pre>
+<pre><code># $PROFILE 片段
+Import-Module Terminal-Icons
+Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+Set-PSReadLineOption -PredictionViewStyle ListView
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+Invoke-Expression (& { (zoxide init powershell | Out-String) })
+</code></pre>
+<ul>
+  <li><strong>PSReadLine</strong>：语法高亮、历史预测、菜单式 Tab 补全，是提升手感的性价比之王；</li>
+  <li><strong>Terminal-Icons</strong>：<code>ls</code> 结果按扩展名显示图标，同样需要 Nerd Font；</li>
+  <li><strong>zoxide</strong>：记住常去目录，<code>z proj</code> 直达；<strong>fzf</strong> 做模糊历史检索（<code>Ctrl+R</code>）。</li>
+</ul>
+
+<h2>六、WSL、SSH 与远程会话</h2>
+<p>最容易困惑的一点：<strong>字体与配色由本地终端决定，提示符由远端 Shell 决定</strong>。所以——</p>
+<ul>
+  <li>连上服务器后图标变豆腐块，是因为远端没有 Oh My Posh / Nerd 字体配置；要么在远端也装，要么给该 SSH profile 配一个<strong>纯 ASCII 主题</strong>（很多主题提供 <code>.minimal</code> 或 <code>ascii</code> 变体）。</li>
+  <li>WSL 里的 <code>tmux</code>/<code>vim</code> 颜色发灰，通常是 <code>TERM</code> 未设为支持真彩的值，以及没开 <code>set -g default-terminal "tmux-256color"</code> 与 <code>set-option -ga terminal-overrides ",*:Tc"</code>。</li>
+  <li>远程桌面 / 虚拟机 / 部分显卡驱动下亚克力会被系统禁用，这不是配置写错。</li>
+</ul>
+
+<h2>七、排障对照表</h2>
+<table>
+<thead><tr><th>现象</th><th>根因</th><th>处理</th></tr></thead>
+<tbody>
+<tr><td>提示符全是方块 □</td><td>字体没带 PUA 字形，或字体名写错</td><td>装 Nerd Font；<code>settings.json</code> 用完整字体家族名；重启终端</td></tr>
+<tr><td>图标是问号 / 乱码</td><td>终端编码非 UTF-8</td><td>PowerShell 7 默认 UTF-8；旧 pwsh 5.1 需设 <code>$OutputEncoding</code> 与 <code>[Console]::OutputEncoding</code></td></tr>
+<tr><td>透明 / 亚克力无效</td><td>远程会话、省电模式、GPU 加速被禁</td><td>确认本机会话；检查「渲染引擎」设置；接受降级</td></tr>
+<tr><td>改了 settings.json 没生效</td><td>JSON 语法错、改的是旧版 profile、或改了 defaults 但具体 profile 有覆盖</td><td>Ctrl+, 里看错误提示；检查具体 profile 的同名键</td></tr>
+<tr><td>每次开新标签很慢</td><td>$PROFILE 里同步加载过多模块 / 提示符段</td><td>按需延迟加载；精简 OMP 段；用 <code>Measure-Command { . $PROFILE }</code> 定位</td></tr>
+<tr><td><code>$PROFILE</code> 报禁止运行脚本</td><td>ExecutionPolicy</td><td><code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code></td></tr>
+<tr><td>SSH 后主题丢失</td><td>远端 Shell 未配置</td><td>远端装 OMP 或用 ASCII 主题</td></tr>
+<tr><td>配色和效果图不一致</td><td>只改了 16 色里的普通色，程序实际用 bright 色</td><td>把 8 组 normal/bright 都定义齐</td></tr>
+</tbody>
+</table>
+
+<h2>八、把配置变成可维护的资产</h2>
+<ul>
+  <li>把 <code>settings.json</code>、<code>$PROFILE</code>、自定义 <code>.omp.json</code> 收进一个 dotfiles 仓库，用符号链接指回原位，换机器一条命令还原；</li>
+  <li>winget 导出依赖清单：<code>winget export -o dev-tools.json</code>，新机 <code>winget import</code>；</li>
+  <li>给配置加注释说明「为什么」，而不是留一堆抄来的片段；</li>
+  <li>美化以<strong>不牺牲可读性</strong>为底线：对比度、字号、行距、无干扰优先于炫技。</li>
+</ul>
+<p>真正好用的终端，是让你忘记它的存在——配色安静、提示信息恰好够用、每次回车都立刻响应。理解三层结构和 PUA 字形之后，任何新工具你都能自己判断该改哪一层。</p></div>
       <div id="postActions" class="post__actions"></div>
     </article>
   </main>
@@ -142,7 +227,7 @@ oh-my-posh font install</code></pre>
     <div class="container colophon__inner">
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 14 期。</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 17 期。</p>
       </div>
       <div class="colophon__links">
         <a href="../index.html">文章归档</a>
@@ -152,7 +237,7 @@ oh-my-posh font install</code></pre>
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
-  <script type="application/json" id="post-data">{"id":5,"title":"Windows 11 终端美化指南：从默认黑框到高颜值命令行","excerpt":"Windows 11 自带的 Windows Terminal 远比老式 cmd 强大。本文带你一步步美化终端：更换等宽 Nerd 字体、自定义配色与亚克力背景、用 Oh My Posh 打造炫酷提示符，把命令行变成赏心悦目的工作台。","date":"2026-11-11","category":"技术","tags":["Windows","终端美化","Windows Terminal","Oh My Posh"],"content":"\u003cp>Windows 11 自带的 \u003cstrong>Windows Terminal\u003c/strong> 远比老式 cmd 黑框强大：多标签页、GPU 加速渲染、亚克力透明背景，还能自由更换字体与配色。本文带你一步步把默认终端美化成一个赏心悦目的工作台。\u003c/p>\n\n\u003ch2>1. 为什么要从 cmd 换到 Windows Terminal\u003c/h2>\n\u003cp>旧版命令提示符（cmd）只能单窗口、字体丑、不可定制。Windows Terminal 是微软官方开源的现代终端，支持：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>多标签 / 多窗格：\u003c/strong>一个窗口里同时跑 PowerShell、WSL、cmd。\u003c/li>\n  \u003cli>\u003cstrong>等宽 Nerd 字体：\u003c/strong>正确显示各种图标与连字。\u003c/li>\n  \u003cli>\u003cstrong>亚克力与透明度：\u003c/strong>让终端融入桌面壁纸。\u003c/li>\n  \u003cli>\u003cstrong>完整配色方案：\u003c/strong>一键切换 Catppuccin、Tokyo Night 等主题。\u003c/li>\n\u003c/ul>\n\n\u003ch2>2. 第一步：安装并设为默认\u003c/h2>\n\u003cp>Windows 11 已自带 Windows Terminal；若没有，用 winget 安装：\u003c/p>\n\u003cpre>\u003ccode>winget install --id Microsoft.WindowsTerminal -e\u003c/code>\u003c/pre>\n\u003cp>安装后在「设置 → 系统 → 面向开发人员」中，把\u003cstrong>终端\u003c/strong>的默认改为 Windows Terminal。\u003c/p>\n\n\u003ch2>3. 第二步：换上等宽 Nerd 字体\u003c/h2>\n\u003cp>很多图标（如 git 分支符号）需要 Nerd Font 才能显示，普通 Consolas 会变成豆腐块。推荐：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>Cascadia Code NF\u003c/strong>（微软官方，连字优雅）\u003c/li>\n  \u003cli>\u003cstrong>Fira Code NF\u003c/strong>（程序员最爱，连字丰富）\u003c/li>\n\u003c/ul>\n\u003cp>从 \u003ca href=\"https://www.nerdfonts.com\" title=\"Nerd Fonts 官网\">Nerd Fonts 官网\u003c/a> 下载安装后，打开终端设置（\u003ccode>Ctrl + ,\u003c/code>）→ 外观 → 字体，选择 \u003ccode>CascadiaCode NF\u003c/code>。\u003c/p>\n\n\u003ch2>4. 第三步：配色方案与主题\u003c/h2>\n\u003cp>Windows Terminal 内置几十种配色，也可导入社区主题。打开设置 → 配色方案，挑一款喜欢的，例如 \u003cstrong>Catppuccin Mocha\u003c/strong> 或 \u003cstrong>Tokyo Night\u003c/strong>。想全局统一，可在 \u003ccode>settings.json\u003c/code> 的 \u003ccode>profiles.defaults\u003c/code> 里指定：\u003c/p>\n\u003cpre>\u003ccode>{\n  \"profiles\": {\n    \"defaults\": {\n      \"font\": { \"face\": \"CascadiaCode NF\", \"size\": 11 },\n      \"colorScheme\": \"Catppuccin Mocha\"\n    }\n  }\n}\u003c/code>\u003c/pre>\n\n\u003ch2>5. 第四步：亚克力背景与透明度\u003c/h2>\n\u003cp>让终端半透明、透出桌面，是最容易出效果的一步：\u003c/p>\n\u003cpre>\u003ccode>{\n  \"profiles\": {\n    \"defaults\": {\n      \"useAcrylic\": true,\n      \"acrylicOpacity\": 0.85,\n      \"background\": \"#1e1e2e\"\n    }\n  }\n}\u003c/code>\u003c/pre>\n\u003cp>\u003ccode>acrylicOpacity\u003c/code> 越接近 1 越不透明；调到 \u003ccode>0.7\u003c/code> 左右能隐约看到壁纸，质感最佳。\u003c/p>\n\n\u003ch2>6. 第五步：用 Oh My Posh 美化提示符\u003c/h2>\n\u003cp>\u003cstrong>Oh My Posh\u003c/strong> 能把 PowerShell / bash / zsh 的提示符变成带 Git 状态、路径、耗时等信息的炫酷状态栏。\u003c/p>\n\u003ch3>6.1 安装\u003c/h3>\n\u003cpre>\u003ccode>winget install JanDeDobbeleer.OhMyPosh -e\noh-my-posh font install\u003c/code>\u003c/pre>\n\u003ch3>6.2 应用主题\u003c/h3>\n\u003cp>在 PowerShell 中执行（主题路径可在 \u003ccode>$env:POSH_THEMES_PATH\u003c/code> 查看）：\u003c/p>\n\u003cpre>\u003ccode>oh-my-posh init pwsh --config \"$env:POSH_THEMES_PATH\\catppuccin.omp.json\" | Invoke-Expression\u003c/code>\u003c/pre>\n\u003ch3>6.3 写入 $PROFILE 持久化\u003c/h3>\n\u003cp>让每次启动自动加载：\u003c/p>\n\u003cpre>\u003ccode>notepad $PROFILE\u003c/code>\u003c/pre>\n\u003cp>在打开的文件里加入上面那条 \u003ccode>oh-my-posh init ...\u003c/code> 命令并保存即可。\u003c/p>\n\n\u003ch2>7. 一份可直接用的 settings.json\u003c/h2>\n\u003cp>把下面内容合并进 Windows Terminal 的 \u003ccode>settings.json\u003c/code>（设置 → 打开 JSON 文件），即可同时拥有字体、配色、透明背景：\u003c/p>\n\u003cpre>\u003ccode>{\n  \"profiles\": {\n    \"defaults\": {\n      \"font\": { \"face\": \"CascadiaCode NF\", \"size\": 11 },\n      \"colorScheme\": \"Catppuccin Mocha\",\n      \"useAcrylic\": true,\n      \"acrylicOpacity\": 0.82,\n      \"background\": \"#1e1e2e\",\n      \"cursorShape\": \"filledBox\"\n    }\n  },\n  \"schemes\": [\n    {\n      \"name\": \"Catppuccin Mocha\",\n      \"background\": \"#1e1e2e\",\n      \"foreground\": \"#cdd6f4\",\n      \"cursorColor\": \"#f5e0dc\",\n      \"black\": \"#45475a\",\n      \"red\": \"#f38ba8\",\n      \"green\": \"#a6e3a1\",\n      \"yellow\": \"#f9e2af\",\n      \"blue\": \"#89b4fa\",\n      \"purple\": \"#cba6f7\",\n      \"white\": \"#bac2de\"\n    }\n  ]\n}\u003c/code>\u003c/pre>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>到这里，你的 Windows 11 终端已经拥有了 Nerd 字体、协调配色、亚克力背景和精致的 Oh My Posh 提示符。一个好看的终端不仅能提升心情，也能让日常的命令行工作更顺手。继续探索主题与配置，把它调成属于你自己的样子吧。\u003c/p>"}</script>
+  <script type="application/json" id="post-data">{"id":5,"title":"Windows 11 终端美化完全指南：从渲染原理到可维护的配置体系","excerpt":"不止是换个配色。讲清终端 / Shell / ConPTY 三层关系、Nerd Font 与 PUA 字形的原理、settings.json 逐项配置、Oh My Posh 与 PSReadLine，附完整可复制配置与乱码、透明失效、SSH 主题不生效等排障表。","date":"2026-11-11","category":"技术","tags":["Windows Terminal","PowerShell","Oh My Posh","Nerd Font","终端美化","效率工具"],"content":"\u003cfigure>\n  \u003cimg src=\"https://images.pexels.com/photos/9458996/pexels-photo-9458996.jpeg?auto=compress&cs=tinysrgb&w=1280\" alt=\"黑白现代建筑，立面线条克制\">\n  \u003cfigcaption>黑白建筑立面 · 图源 Pexels（免费授权）\u003c/figcaption>\n\u003c/figure>\n\u003cp>大多数「终端美化教程」给你一份 \u003ccode>settings.json\u003c/code> 和一张效果图，复制完确实好看，但一旦出现方块乱码、透明失效、连上服务器图标全没了，就完全不知道该查哪里。这篇从\u003cstrong>渲染链路\u003c/strong>讲起，把每个配置项背后的原因说清楚，最后给一套能长期维护、不拖慢启动的配置体系。\u003c/p>\n\n\u003ch2>一、先厘清三层：终端、Shell、控制台\u003c/h2>\n\u003cp>三者被混为一谈，是绝大多数困惑的来源：\u003c/p>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>层\u003c/th>\u003cth>职责\u003c/th>\u003cth>典型实现\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>终端模拟器\u003c/td>\u003ctd>画窗口、渲染字符与颜色、处理键盘鼠标、管标签页\u003c/td>\u003ctd>Windows Terminal、Alacritty、WezTerm、iTerm2\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Shell\u003c/td>\u003ctd>解析命令、展开变量、管作业与历史\u003c/td>\u003ctd>PowerShell 7、bash、zsh、fish、cmd\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>控制台宿主\u003c/td>\u003ctd>提供字符 I/O 管道，把 Shell 的输出交给终端\u003c/td>\u003ctd>ConPTY（现代）、conhost.exe（旧）\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>\u003cstrong>关键结论\u003c/strong>：字体、配色、透明度、背景图属于\u003cem>终端层\u003c/em>（\u003ccode>settings.json\u003c/code>）；提示符长什么样、有没有 Git 状态属于\u003cem>Shell 层\u003c/em>（Oh My Posh + \u003ccode>$PROFILE\u003c/code>）。两者分开配置，改错了地方就会「明明配了却没变化」。\u003c/p>\n\u003cp>Windows Terminal 通过 \u003cstrong>ConPTY\u003c/strong> 与 Shell 通信，它把传统的 Windows 控制台 API 翻译成标准 PTY 字节流，因此 ANSI 转义序列才能正常工作——这也是彩色提示符、进度条、全屏 TUI 能在 Windows 上跑起来的前提。老版 conhost 对 24 位真彩支持残缺，遇色块异常先确认自己没在跑 \u003ccode>conhost\u003c/code>。\u003c/p>\n\n\u003ch2>二、字体：为什么必须装 Nerd Font\u003c/h2>\n\u003cp>提示符里那些漂亮的分支、锁、语言图标，本质是\u003cstrong>字符\u003c/strong>，不是图片。它们落在 Unicode 的\u003cstrong>私有使用区（PUA, U+E000–U+F8FF）\u003c/strong>，普通字体没有对应字形，系统只能画一个「豆腐块」。\u003c/p>\n\u003cp>\u003cstrong>Nerd Font\u003c/strong> 项目把 Font Awesome、Octicons、Powerline 等图标集补丁进等宽字体，并把 Powerline 需要的三角分隔符补到正确码位。常用选择：\u003c/p>\n\u003cul>\n  \u003cli>\u003ccode>CaskaydiaCove Nerd Font\u003c/code>（Cascadia Code 的 Nerd 版，与 Windows Terminal 最搭）；\u003c/li>\n  \u003cli>\u003ccode>JetBrainsMono Nerd Font\u003c/code>、\u003ccode>FiraCode Nerd Font\u003c/code>（连字漂亮）。\u003c/li>\n\u003c/ul>\n\u003cpre>\u003ccode># 用 winget 装（推荐，可批量可复现）\nwinget install --id DEVCOM.JetBrainsMonoNerdFont -e\n# 或 Scoop\nscoop bucket add nerd-fonts\nscoop install CascadiaCode-NF\n\u003c/code>\u003c/pre>\n\u003cp>装完在「设置 → 字体」里确认为\u003cstrong>所有用户安装\u003c/strong>，只装给当前用户有时终端读不到。然后在 \u003ccode>settings.json\u003c/code> 里写\u003cstrong>完整字体名\u003c/strong>（不是文件名）：\u003c/p>\n\u003cpre>\u003ccode>\"font\": {\n  \"face\": \"CaskaydiaCove Nerd Font\",\n  \"size\": 11,\n  \"weight\": \"normal\"\n}\n\u003c/code>\u003c/pre>\n\u003cblockquote>字重别选 \u003ccode>light\u003c/code> 配透明背景，低对比度下长文极易疲劳。连字（ligatures）会把 \u003ccode>=&gt;\u003c/code>、\u003ccode>!=\u003c/code> 画成连体符号，喜欢与否因人而异，但\u003cstrong>调试时容易误读\u003c/strong>，代码审阅场景建议关掉。\u003c/blockquote>\n\n\u003ch2>三、settings.json 逐项拆解\u003c/h2>\n\u003cp>在 Windows Terminal 里按 \u003ccode>Ctrl+,\u003c/code> 打开设置，左下「打开 JSON 文件」直接编辑。下面是一份可直接使用的最小完整配置：\u003c/p>\n\u003cpre>\u003ccode>{\n  \"$schema\": \"https://aka.ms/terminal-profiles-schema\",\n  \"defaultProfile\": \"{61c54bbd-c2c6-5271-96e7-009a87ff44bf}\",\n  \"initialCols\": 120,\n  \"initialRows\": 32,\n  \"copyOnSelect\": true,\n  \"profiles\": {\n    \"defaults\": {\n      \"font\": { \"face\": \"CaskaydiaCove Nerd Font\", \"size\": 11 },\n      \"colorScheme\": \"Catppuccin Mocha\",\n      \"opacity\": 92,\n      \"useAcrylic\": true,\n      \"padding\": \"12, 10\",\n      \"cursorShape\": \"bar\",\n      \"antialiasingMode\": \"cleartype\",\n      \"scrollbarState\": \"hidden\",\n      \"startingDirectory\": \".\"\n    },\n    \"list\": []\n  },\n  \"schemes\": [],\n  \"actions\": [\n    { \"command\": { \"action\": \"copy\", \"singleLine\": false }, \"keys\": \"ctrl+c\" },\n    { \"command\": \"paste\", \"keys\": \"ctrl+v\" },\n    { \"command\": { \"action\": \"splitPane\", \"split\": \"auto\" }, \"keys\": \"alt+shift+d\" },\n    { \"command\": \"togglePaneZoom\", \"keys\": \"ctrl+shift+z\" }\n  ]\n}\n\u003c/code>\u003c/pre>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>配置\u003c/th>\u003cth>作用\u003c/th>\u003cth>取舍\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>\u003ccode>profiles.defaults\u003c/code>\u003c/td>\u003ctd>一次写给 PowerShell / cmd / WSL / SSH 全部 profile\u003c/td>\u003ctd>优于逐个 profile 重复配置\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>opacity\u003c/code> + \u003ccode>useAcrylic\u003c/code>\u003c/td>\u003ctd>亚克力模糊透明\u003c/td>\u003ctd>会额外占 GPU；远程桌面、虚拟机里常被禁用而表现为不透明\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>startingDirectory\u003c/code>\u003c/td>\u003ctd>启动目录；写 \u003ccode>.\u003c/code> 继承调用者位置\u003c/td>\u003ctd>从资源管理器右键打开时特别有用\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>scrollbarState\u003c/code>\u003c/td>\u003ctd>隐藏滚动条\u003c/td>\u003ctd>纯视觉；排查长日志时反而碍事\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>actions\u003c/code>\u003c/td>\u003ctd>键位绑定（旧版叫 \u003ccode>keybindings\u003c/code>）\u003c/td>\u003ctd>新版统一用 \u003ccode>actions\u003c/code>，旧键会被覆盖\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>bellStyle\u003c/code>\u003c/td>\u003ctd>响铃方式\u003c/td>\u003ctd>设为 \u003ccode>none\u003c/code> 可去掉编译完成时的烦人提示音\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\n\u003ch3>配色：16 色不是随便挑的\u003c/h3>\n\u003cp>终端程序只输出\u003cstrong>语义色号\u003c/strong>（black / red / green / yellow / blue / magenta / cyan / white 及各自的 bright 版本），具体显示成什么由 \u003ccode>colorScheme\u003c/code> 决定。所以换主题只是改一张 16 色映射表，程序完全不用改。自定义写法：\u003c/p>\n\u003cpre>\u003ccode>{\n  \"name\": \"My Ink\",\n  \"background\": \"#1E1E2E\",\n  \"foreground\": \"#CDD6F4\",\n  \"cursorColor\": \"#F5E0DC\",\n  \"selectionBackground\": \"#585B7080\",\n  \"black\": \"#45475A\",  \"red\": \"#F38BA8\",\n  \"green\": \"#A6E3A1\", \"yellow\": \"#F9E2AF\",\n  \"blue\": \"#89B4FA\",  \"magenta\": \"#F5C2E7\",\n  \"cyan\": \"#94E2D5\",  \"white\": \"#BAC2DE\",\n  \"brightBlack\": \"#585B70\", \"brightRed\": \"#F38BA8\",\n  \"brightGreen\": \"#A6E3A1\", \"brightYellow\": \"#F9E2AF\",\n  \"brightBlue\": \"#89B4FA\", \"brightMagenta\": \"#F5C2E7\",\n  \"brightCyan\": \"#94E2D5\", \"brightWhite\": \"#A6ADC8\"\n}\n\u003c/code>\u003c/pre>\n\u003cp>把它放进顶层 \u003ccode>schemes\u003c/code> 数组，再在 defaults 里引用 \u003ccode>\"colorScheme\": \"My Ink\"\u003c/code>。挑选时优先保证 \u003ccode>foreground\u003c/code> 与 \u003ccode>background\u003c/code> 的对比度，以及 \u003ccode>yellow\u003c/code> / \u003ccode>cyan\u003c/code> 在背景上清晰可读——很多「好看」的主题把注释色压得太暗，实际写代码很累。\u003c/p>\n\n\u003ch2>四、提示符：Oh My Posh\u003c/h2>\n\u003cp>终端画窗口，提示符由 Shell 生成。\u003cstrong>Oh My Posh\u003c/strong> 是跨 Shell 的提示符引擎，用 JSON 描述「显示哪些段（segment）」：\u003c/p>\n\u003cpre>\u003ccode>winget install --id JanDeDobbeleer.OhMyPosh -e\n# 查看可用主题\nGet-ChildItem \"$env:POSH_THEMES_PATH\" | Select-Object Name\n# 编辑 PowerShell 配置（会自动创建文件）\nnotepad $PROFILE\n\u003c/code>\u003c/pre>\n\u003cp>在 \u003ccode>$PROFILE\u003c/code> 里只需两行：\u003c/p>\n\u003cpre>\u003ccode>oh-my-posh init pwsh --config \"$env:POSH_THEMES_PATH\\jandedobbeleer.omp.json\" | Invoke-Expression\nSet-PSReadLineOption -PredictionSource HistoryAndPlugin\n\u003c/code>\u003c/pre>\n\u003cp>第一次改 \u003ccode>$PROFILE\u003c/code> 常见报错「无法加载文件，因为在此系统上禁止运行脚本」，这是 PowerShell 执行策略，只需给\u003cstrong>当前用户\u003c/strong>放开：\u003c/p>\n\u003cpre>\u003ccode>Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned\n\u003c/code>\u003c/pre>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>方案\u003c/th>\u003cth>优势\u003c/th>\u003cth>代价\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>Oh My Posh\u003c/td>\u003ctd>主题生态最大、跨 pwsh/bash/zsh、配置可读\u003c/td>\u003ctd>依赖 Nerd Font；段太多会让每行启动变慢\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Starship\u003c/td>\u003ctd>Rust 单二进制、极快、TOML 配置简洁\u003c/td>\u003ctd>某些 Windows 特有段（如 IIS、注册表）不如 OMP 丰富\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>纯手写 \u003ccode>prompt\u003c/code> 函数\u003c/td>\u003ctd>零依赖、完全可控、启动最快\u003c/td>\u003ctd>Git 状态、退出码、时长等要自己实现\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>提示符段不是越多越好：每多一个 \u003ccode>git\u003c/code>、\u003ccode>kubectl\u003c/code>、\u003ccode>azure\u003c/code> 段，每次回车都可能触发一次子进程。大仓库里明显卡顿，建议只保留路径、Git 状态、上条命令耗时与退出码。\u003c/p>\n\n\u003ch2>五、Shell 层的体验增强\u003c/h2>\n\u003cpre>\u003ccode>Install-Module PSReadLine -Force -SkipPublisherCheck\nInstall-Module Terminal-Icons -Repository PSGallery\nwinget install --id ajeetdsouza.zoxide -e\n\u003c/code>\u003c/pre>\n\u003cpre>\u003ccode># $PROFILE 片段\nImport-Module Terminal-Icons\nSet-PSReadLineOption -PredictionSource HistoryAndPlugin\nSet-PSReadLineOption -PredictionViewStyle ListView\nSet-PSReadLineKeyHandler -Key Tab -Function MenuComplete\nInvoke-Expression (& { (zoxide init powershell | Out-String) })\n\u003c/code>\u003c/pre>\n\u003cul>\n  \u003cli>\u003cstrong>PSReadLine\u003c/strong>：语法高亮、历史预测、菜单式 Tab 补全，是提升手感的性价比之王；\u003c/li>\n  \u003cli>\u003cstrong>Terminal-Icons\u003c/strong>：\u003ccode>ls\u003c/code> 结果按扩展名显示图标，同样需要 Nerd Font；\u003c/li>\n  \u003cli>\u003cstrong>zoxide\u003c/strong>：记住常去目录，\u003ccode>z proj\u003c/code> 直达；\u003cstrong>fzf\u003c/strong> 做模糊历史检索（\u003ccode>Ctrl+R\u003c/code>）。\u003c/li>\n\u003c/ul>\n\n\u003ch2>六、WSL、SSH 与远程会话\u003c/h2>\n\u003cp>最容易困惑的一点：\u003cstrong>字体与配色由本地终端决定，提示符由远端 Shell 决定\u003c/strong>。所以——\u003c/p>\n\u003cul>\n  \u003cli>连上服务器后图标变豆腐块，是因为远端没有 Oh My Posh / Nerd 字体配置；要么在远端也装，要么给该 SSH profile 配一个\u003cstrong>纯 ASCII 主题\u003c/strong>（很多主题提供 \u003ccode>.minimal\u003c/code> 或 \u003ccode>ascii\u003c/code> 变体）。\u003c/li>\n  \u003cli>WSL 里的 \u003ccode>tmux\u003c/code>/\u003ccode>vim\u003c/code> 颜色发灰，通常是 \u003ccode>TERM\u003c/code> 未设为支持真彩的值，以及没开 \u003ccode>set -g default-terminal \"tmux-256color\"\u003c/code> 与 \u003ccode>set-option -ga terminal-overrides \",*:Tc\"\u003c/code>。\u003c/li>\n  \u003cli>远程桌面 / 虚拟机 / 部分显卡驱动下亚克力会被系统禁用，这不是配置写错。\u003c/li>\n\u003c/ul>\n\n\u003ch2>七、排障对照表\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>现象\u003c/th>\u003cth>根因\u003c/th>\u003cth>处理\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>提示符全是方块 □\u003c/td>\u003ctd>字体没带 PUA 字形，或字体名写错\u003c/td>\u003ctd>装 Nerd Font；\u003ccode>settings.json\u003c/code> 用完整字体家族名；重启终端\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>图标是问号 / 乱码\u003c/td>\u003ctd>终端编码非 UTF-8\u003c/td>\u003ctd>PowerShell 7 默认 UTF-8；旧 pwsh 5.1 需设 \u003ccode>$OutputEncoding\u003c/code> 与 \u003ccode>[Console]::OutputEncoding\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>透明 / 亚克力无效\u003c/td>\u003ctd>远程会话、省电模式、GPU 加速被禁\u003c/td>\u003ctd>确认本机会话；检查「渲染引擎」设置；接受降级\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>改了 settings.json 没生效\u003c/td>\u003ctd>JSON 语法错、改的是旧版 profile、或改了 defaults 但具体 profile 有覆盖\u003c/td>\u003ctd>Ctrl+, 里看错误提示；检查具体 profile 的同名键\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>每次开新标签很慢\u003c/td>\u003ctd>$PROFILE 里同步加载过多模块 / 提示符段\u003c/td>\u003ctd>按需延迟加载；精简 OMP 段；用 \u003ccode>Measure-Command { . $PROFILE }\u003c/code> 定位\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>$PROFILE\u003c/code> 报禁止运行脚本\u003c/td>\u003ctd>ExecutionPolicy\u003c/td>\u003ctd>\u003ccode>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>SSH 后主题丢失\u003c/td>\u003ctd>远端 Shell 未配置\u003c/td>\u003ctd>远端装 OMP 或用 ASCII 主题\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>配色和效果图不一致\u003c/td>\u003ctd>只改了 16 色里的普通色，程序实际用 bright 色\u003c/td>\u003ctd>把 8 组 normal/bright 都定义齐\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\n\u003ch2>八、把配置变成可维护的资产\u003c/h2>\n\u003cul>\n  \u003cli>把 \u003ccode>settings.json\u003c/code>、\u003ccode>$PROFILE\u003c/code>、自定义 \u003ccode>.omp.json\u003c/code> 收进一个 dotfiles 仓库，用符号链接指回原位，换机器一条命令还原；\u003c/li>\n  \u003cli>winget 导出依赖清单：\u003ccode>winget export -o dev-tools.json\u003c/code>，新机 \u003ccode>winget import\u003c/code>；\u003c/li>\n  \u003cli>给配置加注释说明「为什么」，而不是留一堆抄来的片段；\u003c/li>\n  \u003cli>美化以\u003cstrong>不牺牲可读性\u003c/strong>为底线：对比度、字号、行距、无干扰优先于炫技。\u003c/li>\n\u003c/ul>\n\u003cp>真正好用的终端，是让你忘记它的存在——配色安静、提示信息恰好够用、每次回车都立刻响应。理解三层结构和 PUA 字形之后，任何新工具你都能自己判断该改哪一层。\u003c/p>"}</script>
   <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
   <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

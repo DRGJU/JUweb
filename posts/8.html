@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Python 装饰器详解：从 @ 语法到实战应用 | 墨迹</title>
-  <meta name="description" content="Python 装饰器用一个 @ 符号实现函数包装与元编程。本文从计时装饰器讲起，覆盖 @ 语法糖、functools.wraps、带参装饰器、类装饰器，以及缓存/路由/鉴权等真实应用场景与常见坑。">
+  <title>Python 装饰器深入：从闭包与描述符到生产级模式 | 墨迹</title>
+  <meta name="description" content="不止于 @ 语法糖。讲清闭包与自由变量、functools.wraps 与 __wrapped__、带参装饰器的三种写法、类装饰器与描述符交互、异步与生成器陷阱，以及重试/缓存/注册器等生产模式与性能取舍。">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Python 装饰器详解：从 @ 语法到实战应用">
-  <meta property="og:description" content="Python 装饰器用一个 @ 符号实现函数包装与元编程。本文从计时装饰器讲起，覆盖 @ 语法糖、functools.wraps、带参装饰器、类装饰器，以及缓存/路由/鉴权等真实应用场景与常见坑。">
+  <meta property="og:title" content="Python 装饰器深入：从闭包与描述符到生产级模式">
+  <meta property="og:description" content="不止于 @ 语法糖。讲清闭包与自由变量、functools.wraps 与 __wrapped__、带参装饰器的三种写法、类装饰器与描述符交互、异步与生成器陷阱，以及重试/缓存/注册器等生产模式与性能取舍。">
   <meta property="og:url" content="https://drgju.github.io/JUweb/posts/8.html">
   <meta property="article:published_time" content="2026-11-11">
   <link rel="canonical" href="https://drgju.github.io/JUweb/posts/8.html">
@@ -21,7 +21,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 14 期，2026-11-11</span>
+      <span class="masthead__edition">第 17 期，2026-11-11</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
@@ -34,123 +34,203 @@
     <article>
       <header class="post__head">
         <a class="post__back" href="../index.html">返回目录</a>
-        <h1 id="postTitle" class="post__title">Python 装饰器详解：从 @ 语法到实战应用</h1>
+        <h1 id="postTitle" class="post__title">Python 装饰器深入：从闭包与描述符到生产级模式</h1>
         <div class="post__meta">
           <span id="postCategory">技术</span>
           <time id="postDate" datetime="2026-11-11">2026-11-11</time>
         </div>
-        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">装饰器</span><span class="post__tag">进阶</span><span class="post__tag">元编程</span></div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">装饰器</span><span class="post__tag">闭包</span><span class="post__tag">functools</span><span class="post__tag">元编程</span><span class="post__tag">进阶</span></div>
       </header>
-      <div id="postContent" class="post__body"><figure><img src="https://images.pexels.com/photos/4164418/pexels-photo-4164418.jpeg" alt="屏幕上显示代码的特写" width="6000" height="4000" /><figcaption>代码屏幕特写 · 图源 Pexels / Antonio Batinić（免费授权）</figcaption></figure>
+      <div id="postContent" class="post__body"><figure>
+  <img src="https://images.pexels.com/photos/17729218/pexels-photo-17729218.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="现代建筑立面的几何线条" />
+  <figcaption>建筑立面几何 · 图源 Pexels（免费授权）</figcaption>
+</figure>
+<p><code>@decorator</code> 大概是 Python 里最容易被「会用但说不清」的特性。多数教程停在「接收函数、返回函数」就结束了，可一到真实工程就会撞上：装饰后函数签名变了、装饰类方法报 TypeError、异步协程被包装成协程对象却没被 await、多个装饰器的顺序和想象的不一样。这篇从<strong>运行机制</strong>往下挖，把这些坑一次说透。</p>
 
-<p>Python 装饰器（Decorator）看起来只是一个 <code>@</code> 符号，背后却是函数式编程与元编程的精华。它能在不修改原函数代码的前提下，给函数「套上」额外行为——计时、缓存、鉴权、日志统统用它。本文从最直观的例子讲起，一直到带参装饰器、类装饰器和真实应用场景。</p>
+<h2>一、装饰器到底是什么</h2>
+<p>先确立三个前提：</p>
+<ol>
+  <li><strong>函数是一等对象</strong>：可赋值、可传参、可作为返回值，<code>def</code> 只是把一个函数对象绑定到名字上；</li>
+  <li><strong>闭包</strong>：内层函数引用了外层的自由变量，Python 会把它装进 <code>__closure__</code> 的 cell 里长期保留；</li>
+  <li><strong>装饰器是调用表达式</strong>：<code>@d</code> 不是语法魔法，它等价于在函数定义<em>之后</em>立刻执行 <code>f = d(f)</code>。</li>
+</ol>
+<pre><code>@timer
+def work(): ...
 
-<h2>1. 什么是装饰器</h2>
-<p>在 Python 里，<strong>函数是一等公民</strong>：可以赋值给变量、当作参数传递、作为返回值。装饰器正是利用这一点——它本质是一个<strong>接收函数、返回函数</strong>的可调用对象。所谓「装饰」，就是把原函数包一层，再返回包装后的函数。</p>
-
-<h2>2. 第一个装饰器：给函数计时</h2>
-<pre><code>import time
-
-def timer(func):
+# 完全等价于：
+def work(): ...
+work = timer(work)
+</code></pre>
+<p>由此立刻得到两个常被忽略的结论：<strong>装饰器在模块导入时执行一次</strong>（不是每次调用），且它<strong>永久替换了名字所指向的对象</strong>。所以装饰器里的顶层逻辑只跑一次，而包装函数里的逻辑才每次调用都跑。</p>
+<pre><code>def show_closure(fn):
     def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        print(f"{func.__name__} 耗时 {time.time() - start:.4f}s")
-        return result
+        return fn(*args, **kwargs)
+    print(wrapper.__closure__)        # (&lt;cell: function show_closure.&lt;locals&gt;...&gt;,)
+    return wrapper
+</code></pre>
+
+<h2>二、第一个正确的装饰器：*args 与 wraps</h2>
+<pre><code>import functools, time
+
+def timer(fn):
+    @functools.wraps(fn)                      # 关键，见下
+    def wrapper(*args, **kwargs):            # 透传任意签名
+        t0 = time.perf_counter()
+        try:
+            return fn(*args, **kwargs)       # 别忘了 return
+        finally:
+            print(f"{fn.__name__} took {time.perf_counter()-t0:.3f}s")
     return wrapper
 
 @timer
-def slow_add(a, b):
-    time.sleep(0.5)
-    return a + b
+def fetch(url, timeout=3):
+    """拉取数据"""
+    ...
+</code></pre>
+<p><code>functools.wraps</code> 用 <code>update_wrapper</code> 把原函数的 <code>__module__</code>、<code>__name__</code>、<code>__qualname__</code>、<code>__doc__</code>、<code>__annotations__</code> 和 <code>__dict__</code> 拷到包装函数上，并设置 <code>__wrapped__</code> 指向原函数。它解决的不只是「名字好看」：</p>
+<table>
+<thead><tr><th>不写 wraps 会坏什么</th><th>原因</th></tr></thead>
+<tbody>
+<tr><td>日志 / 文档 / help() 全显示 <code>wrapper</code></td><td>元信息被覆盖</td></tr>
+<tr><td><code>inspect.signature(fetch)</code> 变成 <code>(*args, **kwargs)</code></td><td>标准库会沿 <code>__wrapped__</code> 链回溯，没设就只能看包装层</td></tr>
+<tr><td>Web 框架自动注入参数失效</td><td>FastAPI / Flask / pytest 靠签名判断该传什么</td></tr>
+<tr><td>无法拿到原始函数做测试或绕过</td><td><code>fetch.__wrapped__</code> 就没了</td></tr>
+<tr><td>多个装饰器叠加时调试困难</td><td>traceback 里全是 wrapper</td></tr>
+</tbody>
+</table>
+<p>另外注意 <code>finally</code> 里的计时：即使被装饰函数抛异常也要记录耗时且<strong>不能吞掉异常</strong>。很多计时装饰器在出错时静默返回 None，是生产事故常见来源。</p>
 
-slow_add(1, 2)</code></pre>
-<p><code>wrapper</code> 用 <code>*args, **kwargs</code> 接住任意参数，调用原函数后再打印耗时，最后把结果原样返回——原函数「长什么样」没变，只是多了一层计时。</p>
-
-<h2>3. @ 语法糖</h2>
-<p><code>@timer</code> 只是下面写法的简写：</p>
-<pre><code>def slow_add(a, b):
-    time.sleep(0.5)
-    return a + b
-slow_add = timer(slow_add)</code></pre>
-<p>也就是说，<code>@装饰器</code> 放在函数定义上方，等价于「把下面这个函数传给装饰器，再把返回值绑回原名」。</p>
-
-<h2>4. 保留原函数信息：functools.wraps</h2>
-<p>上面那个装饰器有个隐患：包装后 <code>slow_add.__name__</code> 会变成 <code>wrapper</code>，原函数的名字和文档都丢了，影响调试和自动文档。用 <code>functools.wraps</code> 修正：</p>
-<pre><code>import functools, time
-
-def timer(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        print(f"{func.__name__} 耗时 {time.time() - start:.4f}s")
-        return result
-    return wrapper</code></pre>
-<p><code>@functools.wraps(func)</code> 会把原函数的 <code>__name__</code>、<code>__doc__</code> 等元信息复制给 <code>wrapper</code>，这是写装饰器的标准动作。</p>
-
-<h2>5. 带参数的装饰器</h2>
-<p>想让装饰器本身也能接收参数（比如「重复执行 N 次」），需要再多包一层：</p>
-<pre><code>import functools
-
-def repeat(times):
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            for _ in range(times):
-                func(*args, **kwargs)
+<h2>三、带参数的装饰器：为什么是三层</h2>
+<pre><code>def retry(times=3, delay=0.1, exceptions=(Exception,)):   # ① 参数层：调用时立即执行
+    def decorator(fn):                                     # ② 装饰层：接收被装饰函数
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):                      # ③ 包装层：每次调用执行
+            for i in range(times):
+                try:
+                    return fn(*args, **kwargs)
+                except exceptions:
+                    if i == times - 1:
+                        raise
+                    time.sleep(delay * 2 ** i)             # 指数退避
         return wrapper
     return decorator
 
-@repeat(times=3)
-def greet(name):
-    print(f"Hello, {name}")
+@retry(times=5, delay=0.2, exceptions=(ConnectionError,))
+def call_api(): ...
+</code></pre>
+<p><code>@retry(times=5)</code> 先<strong>调用</strong> <code>retry(...)</code> 得到真正的装饰器，再拿它去装饰函数——这就是多出一层的原因。理解了这点，就能写出「既支持 <code>@log</code> 又支持 <code>@log(level=...)</code>」的可选参数形式：</p>
+<pre><code>def log(_fn=None, *, level="INFO"):
+    def decorate(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            print(f"[{level}] {fn.__name__}")
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorate(_fn) if _fn else decorate
 
-greet("World")  # 打印 3 次</code></pre>
-<p>结构是「参数层 → 装饰器层 → 包装层」三层嵌套，记住这个套路就不容易写错。</p>
+@log                 # _fn 是函数，直接 decorate
+def a(): ...
+@log(level="DEBUG")  # _fn 为 None，返回 decorate
+def b(): ...
+</code></pre>
+<p>也可以用 <code>functools.partial</code> 把三层写成两层，可读性各有取舍。生产代码里更推荐明确的三层，或引入 <code>decorator</code> / <code>wrapt</code> 库来保住签名。</p>
 
-<h2>6. 类装饰器</h2>
-<p>装饰器不一定是函数，只要是可调用对象即可。用类实现时，把原函数存起来，在 <code>__call__</code> 里执行包装逻辑：</p>
+<h2>四、类装饰器与描述符</h2>
+<p>能被调用的对象都能当装饰器，所以实现了 <code>__call__</code> 的实例也可以。类装饰器适合<strong>需要跨调用保存状态</strong>的场景：</p>
 <pre><code>class CountCalls:
-    def __init__(self, func):
-        self.func = func
-        self.calls = 0
-
+    def __init__(self, fn):
+        functools.update_wrapper(self, fn)
+        self.fn = fn
+        self.n = 0
     def __call__(self, *args, **kwargs):
-        self.calls += 1
-        print(f"第 {self.calls} 次调用")
-        return self.func(*args, **kwargs)
+        self.n += 1
+        return self.fn(*args, **kwargs)
 
 @CountCalls
-def say_hi():
-    print("hi")
+def work(): ...
+work.n          # 可读的计数
+</code></pre>
+<p>但要注意：<strong>用类实例装饰实例方法时，描述符协议会失效</strong>。普通函数是描述符，访问 <code>obj.method</code> 时会自动绑定 <code>self</code>；而自定义类实例默认不实现 <code>__get__</code>，于是 <code>self</code> 不会被传入，报 <code>TypeError: missing 1 required positional argument</code>。修法是给类补一个 <code>__get__</code> 返回 <code>types.MethodType(self, instance, owner)</code>。<strong>这也是「装饰实例方法优先用函数闭包」的 practical 理由。</strong></p>
+<p>装饰器还能直接作用于类本身（接收类、返回类），典型如 <code>@dataclass</code>——它读 <code>__annotations__</code> 并<strong>生成</strong> <code>__init__</code>/<code>__repr__</code> 后返回同一个类对象。这与 <code>classmethod</code>/<code>staticmethod</code>/<code>property</code> 这些「返回描述符对象」的装饰器属于不同模式。</p>
 
-say_hi()
-say_hi()</code></pre>
+<h2>五、functools 里现成的装饰器</h2>
+<table>
+<thead><tr><th>工具</th><th>作用</th><th>关键参数 / 陷阱</th></tr></thead>
+<tbody>
+<tr><td><code>lru_cache</code></td><td>按参数缓存结果</td><td><code>maxsize=None</code> 无界会泄漏内存；参数必须可哈希；缓存不感知可变对象内部变化</td></tr>
+<tr><td><code>cache</code></td><td>3.9+ 的 <code>lru_cache(maxsize=None)</code> 简写</td><td>同上，慎用长生命周期进程</td></tr>
+<tr><td><code>singledispatch</code></td><td>按第一个参数类型分派</td><td>只认第一个位置参数；支持注册抽象基类</td></tr>
+<tr><td><code>total_ordering</code></td><td>由 <code>__eq__</code> + 一个比较方法补全其余</td><td>会牺牲一点性能，生成的方法较慢</td></tr>
+<tr><td><code>contextmanager</code></td><td>把生成器变成上下文管理器</td><td>生成器里必须且只能用一次 <code>yield</code></td></tr>
+<tr><td><code>wraps</code> / <code>update_wrapper</code></td><td>保留元信息</td><td>几乎是每个自定义装饰器的必选项</td></tr>
+</tbody>
+</table>
 
-<h2>7. 真实应用场景</h2>
+<h2>六、生产级模式</h2>
+<h3>1. 权限校验与横切关注点</h3>
+<pre><code>def requires_role(role):
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(user, *args, **kwargs):
+            if role not in user.roles:
+                raise PermissionError(role)
+            return fn(user, *args, **kwargs)
+        return wrapper
+    return deco
+</code></pre>
+<p>装饰器最适合承载这类<strong>与业务逻辑正交</strong>的横切逻辑：鉴权、日志、埋点、事务、限流。判断标准很简单——把这段逻辑删掉，业务函数的语义是否不变？如果不变，就适合抽成装饰器。</p>
+
+<h3>2. 注册器（插件系统）</h3>
+<pre><code>REGISTRY = {}
+def register(name):
+    def deco(cls):
+        REGISTRY[name] = cls
+        return cls          # 返回原类，不包装
+    return deco
+
+@register("json")
+class JsonExporter: ...
+</code></pre>
+<p>这里装饰器<strong>只做注册、返回原对象</strong>，是「副作用型」装饰器，没有包装层开销。Web 框架的路由 <code>@app.route</code>、测试框架的标记，本质都是这个模式。</p>
+
+<h3>3. 异步协程必须用 async 包装</h3>
+<pre><code>def async_timer(fn):
+    @functools.wraps(fn)
+    async def wrapper(*args, **kwargs):        # 必须是 async def
+        t0 = time.perf_counter()
+        try:
+            return await fn(*args, **kwargs)   # 必须 await
+        finally:
+            print(time.perf_counter() - t0)
+    return wrapper
+</code></pre>
+<p>用普通 <code>def wrapper</code> 返回 <code>fn(...)</code> 的协程对象，调用方拿到的是未被 await 的 coroutine，会静默不执行并触发 <code>RuntimeWarning: coroutine was never awaited</code>。若装饰器要同时兼容同步与异步函数，可用 <code>inspect.iscoroutinefunction</code> 分支，或让包装层始终返回可等待对象再判断。</p>
+
+<h2>七、常见坑对照表</h2>
+<table>
+<thead><tr><th>坑</th><th>表现</th><th>正解</th></tr></thead>
+<tbody>
+<tr><td>忘写 <code>return</code></td><td>被装饰函数永远返回 None</td><td>包装层 <code>return fn(*args, **kwargs)</code></td></tr>
+<tr><td>忘写 <code>wraps</code></td><td>签名/文档丢失，框架注入失效</td><td>每个包装层都加</td></tr>
+<tr><td>吞掉异常</td><td>错误被静默，finally 之外没 re-raise</td><td>用 try/finally，不捕获或原样抛出</td></tr>
+<tr><td>装饰顺序搞反</td><td>日志和计时的先后与预期不符</td><td>离 <code>def</code> 最近的先装饰、最外层最后执行；<code>@a @b def f</code> 即 <code>f = a(b(f))</code></td></tr>
+<tr><td>类实例装饰实例方法</td><td>丢失 <code>self</code></td><td>补 <code>__get__</code> 或改用函数闭包</td></tr>
+<tr><td>同步包装器包异步函数</td><td>协程从未 await</td><td><code>async def</code> + <code>await</code></td></tr>
+<tr><td>包装生成器</td><td>惰性执行导致计时/日志位置不对</td><td>用 <code>yield from</code> 并整体包住迭代</td></tr>
+<tr><td>误以为装饰在调用时执行</td><td>导入期就有副作用（注册、打印）</td><td>把每次逻辑放进包装层</td></tr>
+<tr><td>缓存可变/不可哈希参数</td><td>结果陈旧或 TypeError</td><td>改传不可变键，或别用 lru_cache</td></tr>
+<tr><td>层层包装拖慢热路径</td><td>高频小函数开销显著</td><td>减少嵌套层、用 <code>wrapt</code>、或内联关键逻辑</td></tr>
+</tbody>
+</table>
+
+<h2>八、什么时候不该用装饰器</h2>
 <ul>
-  <li><strong>缓存：</strong><code>functools.lru_cache</code> 缓存函数返回值，斐波那契这类递归瞬间提速。</li>
-  <li><strong>属性：</strong><code>@property</code> 把方法变成可读属性，调用时像访问字段。</li>
-  <li><strong>Web 路由：</strong>Flask 的 <code>@app.route("/")</code> 用装饰器把函数注册成 URL 处理器。</li>
-  <li><strong>鉴权与日志：</strong>在接口函数外包一层登录校验或访问日志，业务代码保持干净。</li>
+  <li>逻辑与业务强耦合、需要读大量上下文才能理解时——显式调用比隐式包装更好维护；</li>
+  <li>需要频繁按条件开关、且开关来自运行时配置时——装饰器在导入期就固定了，改配置不会重新装饰；</li>
+  <li>团队里多数人不熟悉元编程时，一个 <code>with</code> 或一行显式调用更不容易踩坑；</li>
+  <li>热路径上层层包装、又拿不出可观测收益时。</li>
 </ul>
-<pre><code>from functools import lru_cache
-
-@lru_cache(maxsize=128)
-def fib(n):
-    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)</code></pre>
-
-<h2>8. 常见坑</h2>
-<ul>
-  <li><strong>忘了 <code>@functools.wraps</code>：</strong>原函数名、文档丢失，调试和文档生成会出问题。</li>
-  <li><strong>执行时机：</strong>装饰器的外层在<strong>定义时（import 时）</strong>就执行，而不是函数被调用时——别在里面放耗时或依赖运行时状态的逻辑。</li>
-  <li><strong>多层装饰器：</strong>从下往上执行，离函数最近的先包，顺序容易让人迷糊，建议逐个加、逐个测。</li>
-  <li><strong>参数层漏写：</strong>带参装饰器少包一层是最常见错误，牢记三层结构。</li>
-</ul>
-
-<h2>结语</h2>
-<p>装饰器的魅力在于「开闭原则」：对扩展开放、对修改关闭。学会它，你就能把横切关注点（计时、缓存、鉴权、日志）从业务代码里抽出来，让每个函数只关心自己的事。从手写一个 <code>timer</code> 开始，再逐步用到 <code>lru_cache</code> 和框架里的路由装饰器，你会越来越体会到它的优雅。</p></div>
+<p>装饰器本质上只是「<strong>把一个可调用对象替换成另一个</strong>」。理解闭包怎么捕获自由变量、<code>wraps</code> 怎么串起 <code>__wrapped__</code> 链、描述符怎么绑定 <code>self</code>，剩下的所有高级用法都是这三件事的组合。</p></div>
       <div id="postActions" class="post__actions"></div>
     </article>
   </main>
@@ -159,7 +239,7 @@ def fib(n):
     <div class="container colophon__inner">
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 14 期。</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 17 期。</p>
       </div>
       <div class="colophon__links">
         <a href="../index.html">文章归档</a>
@@ -169,7 +249,7 @@ def fib(n):
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
-  <script type="application/json" id="post-data">{"id":8,"title":"Python 装饰器详解：从 @ 语法到实战应用","excerpt":"Python 装饰器用一个 @ 符号实现函数包装与元编程。本文从计时装饰器讲起，覆盖 @ 语法糖、functools.wraps、带参装饰器、类装饰器，以及缓存/路由/鉴权等真实应用场景与常见坑。","date":"2026-11-11","category":"技术","tags":["Python","装饰器","进阶","元编程"],"content":"\u003cfigure class=\"post-figure\">\u003cimg src=\"https://images.pexels.com/photos/4164418/pexels-photo-4164418.jpeg\" alt=\"屏幕上显示代码的特写\" width=\"6000\" height=\"4000\">\u003cfigcaption>代码屏幕特写 · 图源 Pexels / Antonio Batinić（免费授权）\u003c/figcaption>\u003c/figure>\n\n\u003cp>Python 装饰器（Decorator）看起来只是一个 \u003ccode>@\u003c/code> 符号，背后却是函数式编程与元编程的精华。它能在不修改原函数代码的前提下，给函数「套上」额外行为——计时、缓存、鉴权、日志统统用它。本文从最直观的例子讲起，一直到带参装饰器、类装饰器和真实应用场景。\u003c/p>\n\n\u003ch2>1. 什么是装饰器\u003c/h2>\n\u003cp>在 Python 里，\u003cstrong>函数是一等公民\u003c/strong>：可以赋值给变量、当作参数传递、作为返回值。装饰器正是利用这一点——它本质是一个\u003cstrong>接收函数、返回函数\u003c/strong>的可调用对象。所谓「装饰」，就是把原函数包一层，再返回包装后的函数。\u003c/p>\n\n\u003ch2>2. 第一个装饰器：给函数计时\u003c/h2>\n\u003cpre>\u003ccode>import time\n\ndef timer(func):\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        print(f\"{func.__name__} 耗时 {time.time() - start:.4f}s\")\n        return result\n    return wrapper\n\n@timer\ndef slow_add(a, b):\n    time.sleep(0.5)\n    return a + b\n\nslow_add(1, 2)\u003c/code>\u003c/pre>\n\u003cp>\u003ccode>wrapper\u003c/code> 用 \u003ccode>*args, **kwargs\u003c/code> 接住任意参数，调用原函数后再打印耗时，最后把结果原样返回——原函数「长什么样」没变，只是多了一层计时。\u003c/p>\n\n\u003ch2>3. @ 语法糖\u003c/h2>\n\u003cp>\u003ccode>@timer\u003c/code> 只是下面写法的简写：\u003c/p>\n\u003cpre>\u003ccode>def slow_add(a, b):\n    time.sleep(0.5)\n    return a + b\nslow_add = timer(slow_add)\u003c/code>\u003c/pre>\n\u003cp>也就是说，\u003ccode>@装饰器\u003c/code> 放在函数定义上方，等价于「把下面这个函数传给装饰器，再把返回值绑回原名」。\u003c/p>\n\n\u003ch2>4. 保留原函数信息：functools.wraps\u003c/h2>\n\u003cp>上面那个装饰器有个隐患：包装后 \u003ccode>slow_add.__name__\u003c/code> 会变成 \u003ccode>wrapper\u003c/code>，原函数的名字和文档都丢了，影响调试和自动文档。用 \u003ccode>functools.wraps\u003c/code> 修正：\u003c/p>\n\u003cpre>\u003ccode>import functools, time\n\ndef timer(func):\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        print(f\"{func.__name__} 耗时 {time.time() - start:.4f}s\")\n        return result\n    return wrapper\u003c/code>\u003c/pre>\n\u003cp>\u003ccode>@functools.wraps(func)\u003c/code> 会把原函数的 \u003ccode>__name__\u003c/code>、\u003ccode>__doc__\u003c/code> 等元信息复制给 \u003ccode>wrapper\u003c/code>，这是写装饰器的标准动作。\u003c/p>\n\n\u003ch2>5. 带参数的装饰器\u003c/h2>\n\u003cp>想让装饰器本身也能接收参数（比如「重复执行 N 次」），需要再多包一层：\u003c/p>\n\u003cpre>\u003ccode>import functools\n\ndef repeat(times):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for _ in range(times):\n                func(*args, **kwargs)\n        return wrapper\n    return decorator\n\n@repeat(times=3)\ndef greet(name):\n    print(f\"Hello, {name}\")\n\ngreet(\"World\")  # 打印 3 次\u003c/code>\u003c/pre>\n\u003cp>结构是「参数层 → 装饰器层 → 包装层」三层嵌套，记住这个套路就不容易写错。\u003c/p>\n\n\u003ch2>6. 类装饰器\u003c/h2>\n\u003cp>装饰器不一定是函数，只要是可调用对象即可。用类实现时，把原函数存起来，在 \u003ccode>__call__\u003c/code> 里执行包装逻辑：\u003c/p>\n\u003cpre>\u003ccode>class CountCalls:\n    def __init__(self, func):\n        self.func = func\n        self.calls = 0\n\n    def __call__(self, *args, **kwargs):\n        self.calls += 1\n        print(f\"第 {self.calls} 次调用\")\n        return self.func(*args, **kwargs)\n\n@CountCalls\ndef say_hi():\n    print(\"hi\")\n\nsay_hi()\nsay_hi()\u003c/code>\u003c/pre>\n\n\u003ch2>7. 真实应用场景\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>缓存：\u003c/strong>\u003ccode>functools.lru_cache\u003c/code> 缓存函数返回值，斐波那契这类递归瞬间提速。\u003c/li>\n  \u003cli>\u003cstrong>属性：\u003c/strong>\u003ccode>@property\u003c/code> 把方法变成可读属性，调用时像访问字段。\u003c/li>\n  \u003cli>\u003cstrong>Web 路由：\u003c/strong>Flask 的 \u003ccode>@app.route(\"/\")\u003c/code> 用装饰器把函数注册成 URL 处理器。\u003c/li>\n  \u003cli>\u003cstrong>鉴权与日志：\u003c/strong>在接口函数外包一层登录校验或访问日志，业务代码保持干净。\u003c/li>\n\u003c/ul>\n\u003cpre>\u003ccode>from functools import lru_cache\n\n@lru_cache(maxsize=128)\ndef fib(n):\n    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)\u003c/code>\u003c/pre>\n\n\u003ch2>8. 常见坑\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>忘了 \u003ccode>@functools.wraps\u003c/code>：\u003c/strong>原函数名、文档丢失，调试和文档生成会出问题。\u003c/li>\n  \u003cli>\u003cstrong>执行时机：\u003c/strong>装饰器的外层在\u003cstrong>定义时（import 时）\u003c/strong>就执行，而不是函数被调用时——别在里面放耗时或依赖运行时状态的逻辑。\u003c/li>\n  \u003cli>\u003cstrong>多层装饰器：\u003c/strong>从下往上执行，离函数最近的先包，顺序容易让人迷糊，建议逐个加、逐个测。\u003c/li>\n  \u003cli>\u003cstrong>参数层漏写：\u003c/strong>带参装饰器少包一层是最常见错误，牢记三层结构。\u003c/li>\n\u003c/ul>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>装饰器的魅力在于「开闭原则」：对扩展开放、对修改关闭。学会它，你就能把横切关注点（计时、缓存、鉴权、日志）从业务代码里抽出来，让每个函数只关心自己的事。从手写一个 \u003ccode>timer\u003c/code> 开始，再逐步用到 \u003ccode>lru_cache\u003c/code> 和框架里的路由装饰器，你会越来越体会到它的优雅。\u003c/p>"}</script>
+  <script type="application/json" id="post-data">{"id":8,"title":"Python 装饰器深入：从闭包与描述符到生产级模式","excerpt":"不止于 @ 语法糖。讲清闭包与自由变量、functools.wraps 与 __wrapped__、带参装饰器的三种写法、类装饰器与描述符交互、异步与生成器陷阱，以及重试/缓存/注册器等生产模式与性能取舍。","date":"2026-11-11","category":"技术","tags":["Python","装饰器","闭包","functools","元编程","进阶"],"content":"\u003cfigure>\n  \u003cimg src=\"https://images.pexels.com/photos/17729218/pexels-photo-17729218.jpeg?auto=compress&cs=tinysrgb&w=1280\" alt=\"现代建筑立面的几何线条\">\n  \u003cfigcaption>建筑立面几何 · 图源 Pexels（免费授权）\u003c/figcaption>\n\u003c/figure>\n\u003cp>\u003ccode>@decorator\u003c/code> 大概是 Python 里最容易被「会用但说不清」的特性。多数教程停在「接收函数、返回函数」就结束了，可一到真实工程就会撞上：装饰后函数签名变了、装饰类方法报 TypeError、异步协程被包装成协程对象却没被 await、多个装饰器的顺序和想象的不一样。这篇从\u003cstrong>运行机制\u003c/strong>往下挖，把这些坑一次说透。\u003c/p>\n\n\u003ch2>一、装饰器到底是什么\u003c/h2>\n\u003cp>先确立三个前提：\u003c/p>\n\u003col>\n  \u003cli>\u003cstrong>函数是一等对象\u003c/strong>：可赋值、可传参、可作为返回值，\u003ccode>def\u003c/code> 只是把一个函数对象绑定到名字上；\u003c/li>\n  \u003cli>\u003cstrong>闭包\u003c/strong>：内层函数引用了外层的自由变量，Python 会把它装进 \u003ccode>__closure__\u003c/code> 的 cell 里长期保留；\u003c/li>\n  \u003cli>\u003cstrong>装饰器是调用表达式\u003c/strong>：\u003ccode>@d\u003c/code> 不是语法魔法，它等价于在函数定义\u003cem>之后\u003c/em>立刻执行 \u003ccode>f = d(f)\u003c/code>。\u003c/li>\n\u003c/ol>\n\u003cpre>\u003ccode>@timer\ndef work(): ...\n\n# 完全等价于：\ndef work(): ...\nwork = timer(work)\n\u003c/code>\u003c/pre>\n\u003cp>由此立刻得到两个常被忽略的结论：\u003cstrong>装饰器在模块导入时执行一次\u003c/strong>（不是每次调用），且它\u003cstrong>永久替换了名字所指向的对象\u003c/strong>。所以装饰器里的顶层逻辑只跑一次，而包装函数里的逻辑才每次调用都跑。\u003c/p>\n\u003cpre>\u003ccode>def show_closure(fn):\n    def wrapper(*args, **kwargs):\n        return fn(*args, **kwargs)\n    print(wrapper.__closure__)        # (&lt;cell: function show_closure.&lt;locals&gt;...&gt;,)\n    return wrapper\n\u003c/code>\u003c/pre>\n\n\u003ch2>二、第一个正确的装饰器：*args 与 wraps\u003c/h2>\n\u003cpre>\u003ccode>import functools, time\n\ndef timer(fn):\n    @functools.wraps(fn)                      # 关键，见下\n    def wrapper(*args, **kwargs):            # 透传任意签名\n        t0 = time.perf_counter()\n        try:\n            return fn(*args, **kwargs)       # 别忘了 return\n        finally:\n            print(f\"{fn.__name__} took {time.perf_counter()-t0:.3f}s\")\n    return wrapper\n\n@timer\ndef fetch(url, timeout=3):\n    \"\"\"拉取数据\"\"\"\n    ...\n\u003c/code>\u003c/pre>\n\u003cp>\u003ccode>functools.wraps\u003c/code> 用 \u003ccode>update_wrapper\u003c/code> 把原函数的 \u003ccode>__module__\u003c/code>、\u003ccode>__name__\u003c/code>、\u003ccode>__qualname__\u003c/code>、\u003ccode>__doc__\u003c/code>、\u003ccode>__annotations__\u003c/code> 和 \u003ccode>__dict__\u003c/code> 拷到包装函数上，并设置 \u003ccode>__wrapped__\u003c/code> 指向原函数。它解决的不只是「名字好看」：\u003c/p>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>不写 wraps 会坏什么\u003c/th>\u003cth>原因\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>日志 / 文档 / help() 全显示 \u003ccode>wrapper\u003c/code>\u003c/td>\u003ctd>元信息被覆盖\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>inspect.signature(fetch)\u003c/code> 变成 \u003ccode>(*args, **kwargs)\u003c/code>\u003c/td>\u003ctd>标准库会沿 \u003ccode>__wrapped__\u003c/code> 链回溯，没设就只能看包装层\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Web 框架自动注入参数失效\u003c/td>\u003ctd>FastAPI / Flask / pytest 靠签名判断该传什么\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>无法拿到原始函数做测试或绕过\u003c/td>\u003ctd>\u003ccode>fetch.__wrapped__\u003c/code> 就没了\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>多个装饰器叠加时调试困难\u003c/td>\u003ctd>traceback 里全是 wrapper\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>另外注意 \u003ccode>finally\u003c/code> 里的计时：即使被装饰函数抛异常也要记录耗时且\u003cstrong>不能吞掉异常\u003c/strong>。很多计时装饰器在出错时静默返回 None，是生产事故常见来源。\u003c/p>\n\n\u003ch2>三、带参数的装饰器：为什么是三层\u003c/h2>\n\u003cpre>\u003ccode>def retry(times=3, delay=0.1, exceptions=(Exception,)):   # ① 参数层：调用时立即执行\n    def decorator(fn):                                     # ② 装饰层：接收被装饰函数\n        @functools.wraps(fn)\n        def wrapper(*args, **kwargs):                      # ③ 包装层：每次调用执行\n            for i in range(times):\n                try:\n                    return fn(*args, **kwargs)\n                except exceptions:\n                    if i == times - 1:\n                        raise\n                    time.sleep(delay * 2 ** i)             # 指数退避\n        return wrapper\n    return decorator\n\n@retry(times=5, delay=0.2, exceptions=(ConnectionError,))\ndef call_api(): ...\n\u003c/code>\u003c/pre>\n\u003cp>\u003ccode>@retry(times=5)\u003c/code> 先\u003cstrong>调用\u003c/strong> \u003ccode>retry(...)\u003c/code> 得到真正的装饰器，再拿它去装饰函数——这就是多出一层的原因。理解了这点，就能写出「既支持 \u003ccode>@log\u003c/code> 又支持 \u003ccode>@log(level=...)\u003c/code>」的可选参数形式：\u003c/p>\n\u003cpre>\u003ccode>def log(_fn=None, *, level=\"INFO\"):\n    def decorate(fn):\n        @functools.wraps(fn)\n        def wrapper(*args, **kwargs):\n            print(f\"[{level}] {fn.__name__}\")\n            return fn(*args, **kwargs)\n        return wrapper\n    return decorate(_fn) if _fn else decorate\n\n@log                 # _fn 是函数，直接 decorate\ndef a(): ...\n@log(level=\"DEBUG\")  # _fn 为 None，返回 decorate\ndef b(): ...\n\u003c/code>\u003c/pre>\n\u003cp>也可以用 \u003ccode>functools.partial\u003c/code> 把三层写成两层，可读性各有取舍。生产代码里更推荐明确的三层，或引入 \u003ccode>decorator\u003c/code> / \u003ccode>wrapt\u003c/code> 库来保住签名。\u003c/p>\n\n\u003ch2>四、类装饰器与描述符\u003c/h2>\n\u003cp>能被调用的对象都能当装饰器，所以实现了 \u003ccode>__call__\u003c/code> 的实例也可以。类装饰器适合\u003cstrong>需要跨调用保存状态\u003c/strong>的场景：\u003c/p>\n\u003cpre>\u003ccode>class CountCalls:\n    def __init__(self, fn):\n        functools.update_wrapper(self, fn)\n        self.fn = fn\n        self.n = 0\n    def __call__(self, *args, **kwargs):\n        self.n += 1\n        return self.fn(*args, **kwargs)\n\n@CountCalls\ndef work(): ...\nwork.n          # 可读的计数\n\u003c/code>\u003c/pre>\n\u003cp>但要注意：\u003cstrong>用类实例装饰实例方法时，描述符协议会失效\u003c/strong>。普通函数是描述符，访问 \u003ccode>obj.method\u003c/code> 时会自动绑定 \u003ccode>self\u003c/code>；而自定义类实例默认不实现 \u003ccode>__get__\u003c/code>，于是 \u003ccode>self\u003c/code> 不会被传入，报 \u003ccode>TypeError: missing 1 required positional argument\u003c/code>。修法是给类补一个 \u003ccode>__get__\u003c/code> 返回 \u003ccode>types.MethodType(self, instance, owner)\u003c/code>。\u003cstrong>这也是「装饰实例方法优先用函数闭包」的 practical 理由。\u003c/strong>\u003c/p>\n\u003cp>装饰器还能直接作用于类本身（接收类、返回类），典型如 \u003ccode>@dataclass\u003c/code>——它读 \u003ccode>__annotations__\u003c/code> 并\u003cstrong>生成\u003c/strong> \u003ccode>__init__\u003c/code>/\u003ccode>__repr__\u003c/code> 后返回同一个类对象。这与 \u003ccode>classmethod\u003c/code>/\u003ccode>staticmethod\u003c/code>/\u003ccode>property\u003c/code> 这些「返回描述符对象」的装饰器属于不同模式。\u003c/p>\n\n\u003ch2>五、functools 里现成的装饰器\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>工具\u003c/th>\u003cth>作用\u003c/th>\u003cth>关键参数 / 陷阱\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>\u003ccode>lru_cache\u003c/code>\u003c/td>\u003ctd>按参数缓存结果\u003c/td>\u003ctd>\u003ccode>maxsize=None\u003c/code> 无界会泄漏内存；参数必须可哈希；缓存不感知可变对象内部变化\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>cache\u003c/code>\u003c/td>\u003ctd>3.9+ 的 \u003ccode>lru_cache(maxsize=None)\u003c/code> 简写\u003c/td>\u003ctd>同上，慎用长生命周期进程\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>singledispatch\u003c/code>\u003c/td>\u003ctd>按第一个参数类型分派\u003c/td>\u003ctd>只认第一个位置参数；支持注册抽象基类\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>total_ordering\u003c/code>\u003c/td>\u003ctd>由 \u003ccode>__eq__\u003c/code> + 一个比较方法补全其余\u003c/td>\u003ctd>会牺牲一点性能，生成的方法较慢\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>contextmanager\u003c/code>\u003c/td>\u003ctd>把生成器变成上下文管理器\u003c/td>\u003ctd>生成器里必须且只能用一次 \u003ccode>yield\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>\u003ccode>wraps\u003c/code> / \u003ccode>update_wrapper\u003c/code>\u003c/td>\u003ctd>保留元信息\u003c/td>\u003ctd>几乎是每个自定义装饰器的必选项\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\n\u003ch2>六、生产级模式\u003c/h2>\n\u003ch3>1. 权限校验与横切关注点\u003c/h3>\n\u003cpre>\u003ccode>def requires_role(role):\n    def deco(fn):\n        @functools.wraps(fn)\n        def wrapper(user, *args, **kwargs):\n            if role not in user.roles:\n                raise PermissionError(role)\n            return fn(user, *args, **kwargs)\n        return wrapper\n    return deco\n\u003c/code>\u003c/pre>\n\u003cp>装饰器最适合承载这类\u003cstrong>与业务逻辑正交\u003c/strong>的横切逻辑：鉴权、日志、埋点、事务、限流。判断标准很简单——把这段逻辑删掉，业务函数的语义是否不变？如果不变，就适合抽成装饰器。\u003c/p>\n\n\u003ch3>2. 注册器（插件系统）\u003c/h3>\n\u003cpre>\u003ccode>REGISTRY = {}\ndef register(name):\n    def deco(cls):\n        REGISTRY[name] = cls\n        return cls          # 返回原类，不包装\n    return deco\n\n@register(\"json\")\nclass JsonExporter: ...\n\u003c/code>\u003c/pre>\n\u003cp>这里装饰器\u003cstrong>只做注册、返回原对象\u003c/strong>，是「副作用型」装饰器，没有包装层开销。Web 框架的路由 \u003ccode>@app.route\u003c/code>、测试框架的标记，本质都是这个模式。\u003c/p>\n\n\u003ch3>3. 异步协程必须用 async 包装\u003c/h3>\n\u003cpre>\u003ccode>def async_timer(fn):\n    @functools.wraps(fn)\n    async def wrapper(*args, **kwargs):        # 必须是 async def\n        t0 = time.perf_counter()\n        try:\n            return await fn(*args, **kwargs)   # 必须 await\n        finally:\n            print(time.perf_counter() - t0)\n    return wrapper\n\u003c/code>\u003c/pre>\n\u003cp>用普通 \u003ccode>def wrapper\u003c/code> 返回 \u003ccode>fn(...)\u003c/code> 的协程对象，调用方拿到的是未被 await 的 coroutine，会静默不执行并触发 \u003ccode>RuntimeWarning: coroutine was never awaited\u003c/code>。若装饰器要同时兼容同步与异步函数，可用 \u003ccode>inspect.iscoroutinefunction\u003c/code> 分支，或让包装层始终返回可等待对象再判断。\u003c/p>\n\n\u003ch2>七、常见坑对照表\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>坑\u003c/th>\u003cth>表现\u003c/th>\u003cth>正解\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>忘写 \u003ccode>return\u003c/code>\u003c/td>\u003ctd>被装饰函数永远返回 None\u003c/td>\u003ctd>包装层 \u003ccode>return fn(*args, **kwargs)\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>忘写 \u003ccode>wraps\u003c/code>\u003c/td>\u003ctd>签名/文档丢失，框架注入失效\u003c/td>\u003ctd>每个包装层都加\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>吞掉异常\u003c/td>\u003ctd>错误被静默，finally 之外没 re-raise\u003c/td>\u003ctd>用 try/finally，不捕获或原样抛出\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>装饰顺序搞反\u003c/td>\u003ctd>日志和计时的先后与预期不符\u003c/td>\u003ctd>离 \u003ccode>def\u003c/code> 最近的先装饰、最外层最后执行；\u003ccode>@a @b def f\u003c/code> 即 \u003ccode>f = a(b(f))\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>类实例装饰实例方法\u003c/td>\u003ctd>丢失 \u003ccode>self\u003c/code>\u003c/td>\u003ctd>补 \u003ccode>__get__\u003c/code> 或改用函数闭包\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>同步包装器包异步函数\u003c/td>\u003ctd>协程从未 await\u003c/td>\u003ctd>\u003ccode>async def\u003c/code> + \u003ccode>await\u003c/code>\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>包装生成器\u003c/td>\u003ctd>惰性执行导致计时/日志位置不对\u003c/td>\u003ctd>用 \u003ccode>yield from\u003c/code> 并整体包住迭代\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>误以为装饰在调用时执行\u003c/td>\u003ctd>导入期就有副作用（注册、打印）\u003c/td>\u003ctd>把每次逻辑放进包装层\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>缓存可变/不可哈希参数\u003c/td>\u003ctd>结果陈旧或 TypeError\u003c/td>\u003ctd>改传不可变键，或别用 lru_cache\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>层层包装拖慢热路径\u003c/td>\u003ctd>高频小函数开销显著\u003c/td>\u003ctd>减少嵌套层、用 \u003ccode>wrapt\u003c/code>、或内联关键逻辑\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\n\u003ch2>八、什么时候不该用装饰器\u003c/h2>\n\u003cul>\n  \u003cli>逻辑与业务强耦合、需要读大量上下文才能理解时——显式调用比隐式包装更好维护；\u003c/li>\n  \u003cli>需要频繁按条件开关、且开关来自运行时配置时——装饰器在导入期就固定了，改配置不会重新装饰；\u003c/li>\n  \u003cli>团队里多数人不熟悉元编程时，一个 \u003ccode>with\u003c/code> 或一行显式调用更不容易踩坑；\u003c/li>\n  \u003cli>热路径上层层包装、又拿不出可观测收益时。\u003c/li>\n\u003c/ul>\n\u003cp>装饰器本质上只是「\u003cstrong>把一个可调用对象替换成另一个\u003c/strong>」。理解闭包怎么捕获自由变量、\u003ccode>wraps\u003c/code> 怎么串起 \u003ccode>__wrapped__\u003c/code> 链、描述符怎么绑定 \u003ccode>self\u003c/code>，剩下的所有高级用法都是这三件事的组合。\u003c/p>"}</script>
   <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
   <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

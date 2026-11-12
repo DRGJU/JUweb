@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>从零到通关：我做的 Python 游戏化学习平台 | 墨迹</title>
-  <meta name="description" content="简要介绍我做的另一个项目——浏览器里的 Python 游戏化学习平台：30 个关卡、6 大阶段、5 种答题模式，纯前端、打开即玩。">
+  <title>从零到通关：我做的 Python 游戏化学习平台，以及背后的设计取舍 | 墨迹</title>
+  <meta name="description" content="一个纯前端、打开浏览器就能学 Python 的关卡式平台：30 关 × 6 阶段 × 4 种答题模式，Pyodide 在浏览器内执行代码，levels.json 单一数据源 + 构建期生成参考解。讲清架构、关键决策、踩过的坑与局限。">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="从零到通关：我做的 Python 游戏化学习平台">
-  <meta property="og:description" content="简要介绍我做的另一个项目——浏览器里的 Python 游戏化学习平台：30 个关卡、6 大阶段、5 种答题模式，纯前端、打开即玩。">
+  <meta property="og:title" content="从零到通关：我做的 Python 游戏化学习平台，以及背后的设计取舍">
+  <meta property="og:description" content="一个纯前端、打开浏览器就能学 Python 的关卡式平台：30 关 × 6 阶段 × 4 种答题模式，Pyodide 在浏览器内执行代码，levels.json 单一数据源 + 构建期生成参考解。讲清架构、关键决策、踩过的坑与局限。">
   <meta property="og:url" content="https://drgju.github.io/JUweb/posts/6.html">
   <meta property="article:published_time" content="2026-11-11">
   <link rel="canonical" href="https://drgju.github.io/JUweb/posts/6.html">
@@ -21,7 +21,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 14 期，2026-11-11</span>
+      <span class="masthead__edition">第 17 期，2026-11-11</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
@@ -34,37 +34,113 @@
     <article>
       <header class="post__head">
         <a class="post__back" href="../index.html">返回目录</a>
-        <h1 id="postTitle" class="post__title">从零到通关：我做的 Python 游戏化学习平台</h1>
+        <h1 id="postTitle" class="post__title">从零到通关：我做的 Python 游戏化学习平台，以及背后的设计取舍</h1>
         <div class="post__meta">
           <span id="postCategory">技术</span>
           <time id="postDate" datetime="2026-11-11">2026-11-11</time>
         </div>
-        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">游戏化学习</span><span class="post__tag">项目</span><span class="post__tag">前端</span></div>
+        <div id="postTags" class="post__tags"><span class="post__tag">Python</span><span class="post__tag">游戏化学习</span><span class="post__tag">Pyodide</span><span class="post__tag">前端</span><span class="post__tag">项目</span><span class="post__tag">WebAssembly</span></div>
       </header>
-      <div id="postContent" class="post__body"><p>除了这个博客，我最近还做了一个小项目：一个<strong>浏览器里的 Python 游戏化学习平台</strong>。打开网页就能玩，把 Python 语法拆成 30 个关卡，边写边闯关，不用装环境、不用登录。</p>
+      <div id="postContent" class="post__body"><figure>
+  <img src="https://images.pexels.com/photos/31024672/pexels-photo-31024672.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1280" alt="黑白现代建筑立面，几何秩序清晰" />
+  <figcaption>黑白建筑立面 · 图源 Pexels（免费授权）</figcaption>
+</figure>
+<p>学编程最大的流失点不在「听不懂」，而在<strong>环境装不起来</strong>和<strong>写完不知道对不对</strong>。我做这个项目的目标很直接：让初学者打开一个网页就能写第一行 Python，并且立刻得到反馈。这篇简要介绍它是什么、为什么这么设计，以及实现过程中真正花时间的几个坑。</p>
 
-<h2>它是什么</h2>
-<p>一个<strong>纯前端</strong>的 Python 学习站点：首页选关，点进去看讲解、示例和挑战，写完代码立刻知道对不对，过关自动解锁下一关，进度存在本地浏览器里。</p>
+<h2>一、它是什么</h2>
+<p>一个<strong>纯前端</strong>的 Python 关卡式练习平台。不需要注册、不需要装 Python、不需要后端服务器判题——把项目跑起来，浏览器打开就能开始闯关。当前内容规模：</p>
+<table>
+<thead><tr><th>维度</th><th>现状</th></tr></thead>
+<tbody>
+<tr><td>关卡</td><td>30 关，分 6 个阶段，从变量与输出递进到函数、容器与综合题</td></tr>
+<tr><td>答题模式</td><td>4 种：run（写代码跑出结果）、predict（预测输出）、debug（找错修正）、match（配对连线）</td></tr>
+<tr><td>运行时</td><td>Pyodide（CPython 编译到 WebAssembly），在浏览器 Web Worker 内执行</td></tr>
+<tr><td>进度</td><td>localStorage 本地保存，刷新不丢，不上传任何数据</td></tr>
+<tr><td>后端</td><td>无。静态文件即可部署</td></tr>
+</tbody>
+</table>
+<p>此前还有一个「拖拽组装代码」模式，后来取消了：它对初学者的实际帮助有限，却让关卡数据结构和维护成本显著变复杂。删掉之后代码更干净，题目质量反而更集中。</p>
 
-<h2>游戏化为什么有效</h2>
+<h2>二、为什么用游戏化，以及它的边界</h2>
+<p>游戏化真正有效的不是积分和徽章，而是三件事：</p>
 <ul>
-  <li><strong>即时反馈：</strong>写错马上知道，不用攒到月底。</li>
-  <li><strong>小步通关：</strong>每关只学一个知识点，成就感推着你继续。</li>
-  <li><strong>即开即玩：</strong>零启动成本，没有配环境的劝退感。</li>
+  <li><strong>即时反馈</strong>：提交后几百毫秒内知道对不对，不必等老师批改；</li>
+  <li><strong>小步进阶</strong>：一关只引入一个概念，失败成本极低，愿意反复试；</li>
+  <li><strong>零门槛启动</strong>：没有环境配置的挫败，第一关就能跑通代码并看到输出。</li>
+</ul>
+<p>但要清醒：闯关适合<strong>练熟语法和读代码</strong>，不适合替代真实项目练习。所以关卡里刻意安排了 predict（读别人代码）和 debug（定位错误）这两类，而不是一路「照着提示敲」。通关不等于会写程序，它只是把入门这段路的摩擦降到最低。</p>
+
+<h2>三、架构：单一数据源 + 构建期生成</h2>
+<pre><code>v4-levels.json（冻结的题目源，人工编写/审阅）
+        │
+        ▼  build-levels-v5.mjs（可复现生成器）
+        │    · 逐关跑参考解，得到标准输出
+        │    · 校验题目 ID、模式、答案完整性
+        │    · 归一化后写入预期结果
+        ▼
+data/levels.json（前端唯一读取的数据，带版本号）
+        │
+        ▼  浏览器
+   level.js 渲染关卡 → Web Worker/Pyodide 执行 → 归一化比对 → 判定
+</code></pre>
+<p>为什么把参考解放到<strong>构建期</strong>而不是浏览器里现算？因为「预期输出」必须与真实 CPython 行为一致，且要能复现、能进版本控制。生成器用本地 Python 跑一遍每关的参考解，把结果冻结进数据文件；前端只做比对，不再需要一份判题逻辑。这让「题目改了但答案忘了改」这类错误在构建阶段就暴露出来。</p>
+
+<h3>输出归一化：最容易被忽略的一环</h3>
+<p>直接比较字符串会制造大量假阴性：Windows 与 Linux 换行不同、行尾多一个空格、最后一行有没有换行。平台在<strong>三处（生成器、浏览器引擎、Pyodide 采集）</strong>使用同一套 <code>norm()</code> 规则：</p>
+<pre><code>CRLF → LF
+去掉每行行尾空白
+去掉整体末尾换行
+</code></pre>
+<p>规则必须三处完全一致，否则会出现「明明输出一样却判错」。这也是这类平台最隐蔽的 bug 来源之一。</p>
+
+<h2>四、四种答题模式各自练什么</h2>
+<table>
+<thead><tr><th>模式</th><th>练的能力</th><th>判定方式</th></tr></thead>
+<tbody>
+<tr><td>run</td><td>把想法写成可执行代码</td><td>运行输出与冻结的预期输出归一化比对</td></tr>
+<tr><td>predict</td><td>读代码、建立执行模型</td><td>选择/填写预测的输出，不执行用户代码</td></tr>
+<tr><td>debug</td><td>定位错误、理解报错信息</td><td>修正后运行并比对输出</td></tr>
+<tr><td>match</td><td>概念与术语的对应关系</td><td>配对结果集比对</td></tr>
+</tbody>
+</table>
+<p>模式由题目数据里的 <code>questionTypes</code> 驱动，界面标签和内容区按需渲染——所以增删一种模式不需要改渲染分支的硬编码列表。</p>
+
+<h2>五、关键技术决策</h2>
+<table>
+<thead><tr><th>决策</th><th>收益</th><th>付出的代价</th></tr></thead>
+<tbody>
+<tr><td>不做后端</td><td>零运维、零成本、可离线、隐私友好</td><td>进度只在本机；换设备不同步；无法防作弊</td></tr>
+<tr><td>Pyodide 而非自建判题服务</td><td>真实 CPython 语义，不是简化的「伪解释器」</td><td>首次加载要下载约十几 MB 运行时，依赖 CDN</td></tr>
+<tr><td>在浏览器内执行用户代码</td><td>无需排队、响应快</td><td>必须放进 Worker/沙箱隔离，不能让它碰到主页面 DOM</td></tr>
+<tr><td>localStorage 存进度</td><td>实现极简、刷新不丢</td><td>清缓存即丢失；无跨设备同步</td></tr>
+<tr><td>构建期冻结参考解</td><td>判定可复现、可审阅、可 diff</td><td>改题目必须重跑生成器</td></tr>
+</tbody>
+</table>
+<blockquote>安全边界：平台只在浏览器里执行<strong>学习者自己写的代码</strong>，且运行在 Worker 中，不接触页面 DOM 与用户数据。它不是一个执行陌生不可信代码的服务，也不该被当成安全沙箱使用。</blockquote>
+
+<h2>六、踩过的坑</h2>
+<ul>
+  <li><strong>Pyodide 的 stdout 采集</strong>：<code>setStdout({ batched })</code> 在遇到换行时触发回调，返回的字符串<strong>本身带换行符且已解码</strong>，中文正常。若改成 <code>raw</code> 按字节回调，会破坏 UTF-8 中文，必须自己做流式解码。</li>
+  <li><strong>确定性</strong>：参考解里禁止使用时间、随机数、字典遍历顺序等不确定输出，否则每次构建生成的预期结果都不一样，数据文件会一直「变脏」。</li>
+  <li><strong>file:// 打不开</strong>：<code>fetch</code>、module worker、CDN 在 <code>file://</code> 协议下都受限，本地必须用 <code>node server.js</code> 起一个静态服务（默认 8081）通过 HTTP 访问。</li>
+  <li><strong>CDN 依赖</strong>：Pyodide 运行时需联网获取。完全离线场景要把运行时文件本地化，这也是目前最主要的部署限制。</li>
+  <li><strong>题库一致性校验</strong>：数据完整性用「本地 Python 重跑 30 关参考解全部通过、且重建结果字节一致」来验证，比肉眼检查可靠得多。</li>
 </ul>
 
-<h2>核心特性</h2>
-<ul>
-  <li><strong>30 关 / 6 阶段：</strong>从变量循环到函数、文件、综合项目，难度递进，后续阶段自动锁定。</li>
-  <li><strong>5 种答题模式：</strong>代码编写、拖放编程、选择题、填空、分步引导，适配不同知识点。</li>
-  <li><strong>进度本地保存：</strong>基于 <code>localStorage</code>，关掉网页再打开进度还在。</li>
-</ul>
+<h2>七、本地运行与加一关</h2>
+<pre><code>node server.js            # 起静态服务，默认 8081
+# 浏览器打开 http://localhost:8081
+node build-levels-v5.mjs  # 改题目后重新生成 data/levels.json
+</code></pre>
+<ol>
+  <li>在冻结源 <code>v4-levels.json</code> 里按既有结构新增一关，写清题干、<code>questionTypes</code>、初始代码与参考解；</li>
+  <li>跑生成器，它会执行参考解、写入预期输出并校验 ID/答案完整性；</li>
+  <li>刷新页面验收；再跑一次生成器确认输出字节一致（保证确定性）。</li>
+</ol>
 
-<h2>技术实现</h2>
-<p>整个项目<strong>零后端</strong>：关卡数据集中在 <code>data/levels.json</code> 异步加载，主页与关卡逻辑分别在 <code>js/game.js</code> 与 <code>js/level.js</code>（ES6 类设计），进度用 <code>localStorage</code> 持久化，渲染时对输入做 HTML 转义防 XSS。视觉走简洁清爽路线，蓝紫渐变 + 卡片式布局，并做了响应式适配。</p>
-
-<h2>结语</h2>
-<p>这是我把「让编程更好玩」落地的一次尝试，和这个博客一样追求<strong>打开即用、轻量纯粹</strong>。欢迎去我的 GitHub（<a href="https://github.com/DRGJU" title="作者的 GitHub" rel="noopener noreferrer">DRGJU</a>）交流，后续我计划补全早期关卡并加入成就系统。</p></div>
+<h2>八、局限与下一步</h2>
+<p>目前没有账号体系与云端进度，没有自由编程区，错题也没有间隔复习机制；Pyodide 冷启动仍是首次体验的短板。后续更值得做的方向是把运行时本地化以支持完全离线、加入「自由练习」沙盒，以及基于错题数据做简单的复习调度——而不是继续堆关卡数量。</p>
+<p>如果你也想做一个类似的练习平台，最值得复用的不是界面，而是「<strong>单一数据源 + 构建期冻结参考解 + 三处一致的归一化</strong>」这套结构。它把最容易出错的判定环节变成了可复现、可审阅的工程问题。</p></div>
       <div id="postActions" class="post__actions"></div>
     </article>
   </main>
@@ -73,7 +149,7 @@
     <div class="container colophon__inner">
       <div>
         <p class="colophon__statement">用文字丈量世界</p>
-        <p class="colophon__meta">墨迹，<span id="year"></span>。第 14 期。</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 17 期。</p>
       </div>
       <div class="colophon__links">
         <a href="../index.html">文章归档</a>
@@ -83,7 +159,7 @@
     <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
   </footer>
 
-  <script type="application/json" id="post-data">{"id":6,"title":"从零到通关：我做的 Python 游戏化学习平台","excerpt":"简要介绍我做的另一个项目——浏览器里的 Python 游戏化学习平台：30 个关卡、6 大阶段、5 种答题模式，纯前端、打开即玩。","date":"2026-11-11","category":"技术","tags":["Python","游戏化学习","项目","前端"],"content":"\u003cp>除了这个博客，我最近还做了一个小项目：一个\u003cstrong>浏览器里的 Python 游戏化学习平台\u003c/strong>。打开网页就能玩，把 Python 语法拆成 30 个关卡，边写边闯关，不用装环境、不用登录。\u003c/p>\n\n\u003ch2>它是什么\u003c/h2>\n\u003cp>一个\u003cstrong>纯前端\u003c/strong>的 Python 学习站点：首页选关，点进去看讲解、示例和挑战，写完代码立刻知道对不对，过关自动解锁下一关，进度存在本地浏览器里。\u003c/p>\n\n\u003ch2>游戏化为什么有效\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>即时反馈：\u003c/strong>写错马上知道，不用攒到月底。\u003c/li>\n  \u003cli>\u003cstrong>小步通关：\u003c/strong>每关只学一个知识点，成就感推着你继续。\u003c/li>\n  \u003cli>\u003cstrong>即开即玩：\u003c/strong>零启动成本，没有配环境的劝退感。\u003c/li>\n\u003c/ul>\n\n\u003ch2>核心特性\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>30 关 / 6 阶段：\u003c/strong>从变量循环到函数、文件、综合项目，难度递进，后续阶段自动锁定。\u003c/li>\n  \u003cli>\u003cstrong>5 种答题模式：\u003c/strong>代码编写、拖放编程、选择题、填空、分步引导，适配不同知识点。\u003c/li>\n  \u003cli>\u003cstrong>进度本地保存：\u003c/strong>基于 \u003ccode>localStorage\u003c/code>，关掉网页再打开进度还在。\u003c/li>\n\u003c/ul>\n\n\u003ch2>技术实现\u003c/h2>\n\u003cp>整个项目\u003cstrong>零后端\u003c/strong>：关卡数据集中在 \u003ccode>data/levels.json\u003c/code> 异步加载，主页与关卡逻辑分别在 \u003ccode>js/game.js\u003c/code> 与 \u003ccode>js/level.js\u003c/code>（ES6 类设计），进度用 \u003ccode>localStorage\u003c/code> 持久化，渲染时对输入做 HTML 转义防 XSS。视觉走简洁清爽路线，蓝紫渐变 + 卡片式布局，并做了响应式适配。\u003c/p>\n\n\u003ch2>结语\u003c/h2>\n\u003cp>这是我把「让编程更好玩」落地的一次尝试，和这个博客一样追求\u003cstrong>打开即用、轻量纯粹\u003c/strong>。欢迎去我的 GitHub（\u003ca href=\"https://github.com/DRGJU\" title=\"作者的 GitHub\">DRGJU\u003c/a>）交流，后续我计划补全早期关卡并加入成就系统。\u003c/p>"}</script>
+  <script type="application/json" id="post-data">{"id":6,"title":"从零到通关：我做的 Python 游戏化学习平台，以及背后的设计取舍","excerpt":"一个纯前端、打开浏览器就能学 Python 的关卡式平台：30 关 × 6 阶段 × 4 种答题模式，Pyodide 在浏览器内执行代码，levels.json 单一数据源 + 构建期生成参考解。讲清架构、关键决策、踩过的坑与局限。","date":"2026-11-11","category":"技术","tags":["Python","游戏化学习","Pyodide","前端","项目","WebAssembly"],"content":"\u003cfigure>\n  \u003cimg src=\"https://images.pexels.com/photos/31024672/pexels-photo-31024672.jpeg?auto=compress&cs=tinysrgb&w=1280\" alt=\"黑白现代建筑立面，几何秩序清晰\">\n  \u003cfigcaption>黑白建筑立面 · 图源 Pexels（免费授权）\u003c/figcaption>\n\u003c/figure>\n\u003cp>学编程最大的流失点不在「听不懂」，而在\u003cstrong>环境装不起来\u003c/strong>和\u003cstrong>写完不知道对不对\u003c/strong>。我做这个项目的目标很直接：让初学者打开一个网页就能写第一行 Python，并且立刻得到反馈。这篇简要介绍它是什么、为什么这么设计，以及实现过程中真正花时间的几个坑。\u003c/p>\n\n\u003ch2>一、它是什么\u003c/h2>\n\u003cp>一个\u003cstrong>纯前端\u003c/strong>的 Python 关卡式练习平台。不需要注册、不需要装 Python、不需要后端服务器判题——把项目跑起来，浏览器打开就能开始闯关。当前内容规模：\u003c/p>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>维度\u003c/th>\u003cth>现状\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>关卡\u003c/td>\u003ctd>30 关，分 6 个阶段，从变量与输出递进到函数、容器与综合题\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>答题模式\u003c/td>\u003ctd>4 种：run（写代码跑出结果）、predict（预测输出）、debug（找错修正）、match（配对连线）\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>运行时\u003c/td>\u003ctd>Pyodide（CPython 编译到 WebAssembly），在浏览器 Web Worker 内执行\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>进度\u003c/td>\u003ctd>localStorage 本地保存，刷新不丢，不上传任何数据\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>后端\u003c/td>\u003ctd>无。静态文件即可部署\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>此前还有一个「拖拽组装代码」模式，后来取消了：它对初学者的实际帮助有限，却让关卡数据结构和维护成本显著变复杂。删掉之后代码更干净，题目质量反而更集中。\u003c/p>\n\n\u003ch2>二、为什么用游戏化，以及它的边界\u003c/h2>\n\u003cp>游戏化真正有效的不是积分和徽章，而是三件事：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>即时反馈\u003c/strong>：提交后几百毫秒内知道对不对，不必等老师批改；\u003c/li>\n  \u003cli>\u003cstrong>小步进阶\u003c/strong>：一关只引入一个概念，失败成本极低，愿意反复试；\u003c/li>\n  \u003cli>\u003cstrong>零门槛启动\u003c/strong>：没有环境配置的挫败，第一关就能跑通代码并看到输出。\u003c/li>\n\u003c/ul>\n\u003cp>但要清醒：闯关适合\u003cstrong>练熟语法和读代码\u003c/strong>，不适合替代真实项目练习。所以关卡里刻意安排了 predict（读别人代码）和 debug（定位错误）这两类，而不是一路「照着提示敲」。通关不等于会写程序，它只是把入门这段路的摩擦降到最低。\u003c/p>\n\n\u003ch2>三、架构：单一数据源 + 构建期生成\u003c/h2>\n\u003cpre>\u003ccode>v4-levels.json（冻结的题目源，人工编写/审阅）\n        │\n        ▼  build-levels-v5.mjs（可复现生成器）\n        │    · 逐关跑参考解，得到标准输出\n        │    · 校验题目 ID、模式、答案完整性\n        │    · 归一化后写入预期结果\n        ▼\ndata/levels.json（前端唯一读取的数据，带版本号）\n        │\n        ▼  浏览器\n   level.js 渲染关卡 → Web Worker/Pyodide 执行 → 归一化比对 → 判定\n\u003c/code>\u003c/pre>\n\u003cp>为什么把参考解放到\u003cstrong>构建期\u003c/strong>而不是浏览器里现算？因为「预期输出」必须与真实 CPython 行为一致，且要能复现、能进版本控制。生成器用本地 Python 跑一遍每关的参考解，把结果冻结进数据文件；前端只做比对，不再需要一份判题逻辑。这让「题目改了但答案忘了改」这类错误在构建阶段就暴露出来。\u003c/p>\n\n\u003ch3>输出归一化：最容易被忽略的一环\u003c/h3>\n\u003cp>直接比较字符串会制造大量假阴性：Windows 与 Linux 换行不同、行尾多一个空格、最后一行有没有换行。平台在\u003cstrong>三处（生成器、浏览器引擎、Pyodide 采集）\u003c/strong>使用同一套 \u003ccode>norm()\u003c/code> 规则：\u003c/p>\n\u003cpre>\u003ccode>CRLF → LF\n去掉每行行尾空白\n去掉整体末尾换行\n\u003c/code>\u003c/pre>\n\u003cp>规则必须三处完全一致，否则会出现「明明输出一样却判错」。这也是这类平台最隐蔽的 bug 来源之一。\u003c/p>\n\n\u003ch2>四、四种答题模式各自练什么\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>模式\u003c/th>\u003cth>练的能力\u003c/th>\u003cth>判定方式\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>run\u003c/td>\u003ctd>把想法写成可执行代码\u003c/td>\u003ctd>运行输出与冻结的预期输出归一化比对\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>predict\u003c/td>\u003ctd>读代码、建立执行模型\u003c/td>\u003ctd>选择/填写预测的输出，不执行用户代码\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>debug\u003c/td>\u003ctd>定位错误、理解报错信息\u003c/td>\u003ctd>修正后运行并比对输出\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>match\u003c/td>\u003ctd>概念与术语的对应关系\u003c/td>\u003ctd>配对结果集比对\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cp>模式由题目数据里的 \u003ccode>questionTypes\u003c/code> 驱动，界面标签和内容区按需渲染——所以增删一种模式不需要改渲染分支的硬编码列表。\u003c/p>\n\n\u003ch2>五、关键技术决策\u003c/h2>\n\u003ctable>\n\u003cthead>\u003ctr>\u003cth>决策\u003c/th>\u003cth>收益\u003c/th>\u003cth>付出的代价\u003c/th>\u003c/tr>\u003c/thead>\n\u003ctbody>\n\u003ctr>\u003ctd>不做后端\u003c/td>\u003ctd>零运维、零成本、可离线、隐私友好\u003c/td>\u003ctd>进度只在本机；换设备不同步；无法防作弊\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Pyodide 而非自建判题服务\u003c/td>\u003ctd>真实 CPython 语义，不是简化的「伪解释器」\u003c/td>\u003ctd>首次加载要下载约十几 MB 运行时，依赖 CDN\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>在浏览器内执行用户代码\u003c/td>\u003ctd>无需排队、响应快\u003c/td>\u003ctd>必须放进 Worker/沙箱隔离，不能让它碰到主页面 DOM\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>localStorage 存进度\u003c/td>\u003ctd>实现极简、刷新不丢\u003c/td>\u003ctd>清缓存即丢失；无跨设备同步\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>构建期冻结参考解\u003c/td>\u003ctd>判定可复现、可审阅、可 diff\u003c/td>\u003ctd>改题目必须重跑生成器\u003c/td>\u003c/tr>\n\u003c/tbody>\n\u003c/table>\n\u003cblockquote>安全边界：平台只在浏览器里执行\u003cstrong>学习者自己写的代码\u003c/strong>，且运行在 Worker 中，不接触页面 DOM 与用户数据。它不是一个执行陌生不可信代码的服务，也不该被当成安全沙箱使用。\u003c/blockquote>\n\n\u003ch2>六、踩过的坑\u003c/h2>\n\u003cul>\n  \u003cli>\u003cstrong>Pyodide 的 stdout 采集\u003c/strong>：\u003ccode>setStdout({ batched })\u003c/code> 在遇到换行时触发回调，返回的字符串\u003cstrong>本身带换行符且已解码\u003c/strong>，中文正常。若改成 \u003ccode>raw\u003c/code> 按字节回调，会破坏 UTF-8 中文，必须自己做流式解码。\u003c/li>\n  \u003cli>\u003cstrong>确定性\u003c/strong>：参考解里禁止使用时间、随机数、字典遍历顺序等不确定输出，否则每次构建生成的预期结果都不一样，数据文件会一直「变脏」。\u003c/li>\n  \u003cli>\u003cstrong>file:// 打不开\u003c/strong>：\u003ccode>fetch\u003c/code>、module worker、CDN 在 \u003ccode>file://\u003c/code> 协议下都受限，本地必须用 \u003ccode>node server.js\u003c/code> 起一个静态服务（默认 8081）通过 HTTP 访问。\u003c/li>\n  \u003cli>\u003cstrong>CDN 依赖\u003c/strong>：Pyodide 运行时需联网获取。完全离线场景要把运行时文件本地化，这也是目前最主要的部署限制。\u003c/li>\n  \u003cli>\u003cstrong>题库一致性校验\u003c/strong>：数据完整性用「本地 Python 重跑 30 关参考解全部通过、且重建结果字节一致」来验证，比肉眼检查可靠得多。\u003c/li>\n\u003c/ul>\n\n\u003ch2>七、本地运行与加一关\u003c/h2>\n\u003cpre>\u003ccode>node server.js            # 起静态服务，默认 8081\n# 浏览器打开 http://localhost:8081\nnode build-levels-v5.mjs  # 改题目后重新生成 data/levels.json\n\u003c/code>\u003c/pre>\n\u003col>\n  \u003cli>在冻结源 \u003ccode>v4-levels.json\u003c/code> 里按既有结构新增一关，写清题干、\u003ccode>questionTypes\u003c/code>、初始代码与参考解；\u003c/li>\n  \u003cli>跑生成器，它会执行参考解、写入预期输出并校验 ID/答案完整性；\u003c/li>\n  \u003cli>刷新页面验收；再跑一次生成器确认输出字节一致（保证确定性）。\u003c/li>\n\u003c/ol>\n\n\u003ch2>八、局限与下一步\u003c/h2>\n\u003cp>目前没有账号体系与云端进度，没有自由编程区，错题也没有间隔复习机制；Pyodide 冷启动仍是首次体验的短板。后续更值得做的方向是把运行时本地化以支持完全离线、加入「自由练习」沙盒，以及基于错题数据做简单的复习调度——而不是继续堆关卡数量。\u003c/p>\n\u003cp>如果你也想做一个类似的练习平台，最值得复用的不是界面，而是「\u003cstrong>单一数据源 + 构建期冻结参考解 + 三处一致的归一化\u003c/strong>」这套结构。它把最容易出错的判定环节变成了可复现、可审阅的工程问题。\u003c/p>"}</script>
   <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
   <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

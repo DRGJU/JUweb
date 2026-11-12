@@ -20,7 +20,7 @@
   <header class="masthead">
     <div class="container masthead__inner">
       <a class="masthead__brand" href="index.html" aria-label="墨迹，返回首页">墨迹</a>
-      <span class="masthead__edition">第 14 期，2026-11-12</span>
+      <span class="masthead__edition">第 17 期，2026-11-12</span>
       <nav class="masthead__nav" aria-label="主导航">
         <a href="#articles">文章</a>
         <a href="#about">关于</a>
@@ -65,56 +65,56 @@
         <article class="row">
           <time class="row__date" datetime="2026-11-12">2026-11-12</time>
           <div>
-            <h3 class="row__title"><a href="./posts/10.html">像高手一样用基础网络命令：排查连通性、看懂网络环境</a></h3>
-            <p class="row__excerpt">网络出问题时，高手靠一组基础命令把模糊的&quot;网络坏了&quot;拆解成&quot;哪一段、哪一层&quot;。本文系统讲解 ping、ipconfig、tracert、nslookup、netstat、curl 等命令，并给出判断延迟、丢包与网络环境的实用框架。</p>
-            <p class="row__meta">技术，网络，命令行，排障，网络诊断，Windows</p>
+            <h3 class="row__title"><a href="./posts/10.html">像高手一样用基础网络命令：分层排查框架与网络环境判读</a></h3>
+            <p class="row__excerpt">不止列命令。用「本机配置 → 链路网关 → 路由 → DNS → 传输应用」五层框架串起 ipconfig/ip、ping、tracert、dig、ss、curl，讲清 ICMP 与 TTL 原理、MTU 分片、NAT/CGNAT 识别、延迟抖动丢包判读，附跨平台命令对照与症状速查表。</p>
+            <p class="row__meta">技术，网络，命令行，排障，TCP/IP，网络诊断，Windows</p>
           </div>
-          <a class="row__link" href="./posts/10.html" aria-label="读《像高手一样用基础网络命令：排查连通性、看懂网络环境》">读这一篇</a>
+          <a class="row__link" href="./posts/10.html" aria-label="读《像高手一样用基础网络命令：分层排查框架与网络环境判读》">读这一篇</a>
         </article>
         <article class="row">
           <time class="row__date" datetime="2026-11-12">2026-11-12</time>
           <div>
-            <h3 class="row__title"><a href="./posts/9.html">用沙箱验证程序：在隔离环境里安全运行不信任的代码</a></h3>
-            <p class="row__excerpt">沙箱能在受限的隔离环境中运行程序，既能验证行为又不污染宿主。本文梳理容器、Firejail、gVisor 等常见方案，以及一套可复用的验证流程。</p>
-            <p class="row__meta">技术，沙箱，安全，容器，隔离，验证</p>
+            <h3 class="row__title"><a href="./posts/9.html">用沙箱验证程序：隔离模型、可复制的容器配方与结果判读</a></h3>
+            <p class="row__excerpt">不只是 docker run --network none。从威胁模型与隔离层次对比讲起，给出一份带 cap-drop、只读根文件系统、资源限额的完整验证配方，讲清如何观察文件/网络/系统调用变化、怎样设计判定标准，以及容器不是安全边界这一关键局限。</p>
+            <p class="row__meta">技术，沙箱，安全，Docker，隔离，seccomp，程序验证</p>
           </div>
-          <a class="row__link" href="./posts/9.html" aria-label="读《用沙箱验证程序：在隔离环境里安全运行不信任的代码》">读这一篇</a>
+          <a class="row__link" href="./posts/9.html" aria-label="读《用沙箱验证程序：隔离模型、可复制的容器配方与结果判读》">读这一篇</a>
         </article>
         <article class="row">
           <time class="row__date" datetime="2026-11-11">2026-11-11</time>
           <div>
-            <h3 class="row__title"><a href="./posts/8.html">Python 装饰器详解：从 @ 语法到实战应用</a></h3>
-            <p class="row__excerpt">Python 装饰器用一个 @ 符号实现函数包装与元编程。本文从计时装饰器讲起，覆盖 @ 语法糖、functools.wraps、带参装饰器、类装饰器，以及缓存/路由/鉴权等真实应用场景与常见坑。</p>
-            <p class="row__meta">技术，Python，装饰器，进阶，元编程</p>
+            <h3 class="row__title"><a href="./posts/8.html">Python 装饰器深入：从闭包与描述符到生产级模式</a></h3>
+            <p class="row__excerpt">不止于 @ 语法糖。讲清闭包与自由变量、functools.wraps 与 __wrapped__、带参装饰器的三种写法、类装饰器与描述符交互、异步与生成器陷阱，以及重试/缓存/注册器等生产模式与性能取舍。</p>
+            <p class="row__meta">技术，Python，装饰器，闭包，functools，元编程，进阶</p>
           </div>
-          <a class="row__link" href="./posts/8.html" aria-label="读《Python 装饰器详解：从 @ 语法到实战应用》">读这一篇</a>
+          <a class="row__link" href="./posts/8.html" aria-label="读《Python 装饰器深入：从闭包与描述符到生产级模式》">读这一篇</a>
         </article>
         <article class="row">
           <time class="row__date" datetime="2026-11-11">2026-11-11</time>
           <div>
-            <h3 class="row__title"><a href="./posts/7.html">用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry</a></h3>
-            <p class="row__excerpt">不想再被 venv、pip、poetry、pyenv 来回折腾？Astral 出品的 uv 一个工具全包了。本文用 uv 为主线，讲清如何用它建环境、锁依赖、并用 .env 与 uv run 分离 dev/test/prod 多环境配置。</p>
-            <p class="row__meta">技术，Python，uv，环境配置，虚拟环境</p>
+            <h3 class="row__title"><a href="./posts/7.html">用 uv 管理 Python 多环境：从解析原理到 CI 与生产落地</a></h3>
+            <p class="row__excerpt">uv 不只是「更快的 pip」。讲清它如何用 Rust + 全局缓存 + 硬链接统一 Python 版本/虚拟环境/依赖/工具，给出 pyproject.toml、uv.lock、PEP 723 内联脚本、依赖分组、--env-file 与 uv sync --frozen 的完整多环境方案，附迁移与排障表。</p>
+            <p class="row__meta">技术，Python，uv，环境配置，依赖管理，pyproject.toml，CI</p>
           </div>
-          <a class="row__link" href="./posts/7.html" aria-label="读《用 uv 搞定 Python 多环境：一个工具替代 venv、pip 和 Poetry》">读这一篇</a>
+          <a class="row__link" href="./posts/7.html" aria-label="读《用 uv 管理 Python 多环境：从解析原理到 CI 与生产落地》">读这一篇</a>
         </article>
         <article class="row">
           <time class="row__date" datetime="2026-11-11">2026-11-11</time>
           <div>
-            <h3 class="row__title"><a href="./posts/6.html">从零到通关：我做的 Python 游戏化学习平台</a></h3>
-            <p class="row__excerpt">简要介绍我做的另一个项目——浏览器里的 Python 游戏化学习平台：30 个关卡、6 大阶段、5 种答题模式，纯前端、打开即玩。</p>
-            <p class="row__meta">技术，Python，游戏化学习，项目，前端</p>
+            <h3 class="row__title"><a href="./posts/6.html">从零到通关：我做的 Python 游戏化学习平台，以及背后的设计取舍</a></h3>
+            <p class="row__excerpt">一个纯前端、打开浏览器就能学 Python 的关卡式平台：30 关 × 6 阶段 × 4 种答题模式，Pyodide 在浏览器内执行代码，levels.json 单一数据源 + 构建期生成参考解。讲清架构、关键决策、踩过的坑与局限。</p>
+            <p class="row__meta">技术，Python，游戏化学习，Pyodide，前端，项目，WebAssembly</p>
           </div>
-          <a class="row__link" href="./posts/6.html" aria-label="读《从零到通关：我做的 Python 游戏化学习平台》">读这一篇</a>
+          <a class="row__link" href="./posts/6.html" aria-label="读《从零到通关：我做的 Python 游戏化学习平台，以及背后的设计取舍》">读这一篇</a>
         </article>
         <article class="row">
           <time class="row__date" datetime="2026-11-11">2026-11-11</time>
           <div>
-            <h3 class="row__title"><a href="./posts/5.html">Windows 11 终端美化指南：从默认黑框到高颜值命令行</a></h3>
-            <p class="row__excerpt">Windows 11 自带的 Windows Terminal 远比老式 cmd 强大。本文带你一步步美化终端：更换等宽 Nerd 字体、自定义配色与亚克力背景、用 Oh My Posh 打造炫酷提示符，把命令行变成赏心悦目的工作台。</p>
-            <p class="row__meta">技术，Windows，终端美化，Windows Terminal，Oh My Posh</p>
+            <h3 class="row__title"><a href="./posts/5.html">Windows 11 终端美化完全指南：从渲染原理到可维护的配置体系</a></h3>
+            <p class="row__excerpt">不止是换个配色。讲清终端 / Shell / ConPTY 三层关系、Nerd Font 与 PUA 字形的原理、settings.json 逐项配置、Oh My Posh 与 PSReadLine，附完整可复制配置与乱码、透明失效、SSH 主题不生效等排障表。</p>
+            <p class="row__meta">技术，Windows Terminal，PowerShell，Oh My Posh，Nerd Font，终端美化，效率工具</p>
           </div>
-          <a class="row__link" href="./posts/5.html" aria-label="读《Windows 11 终端美化指南：从默认黑框到高颜值命令行》">读这一篇</a>
+          <a class="row__link" href="./posts/5.html" aria-label="读《Windows 11 终端美化完全指南：从渲染原理到可维护的配置体系》">读这一篇</a>
         </article></div>
         <nav id="pagination" class="pagination" aria-label="文章分页"><a href="index.html" aria-current="page">第 1 页</a>
         <a href="page/2.html">第 2 页</a>
@@ -139,14 +139,14 @@
         </div>
         <dl class="colophon-mast__facts">
           <div><dt>收录</dt><dd>11 篇</dd></div>
-          <div><dt>本期</dt><dd>第 14 期</dd></div>
+          <div><dt>本期</dt><dd>第 17 期</dd></div>
           <div><dt>更新</dt><dd>2026-11-12</dd></div>
           <div><dt>起始</dt><dd>2024-01-01</dd></div>
           <div><dt>去处</dt><dd><a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a></dd></div>
         </dl>
       </div>
       <div class="colophon-mast__foot">
-        <p>墨迹，<span id="year"></span>。第 14 期，2026-11-12。</p>
+        <p>墨迹，<span id="year"></span>。第 17 期，2026-11-12。</p>
         <div class="colophon-mast__links">
           <a href="index.html">首页</a>
           <a href="#articles">文章归档</a>
