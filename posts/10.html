@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>像高手一样用基础网络命令：排查连通性、看懂网络环境 | 墨迹</title>
+  <meta name="description" content="网络出问题时，高手靠一组基础命令把模糊的&quot;网络坏了&quot;拆解成&quot;哪一段、哪一层&quot;。本文系统讲解 ping、ipconfig、tracert、nslookup、netstat、curl 等命令，并给出判断延迟、丢包与网络环境的实用框架。">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="像高手一样用基础网络命令：排查连通性、看懂网络环境">
+  <meta property="og:description" content="网络出问题时，高手靠一组基础命令把模糊的&quot;网络坏了&quot;拆解成&quot;哪一段、哪一层&quot;。本文系统讲解 ping、ipconfig、tracert、nslookup、netstat、curl 等命令，并给出判断延迟、丢包与网络环境的实用框架。">
+  <meta property="og:url" content="https://drgju.github.io/JUweb/posts/10.html">
+  <meta property="article:published_time" content="2026-11-12">
+  <link rel="canonical" href="https://drgju.github.io/JUweb/posts/10.html">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../css/style.css">
+  <script type="module" src="../js/post.js"></script>
+</head>
+<body>
+  <a class="visually-hidden" href="#postContent">跳到正文</a>
+
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <a class="masthead__brand" href="../index.html" aria-label="墨迹，返回首页">墨迹</a>
+      <span class="masthead__edition">第 12 期，2026-11-12</span>
+      <nav class="masthead__nav" aria-label="主导航">
+        <a href="../index.html">文章归档</a>
+        <a href="../index.html#about">关于</a>
+        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container post">
+    <article>
+      <header class="post__head">
+        <a class="post__back" href="../index.html">返回目录</a>
+        <h1 id="postTitle" class="post__title">像高手一样用基础网络命令：排查连通性、看懂网络环境</h1>
+        <div class="post__meta">
+          <span id="postCategory">技术</span>
+          <time id="postDate" datetime="2026-11-12">2026-11-12</time>
+        </div>
+        <div id="postTags" class="post__tags"><span class="post__tag">网络</span><span class="post__tag">命令行</span><span class="post__tag">排障</span><span class="post__tag">网络诊断</span><span class="post__tag">Windows</span></div>
+      </header>
+      <div id="postContent" class="post__body"><figure>
+  <img src="https://images.pexels.com/photos/17729218/pexels-photo-17729218.jpeg" alt="几何线条的现代建筑立面" />
+  <figcaption>几何线条的现代建筑立面 · 图源 Pexels（免费授权）</figcaption>
+</figure>
+
+<p>网络出问题时，很多人只会反复刷新或重启路由器。真正的高手，靠的是一组基础命令，把"网络坏了"这种模糊的感受，拆解成"哪一段、哪一层、谁的责任"。本文带你系统过一遍最常用、也最被低估的网络命令，并给出判断网络环境的实用框架。</p>
+
+<h2>一、先建立心智模型：网络分几层</h2>
+<p>在敲命令前，先记住四个检查点，绝大多数故障都落在这四者之一：</p>
+<ul>
+  <li><strong>本机</strong>：网卡是否启用、IP / 网关 / DNS 是否正确；</li>
+  <li><strong>局域网网关</strong>：能不能到路由器（通常是 192.168.x.1）；</li>
+  <li><strong>运营商 / 公网</strong>：能不能出网、有没有被限速或断网；</li>
+  <li><strong>远端目标</strong>：对方服务器是否在线、端口是否开放、DNS 是否解析得到。</li>
+</ul>
+<p>排查的顺序，就是从近到远一层层往外推。</p>
+
+<h2>二、基础命令清单（按场景）</h2>
+
+<h3>1. ping —— 连通性与延迟</h3>
+<p>最基础也最有用。看三件事：能不能通、往返延迟多少、有没有丢包。</p>
+<pre><code>ping -t 1.1.1.1        # Windows 持续 ping，Ctrl+C 停止
+ping -c 10 8.8.8.8     # macOS / Linux 发 10 个包</code></pre>
+<p>经验值：局域网延迟通常 &lt; 3ms，同城宽带 &lt; 30ms，跨省 / 跨国 50–150ms 都属正常；<strong>丢包率超过 1% 就该警惕</strong>，超过 5% 基本不可用。</p>
+<p>高手技巧：同时开两个窗口，一个 <code>ping 1.1.1.1</code>（纯连通性），一个 <code>ping www.example.com</code>（含 DNS）。前者通、后者不通，问题就在 DNS，而不是网络。</p>
+
+<h3>2. ipconfig / ip —— 看清本机与网关</h3>
+<pre><code>ipconfig /all                    # Windows 看 IP、网关、DNS
+ip addr show                    # Linux 看网卡与地址
+ip route show                   # 看默认网关与路由表</code></pre>
+<p>重点看：是否拿到了正确的 IPv4 地址（不是 169.254 开头的 APIPA 自分配）、默认网关是否非空、DNS 服务器是否可达。</p>
+
+<h3>3. tracert / traceroute —— 看清路径</h3>
+<p>当 ping 不通或很慢，用路径追踪定位"卡在第几跳"。</p>
+<pre><code>tracert 8.8.8.8        # Windows
+traceroute 8.8.8.8     # macOS / Linux</code></pre>
+<p>如果前几跳（本机到网关）就 * * *，是局域网问题；如果一直走到运营商骨干才丢，多半是对端或骨干拥塞。</p>
+
+<h3>4. nslookup / dig —— 排查 DNS</h3>
+<pre><code>nslookup www.example.com 8.8.8.8   # 指定用公共 DNS 解析
+dig @1.1.1.1 www.example.com      # Linux / macOS 更详细</code></pre>
+<p>能解析但慢，可能是本地 DNS 污染或上游不稳定；彻底解析不出，先换公共 DNS（如 1.1.1.1 / 8.8.8.8）验证。</p>
+
+<h3>5. netstat —— 看连接与端口</h3>
+<pre><code>netstat -ano | findstr :443      # Windows 看谁占了 443 端口
+netstat -tunlp                   # Linux 看监听端口与进程</code></pre>
+<p>配合任务管理器或 <code>tasklist</code>，能定位"哪个程序偷偷在联网"。</p>
+
+<h3>6. curl / Test-NetConnection —— 测端口与 HTTP</h3>
+<pre><code>curl -I https://www.example.com     # 只看响应头，快速判断服务状态
+Test-NetConnection 8.8.8.8 -Port 443   # PowerShell 测端口通不通</code></pre>
+<p>curl 的 <code>-I</code> 只看头部，比下载整个页面快得多，适合判断 Web 服务是否活着。</p>
+
+<h2>三、像高手一样判断网络环境</h2>
+<p>命令只是工具，真正的判断力来自这几个维度：</p>
+<ul>
+  <li><strong>延迟</strong>：越低越好，但要结合距离看，跨国 100ms+ 不必大惊小怪；</li>
+  <li><strong>丢包</strong>：&gt; 1% 开始影响体验，&gt; 5% 视频会议会卡死；</li>
+  <li><strong>抖动（jitter）</strong>：延迟忽高忽低比单纯高延迟更伤实时应用；</li>
+  <li><strong>对称性</strong>：上传远小于下载是常态，但如果上传也满速，可能在被限速或中招。</li>
+</ul>
+<p>另外要学会识别"环境类型"：拿到的是<strong>公网 IP</strong> 还是 <strong>NAT / CGNAT</strong>（运营商常把多人塞进一个出口 IP），这决定了你能否做端口映射、远程访问。用 <code>curl ifconfig.me</code> 看到的 IP，如果和你路由器 WAN 口一致，才是真公网。</p>
+
+<h2>四、一套可复用的排障顺序</h2>
+<ol>
+  <li>本机自检：网卡启用？IP / 网关 / DNS 正常？<code>ipconfig /all</code></li>
+  <li>到网关：<code>ping 192.168.1.1</code>，不通先查网线 / Wi-Fi；</li>
+  <li>到公网：<code>ping 1.1.1.1</code>，不通是运营商问题；</li>
+  <li>到 DNS：<code>ping www.baidu.com</code>，不通换 DNS；</li>
+  <li>到目标端口：<code>Test-NetConnection 主机 -Port 端口</code>，判断是服务挂了还是被拦截。</li>
+</ol>
+<p>每一步都能把问题收束到具体一层，避免无头苍蝇式重启。</p>
+
+<h2>五、安全提示</h2>
+<p>本文命令都是只读诊断，不会改动系统。但要注意：不要把 <code>ping</code> / <code>tracert</code> 对一个你不拥有的服务器刷太猛，可能被当成攻击；在公共网络里，别用明文协议传密码，优先 HTTPS / SSH。</p>
+
+<p>把这些命令串成"由近及远"的排查链路，你就能在别人还在重启路由器时，已经定位到是哪一跳出了问题。</p></div>
+      <div id="postActions" class="post__actions"></div>
+    </article>
+  </main>
+
+  <footer class="colophon">
+    <div class="container colophon__inner">
+      <div>
+        <p class="colophon__statement">用文字丈量世界</p>
+        <p class="colophon__meta">墨迹，<span id="year"></span>。第 12 期。</p>
+      </div>
+      <div class="colophon__links">
+        <a href="../index.html">文章归档</a>
+        <a href="https://github.com/DRGJU" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+    <div class="container"><p id="notice" class="visually-hidden" role="status"></p></div>
+  </footer>
+
+  <script type="application/json" id="post-data">{"id":10,"title":"像高手一样用基础网络命令：排查连通性、看懂网络环境","excerpt":"网络出问题时，高手靠一组基础命令把模糊的\"网络坏了\"拆解成\"哪一段、哪一层\"。本文系统讲解 ping、ipconfig、tracert、nslookup、netstat、curl 等命令，并给出判断延迟、丢包与网络环境的实用框架。","date":"2026-11-12","category":"技术","tags":["网络","命令行","排障","网络诊断","Windows"],"content":"\u003cfigure>\n  \u003cimg src=\"https://images.pexels.com/photos/17729218/pexels-photo-17729218.jpeg\" alt=\"几何线条的现代建筑立面\">\n  \u003cfigcaption>几何线条的现代建筑立面 · 图源 Pexels（免费授权）\u003c/figcaption>\n\u003c/figure>\n\n\u003cp>网络出问题时，很多人只会反复刷新或重启路由器。真正的高手，靠的是一组基础命令，把\"网络坏了\"这种模糊的感受，拆解成\"哪一段、哪一层、谁的责任\"。本文带你系统过一遍最常用、也最被低估的网络命令，并给出判断网络环境的实用框架。\u003c/p>\n\n\u003ch2>一、先建立心智模型：网络分几层\u003c/h2>\n\u003cp>在敲命令前，先记住四个检查点，绝大多数故障都落在这四者之一：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>本机\u003c/strong>：网卡是否启用、IP / 网关 / DNS 是否正确；\u003c/li>\n  \u003cli>\u003cstrong>局域网网关\u003c/strong>：能不能到路由器（通常是 192.168.x.1）；\u003c/li>\n  \u003cli>\u003cstrong>运营商 / 公网\u003c/strong>：能不能出网、有没有被限速或断网；\u003c/li>\n  \u003cli>\u003cstrong>远端目标\u003c/strong>：对方服务器是否在线、端口是否开放、DNS 是否解析得到。\u003c/li>\n\u003c/ul>\n\u003cp>排查的顺序，就是从近到远一层层往外推。\u003c/p>\n\n\u003ch2>二、基础命令清单（按场景）\u003c/h2>\n\n\u003ch3>1. ping —— 连通性与延迟\u003c/h3>\n\u003cp>最基础也最有用。看三件事：能不能通、往返延迟多少、有没有丢包。\u003c/p>\n\u003cpre>\u003ccode>ping -t 1.1.1.1        # Windows 持续 ping，Ctrl+C 停止\nping -c 10 8.8.8.8     # macOS / Linux 发 10 个包\u003c/code>\u003c/pre>\n\u003cp>经验值：局域网延迟通常 &lt; 3ms，同城宽带 &lt; 30ms，跨省 / 跨国 50–150ms 都属正常；\u003cstrong>丢包率超过 1% 就该警惕\u003c/strong>，超过 5% 基本不可用。\u003c/p>\n\u003cp>高手技巧：同时开两个窗口，一个 \u003ccode>ping 1.1.1.1\u003c/code>（纯连通性），一个 \u003ccode>ping www.example.com\u003c/code>（含 DNS）。前者通、后者不通，问题就在 DNS，而不是网络。\u003c/p>\n\n\u003ch3>2. ipconfig / ip —— 看清本机与网关\u003c/h3>\n\u003cpre>\u003ccode>ipconfig /all                    # Windows 看 IP、网关、DNS\nip addr show                    # Linux 看网卡与地址\nip route show                   # 看默认网关与路由表\u003c/code>\u003c/pre>\n\u003cp>重点看：是否拿到了正确的 IPv4 地址（不是 169.254 开头的 APIPA 自分配）、默认网关是否非空、DNS 服务器是否可达。\u003c/p>\n\n\u003ch3>3. tracert / traceroute —— 看清路径\u003c/h3>\n\u003cp>当 ping 不通或很慢，用路径追踪定位\"卡在第几跳\"。\u003c/p>\n\u003cpre>\u003ccode>tracert 8.8.8.8        # Windows\ntraceroute 8.8.8.8     # macOS / Linux\u003c/code>\u003c/pre>\n\u003cp>如果前几跳（本机到网关）就 * * *，是局域网问题；如果一直走到运营商骨干才丢，多半是对端或骨干拥塞。\u003c/p>\n\n\u003ch3>4. nslookup / dig —— 排查 DNS\u003c/h3>\n\u003cpre>\u003ccode>nslookup www.example.com 8.8.8.8   # 指定用公共 DNS 解析\ndig @1.1.1.1 www.example.com      # Linux / macOS 更详细\u003c/code>\u003c/pre>\n\u003cp>能解析但慢，可能是本地 DNS 污染或上游不稳定；彻底解析不出，先换公共 DNS（如 1.1.1.1 / 8.8.8.8）验证。\u003c/p>\n\n\u003ch3>5. netstat —— 看连接与端口\u003c/h3>\n\u003cpre>\u003ccode>netstat -ano | findstr :443      # Windows 看谁占了 443 端口\nnetstat -tunlp                   # Linux 看监听端口与进程\u003c/code>\u003c/pre>\n\u003cp>配合任务管理器或 \u003ccode>tasklist\u003c/code>，能定位\"哪个程序偷偷在联网\"。\u003c/p>\n\n\u003ch3>6. curl / Test-NetConnection —— 测端口与 HTTP\u003c/h3>\n\u003cpre>\u003ccode>curl -I https://www.example.com     # 只看响应头，快速判断服务状态\nTest-NetConnection 8.8.8.8 -Port 443   # PowerShell 测端口通不通\u003c/code>\u003c/pre>\n\u003cp>curl 的 \u003ccode>-I\u003c/code> 只看头部，比下载整个页面快得多，适合判断 Web 服务是否活着。\u003c/p>\n\n\u003ch2>三、像高手一样判断网络环境\u003c/h2>\n\u003cp>命令只是工具，真正的判断力来自这几个维度：\u003c/p>\n\u003cul>\n  \u003cli>\u003cstrong>延迟\u003c/strong>：越低越好，但要结合距离看，跨国 100ms+ 不必大惊小怪；\u003c/li>\n  \u003cli>\u003cstrong>丢包\u003c/strong>：&gt; 1% 开始影响体验，&gt; 5% 视频会议会卡死；\u003c/li>\n  \u003cli>\u003cstrong>抖动（jitter）\u003c/strong>：延迟忽高忽低比单纯高延迟更伤实时应用；\u003c/li>\n  \u003cli>\u003cstrong>对称性\u003c/strong>：上传远小于下载是常态，但如果上传也满速，可能在被限速或中招。\u003c/li>\n\u003c/ul>\n\u003cp>另外要学会识别\"环境类型\"：拿到的是\u003cstrong>公网 IP\u003c/strong> 还是 \u003cstrong>NAT / CGNAT\u003c/strong>（运营商常把多人塞进一个出口 IP），这决定了你能否做端口映射、远程访问。用 \u003ccode>curl ifconfig.me\u003c/code> 看到的 IP，如果和你路由器 WAN 口一致，才是真公网。\u003c/p>\n\n\u003ch2>四、一套可复用的排障顺序\u003c/h2>\n\u003col>\n  \u003cli>本机自检：网卡启用？IP / 网关 / DNS 正常？\u003ccode>ipconfig /all\u003c/code>\u003c/li>\n  \u003cli>到网关：\u003ccode>ping 192.168.1.1\u003c/code>，不通先查网线 / Wi-Fi；\u003c/li>\n  \u003cli>到公网：\u003ccode>ping 1.1.1.1\u003c/code>，不通是运营商问题；\u003c/li>\n  \u003cli>到 DNS：\u003ccode>ping www.baidu.com\u003c/code>，不通换 DNS；\u003c/li>\n  \u003cli>到目标端口：\u003ccode>Test-NetConnection 主机 -Port 端口\u003c/code>，判断是服务挂了还是被拦截。\u003c/li>\n\u003c/ol>\n\u003cp>每一步都能把问题收束到具体一层，避免无头苍蝇式重启。\u003c/p>\n\n\u003ch2>五、安全提示\u003c/h2>\n\u003cp>本文命令都是只读诊断，不会改动系统。但要注意：不要把 \u003ccode>ping\u003c/code> / \u003ccode>tracert\u003c/code> 对一个你不拥有的服务器刷太猛，可能被当成攻击；在公共网络里，别用明文协议传密码，优先 HTTPS / SSH。\u003c/p>\n\n\u003cp>把这些命令串成\"由近及远\"的排查链路，你就能在别人还在重启路由器时，已经定位到是哪一跳出了问题。\u003c/p>"}</script>
+  <div class="float-slot float-slot--music" id="musicControl" data-playing="false">
+  <button id="playBtn" class="float-btn float-btn--play" type="button" aria-label="播放背景音乐" data-state="">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9.5 7.5 17 12l-7.5 4.5Z"/>
+    </svg>
+  </button>
+  <button id="pauseBtn" class="float-btn float-btn--pause" type="button" aria-label="暂停背景音乐" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+      <path d="M9.5 7.5v9M14.5 7.5v9"/>
+    </svg>
+  </button>
+  <audio id="bgMusic" src="../media/bgyy.mp3" loop preload="none"></audio>
+</div>
+
+<button id="backToTop" class="float-btn float-btn--top" type="button" aria-label="回到顶部" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/>
+  </svg>
+</button>
+
+</body>
+</html>

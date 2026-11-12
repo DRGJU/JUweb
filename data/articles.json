@@ -1,6 +1,6 @@
 {
-  "version": 11,
-  "updatedAt": "2026-11-11",
+  "version": 12,
+  "updatedAt": "2026-11-12",
   "articles": [
     {
       "id": 1,
@@ -128,6 +128,21 @@
       ],
       "excerpt": "沙箱能在受限的隔离环境中运行程序，既能验证行为又不污染宿主。本文梳理容器、Firejail、gVisor 等常见方案，以及一套可复用的验证流程。",
       "content": "<figure>\n  <img src=\"https://images.pexels.com/photos/31343288/pexels-photo-31343288.jpeg\" alt=\"屏幕上的彩色代码\">\n  <figcaption>屏幕上的彩色代码 · 图源 Pexels / peaky（免费授权）</figcaption>\n</figure>\n\n<p>当你拿到一段来源不明、或只是想确认「它到底会做什么」的程序时，直接在本机运行风险很大：它可能改写系统文件、外联网络、甚至尝试提权。沙箱（Sandbox）的价值，就是给程序一个「受限的小房间」——在里面它该跑能跑，但出不了门、动不了宿主。</p>\n<h2>为什么需要沙箱</h2>\n<p>验证程序的常见诉求有三类：确认行为是否符合预期、隔离潜在有害操作、复现第三方或评判环境。沙箱让这些事在不信任代码的前提下变得安全——文件系统、网络、进程、系统调用都被边界框住，跑完即焚，宿主毫发无伤。</p>\n<h2>常见沙箱方案</h2>\n<ul>\n<li><strong>容器（Docker / Podman）</strong>：最常用。用命名空间（namespace）做轻量隔离，适合跑构建、跑测试、复现运行环境。</li>\n<li><strong>Firejail</strong>：轻量用户态沙箱，针对命令行与桌面程序，限制文件系统与网络访问。</li>\n<li><strong>systemd-nspawn</strong>：介于容器与虚拟机之间的系统容器，启动一个独立的 Linux 系统实例。</li>\n<li><strong>gVisor / Kata</strong>：用用户态内核拦截系统调用，隔离更强，常用于多租户云环境。</li>\n<li><strong>虚拟机</strong>：完整硬件虚拟化，隔离最彻底，代价是更重、更慢。</li>\n<li><strong>在线沙箱</strong>：各类判题系统、在线执行环境开箱即用，零本地配置，适合快速验证。</li>\n</ul>\n<h2>隔离要覆盖哪些维度</h2>\n<p>一个合格的验证沙箱至少应覆盖四个维度：<strong>文件系统</strong>（只读挂载、拒绝写入宿主）、<strong>网络</strong>（默认断网，按需开白名单）、<strong>进程</strong>（限制 PID 数量与权限）、<strong>系统调用</strong>（用 seccomp 裁剪危险调用）。四维都收口，才算把「房间」真正封住。</p>\n<h2>一个最小验证流程</h2>\n<p>以 Docker 为例，把待验证程序放进只读容器、断网运行，再检查退出码与挂载点变化：</p>\n<pre><code>docker run --rm \\\n  --network none \\\n  --read-only \\\n  -v \"$PWD/app:/app:ro\" \\\n  alpine:3.20 sh -c \"cd /app &amp;&amp; ./run.sh; echo EXIT=$?\"</code></pre>\n<p>这条命令做了四件事：<code>--network none</code> 断网、<code>--read-only</code> 让根文件系统只读、把代码以只读方式挂入、最后打印退出码。跑完看退出码与挂载目录是否被改动，就能判断程序是否「安分」。</p>\n<h2>注意事项</h2>\n<ul>\n<li>沙箱不是万能保险箱：容器共享内核，仍存在逃逸风险，高威胁场景改用虚拟机。</li>\n<li>默认最小权限：不要图省事给 <code>--privileged</code>，也不要挂载 Docker socket。</li>\n<li>限制资源：用 <code>--memory</code>、<code>--cpus</code> 防止程序把机器跑瘫。</li>\n<li>验证要有对照：同一份代码在干净沙箱跑两次，行为一致才可信。</li>\n</ul>\n<p>把「先隔离、再运行、后核对」变成习惯，你就能放心地验证任何来路的程序，而不必担心弄脏自己的机器。</p>"
+    },
+    {
+      "id": 10,
+      "title": "像高手一样用基础网络命令：排查连通性、看懂网络环境",
+      "excerpt": "网络出问题时，高手靠一组基础命令把模糊的\"网络坏了\"拆解成\"哪一段、哪一层\"。本文系统讲解 ping、ipconfig、tracert、nslookup、netstat、curl 等命令，并给出判断延迟、丢包与网络环境的实用框架。",
+      "date": "2026-11-12",
+      "category": "技术",
+      "tags": [
+        "网络",
+        "命令行",
+        "排障",
+        "网络诊断",
+        "Windows"
+      ],
+      "content": "<figure>\n  <img src=\"https://images.pexels.com/photos/17729218/pexels-photo-17729218.jpeg\" alt=\"几何线条的现代建筑立面\">\n  <figcaption>几何线条的现代建筑立面 · 图源 Pexels（免费授权）</figcaption>\n</figure>\n\n<p>网络出问题时，很多人只会反复刷新或重启路由器。真正的高手，靠的是一组基础命令，把\"网络坏了\"这种模糊的感受，拆解成\"哪一段、哪一层、谁的责任\"。本文带你系统过一遍最常用、也最被低估的网络命令，并给出判断网络环境的实用框架。</p>\n\n<h2>一、先建立心智模型：网络分几层</h2>\n<p>在敲命令前，先记住四个检查点，绝大多数故障都落在这四者之一：</p>\n<ul>\n  <li><strong>本机</strong>：网卡是否启用、IP / 网关 / DNS 是否正确；</li>\n  <li><strong>局域网网关</strong>：能不能到路由器（通常是 192.168.x.1）；</li>\n  <li><strong>运营商 / 公网</strong>：能不能出网、有没有被限速或断网；</li>\n  <li><strong>远端目标</strong>：对方服务器是否在线、端口是否开放、DNS 是否解析得到。</li>\n</ul>\n<p>排查的顺序，就是从近到远一层层往外推。</p>\n\n<h2>二、基础命令清单（按场景）</h2>\n\n<h3>1. ping —— 连通性与延迟</h3>\n<p>最基础也最有用。看三件事：能不能通、往返延迟多少、有没有丢包。</p>\n<pre><code>ping -t 1.1.1.1        # Windows 持续 ping，Ctrl+C 停止\nping -c 10 8.8.8.8     # macOS / Linux 发 10 个包</code></pre>\n<p>经验值：局域网延迟通常 &lt; 3ms，同城宽带 &lt; 30ms，跨省 / 跨国 50–150ms 都属正常；<strong>丢包率超过 1% 就该警惕</strong>，超过 5% 基本不可用。</p>\n<p>高手技巧：同时开两个窗口，一个 <code>ping 1.1.1.1</code>（纯连通性），一个 <code>ping www.example.com</code>（含 DNS）。前者通、后者不通，问题就在 DNS，而不是网络。</p>\n\n<h3>2. ipconfig / ip —— 看清本机与网关</h3>\n<pre><code>ipconfig /all                    # Windows 看 IP、网关、DNS\nip addr show                    # Linux 看网卡与地址\nip route show                   # 看默认网关与路由表</code></pre>\n<p>重点看：是否拿到了正确的 IPv4 地址（不是 169.254 开头的 APIPA 自分配）、默认网关是否非空、DNS 服务器是否可达。</p>\n\n<h3>3. tracert / traceroute —— 看清路径</h3>\n<p>当 ping 不通或很慢，用路径追踪定位\"卡在第几跳\"。</p>\n<pre><code>tracert 8.8.8.8        # Windows\ntraceroute 8.8.8.8     # macOS / Linux</code></pre>\n<p>如果前几跳（本机到网关）就 * * *，是局域网问题；如果一直走到运营商骨干才丢，多半是对端或骨干拥塞。</p>\n\n<h3>4. nslookup / dig —— 排查 DNS</h3>\n<pre><code>nslookup www.example.com 8.8.8.8   # 指定用公共 DNS 解析\ndig @1.1.1.1 www.example.com      # Linux / macOS 更详细</code></pre>\n<p>能解析但慢，可能是本地 DNS 污染或上游不稳定；彻底解析不出，先换公共 DNS（如 1.1.1.1 / 8.8.8.8）验证。</p>\n\n<h3>5. netstat —— 看连接与端口</h3>\n<pre><code>netstat -ano | findstr :443      # Windows 看谁占了 443 端口\nnetstat -tunlp                   # Linux 看监听端口与进程</code></pre>\n<p>配合任务管理器或 <code>tasklist</code>，能定位\"哪个程序偷偷在联网\"。</p>\n\n<h3>6. curl / Test-NetConnection —— 测端口与 HTTP</h3>\n<pre><code>curl -I https://www.example.com     # 只看响应头，快速判断服务状态\nTest-NetConnection 8.8.8.8 -Port 443   # PowerShell 测端口通不通</code></pre>\n<p>curl 的 <code>-I</code> 只看头部，比下载整个页面快得多，适合判断 Web 服务是否活着。</p>\n\n<h2>三、像高手一样判断网络环境</h2>\n<p>命令只是工具，真正的判断力来自这几个维度：</p>\n<ul>\n  <li><strong>延迟</strong>：越低越好，但要结合距离看，跨国 100ms+ 不必大惊小怪；</li>\n  <li><strong>丢包</strong>：&gt; 1% 开始影响体验，&gt; 5% 视频会议会卡死；</li>\n  <li><strong>抖动（jitter）</strong>：延迟忽高忽低比单纯高延迟更伤实时应用；</li>\n  <li><strong>对称性</strong>：上传远小于下载是常态，但如果上传也满速，可能在被限速或中招。</li>\n</ul>\n<p>另外要学会识别\"环境类型\"：拿到的是<strong>公网 IP</strong> 还是 <strong>NAT / CGNAT</strong>（运营商常把多人塞进一个出口 IP），这决定了你能否做端口映射、远程访问。用 <code>curl ifconfig.me</code> 看到的 IP，如果和你路由器 WAN 口一致，才是真公网。</p>\n\n<h2>四、一套可复用的排障顺序</h2>\n<ol>\n  <li>本机自检：网卡启用？IP / 网关 / DNS 正常？<code>ipconfig /all</code></li>\n  <li>到网关：<code>ping 192.168.1.1</code>，不通先查网线 / Wi-Fi；</li>\n  <li>到公网：<code>ping 1.1.1.1</code>，不通是运营商问题；</li>\n  <li>到 DNS：<code>ping www.baidu.com</code>，不通换 DNS；</li>\n  <li>到目标端口：<code>Test-NetConnection 主机 -Port 端口</code>，判断是服务挂了还是被拦截。</li>\n</ol>\n<p>每一步都能把问题收束到具体一层，避免无头苍蝇式重启。</p>\n\n<h2>五、安全提示</h2>\n<p>本文命令都是只读诊断，不会改动系统。但要注意：不要把 <code>ping</code> / <code>tracert</code> 对一个你不拥有的服务器刷太猛，可能被当成攻击；在公共网络里，别用明文协议传密码，优先 HTTPS / SSH。</p>\n\n<p>把这些命令串成\"由近及远\"的排查链路，你就能在别人还在重启路由器时，已经定位到是哪一跳出了问题。</p>"
     }
   ]
 }
