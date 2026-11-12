@@ -2,6 +2,7 @@ import { normalizeArticle, parseJSON, stripHTML } from './core.js';
 import { sanitizeHTML } from './sanitize.js';
 import { initTheme, showNotice } from './ui.js';
 import { initControls } from './controls.js';
+import { initRouter } from './router.js';
 
 function node(tag, className, text) {
   const el = document.createElement(tag);
@@ -44,6 +45,7 @@ function render(article) {
 
 initTheme();
 initControls();
+initRouter();
 
 const article = resolveArticle();
 if (article) {

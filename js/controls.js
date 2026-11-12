@@ -36,6 +36,10 @@ function initMusic() {
   const slot = document.getElementById('musicControl');
   if (!audio || !playBtn || !pauseBtn) return;
 
+  // 启动期（尚未播放）把相对 src 归一化为绝对地址，
+  // 避免软导航切页后相对路径解析到错误目录，导致暂停后再播放失败。
+  if (audio.src) { try { audio.src = audio.src; } catch { /* 忽略 */ } }
+
   // 跨页面续播：把播放状态与进度写入 localStorage，新页面加载时恢复。
   let resumeOnMeta = false;
   let lastSave = 0;
