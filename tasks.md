@@ -60,6 +60,15 @@
 - [ ] 后续新增文章均按此约定配图（外链图床直链 + figcaption 注明来源）
 - [x] 题图题材偏好：优先选用有设计感、构图克制的**建筑物 / 建筑摄影**（architecture）；文章有明确可视主题时仍以主题相关图优先，建筑图作通用兜底
 
+## v3.7 · 代码块视觉强化（Hallmark 组件级优化，2026-11-13）
+
+- [x] 用户反馈「代码块看起来不明显」→ 定位根因：深色主题下 `--color-graphite` 与底色 `#060910` 亮度差极小、边框过暗、行内 code 底色近乎透明
+- [x] `css/tokens.css` 新增 `--color-code-bg/ink/rule/edge` 与 `--shadow-glow-hover`，明暗两主题各一份
+- [x] `css/style.css` 重写代码块：深底反相 + 上缘 3px 青色双线（系统「主要分隔」）+ 1px 细边 + 上直角下圆角；行内 code 改亮墨字 + 淡青底 + 青色细边；补 `:focus-visible`、`overscroll-behavior-inline`、`tab-size`、细滚动条
+- [x] 顺带清掉 v2 重构遗留的 4 个 Hallmark Floor FAIL：stamp 首行格式、导航下划线 `right` 过渡改 `transform: scaleX`、`.btn:hover` 与 `.float-btn` 两处颜色字面量提升为令牌
+- [x] `design.md` 新增「代码块组件」小节锁定规范
+- [x] 校验：sloplint `0 FAIL`（6 REFLEX / 1 WARN 均为 v2 既定视觉语言，未在本次范围改动）、`npm run build` v18、`npm test` 11/11、CSS 括号平衡
+
 ## 后续可选
 
 - [ ] 安装 `puppeteer-core` 后补 Hallmark 渲染层与截图对比审查

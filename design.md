@@ -39,6 +39,15 @@
 - 末尾操作（返回目录、复制永久链接）保持全宽原样，与标题区左边缘对齐。
 - 窄屏时正文栏自然占满容器减去 gutter 的宽度，无需额外断点；正文仍保持 16px / 1.75 行高。
 
+## 代码块组件（2026-11-13 优化）
+
+- **问题**：原 `.post__body pre` 用 `--color-graphite`（`#080d16`）作底，与页面底色 `#060910` 亮度几乎相同，边框 `--color-rule` 也过暗，代码块融进正文；行内 `code` 底色为半透明石墨色，同样不可辨。
+- **版面**：代码块是一块独立版面，不是卡片。深底反相 + 上缘 3px 双线（系统「主要分隔」语言，`--color-code-edge` 青色只作起首信号）+ 1px `--color-code-rule` 细边；上方直角、下方 `--radius-input` 收口。不用阴影、渐变。
+- **令牌**：`--color-code-bg` / `--color-code-ink` / `--color-code-rule` / `--color-code-edge` 在 `:root` 与 `[data-theme="light"]` 各定义一份；浅色主题下代码块仍走深色反相表面，保持识别性。
+- **行内 code**：亮墨字 `--color-ink` + 淡青底 `--color-accent-wash` + 青色细边，明显但不把整片正文染成青色；`pre code` 重置为继承块内样式。
+- **可访问性**：`pre` 横向滚动容器带 `:focus-visible` 焦点环、`overscroll-behavior-inline: contain`、`tab-size: 2`、细滚动条；无动画，天然满足 `prefers-reduced-motion`。
+- 代码块用 `--font-outlier` 等宽面孔、`--text-sm` / 1.7 行高，与正文拉出字族和密度差。
+
 ## 悬浮控件
 
 见 `css/float-controls.css`、`templates/controls.html`、`js/controls.js`，八态预览在 `float-controls.preview.html`。

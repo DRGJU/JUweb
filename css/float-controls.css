@@ -11,7 +11,7 @@
   background: color-mix(in oklab, var(--color-paper) 72%, transparent);
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
   color: var(--color-ink); cursor: pointer;
-  box-shadow: 0 8px 24px -14px rgba(0, 0, 0, 0.7);
+  box-shadow: var(--shadow-soft);
   transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out), border-color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
 }
 .float-btn::before, .float-btn::after {

@@ -1,5 +1,5 @@
-/* 墨迹 · v2 科技化重构 · 深色为主 + 青/电光蓝点缀 · 覆盖原 Newsprint 设计（用户选择统一科技化）
- * Hallmark floor: 令牌化、overflow-x:clip、focus-visible、reduced-motion、无紫蓝渐变、无 emoji 图标、无字距拉伸标签 */
+/* Hallmark · 墨迹 v2 科技化重构 · 深色为主 + 青/电光蓝点缀 · 覆盖原 Newsprint 设计（用户选择统一科技化）
+ * floor: 令牌化、overflow-x:clip、focus-visible、reduced-motion、无紫蓝渐变、无 emoji 图标、无字距拉伸标签 */
 @import url("./tokens.css");
 @import url("./base.css");
 @import url("./float-controls.css");
@@ -43,11 +43,13 @@
   position: relative; transition: color var(--dur-short) var(--ease-out);
 }
 .masthead__nav a::after, .masthead__nav button::after {
-  content: ""; position: absolute; left: 0; right: 100%; bottom: -4px; height: 2px;
-  background: var(--color-accent); transition: right var(--dur-short) var(--ease-out);
+  content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 2px;
+  background: var(--color-accent); transform: scaleX(0); transform-origin: left center;
+  transition: transform var(--dur-short) var(--ease-out);
 }
 .masthead__nav a:hover, .masthead__nav button:hover { color: var(--color-accent); }
-.masthead__nav a:hover::after, .masthead__nav button:hover::after { right: 0; }
+.masthead__nav a:hover::after, .masthead__nav button:hover::after,
+.masthead__nav a:focus-visible::after, .masthead__nav button:focus-visible::after { transform: scaleX(1); }
 .masthead__nav a:focus-visible, .masthead__nav button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: 2px; }
 
 /* ===== 首屏 ===== */
@@ -66,7 +68,7 @@
   text-decoration: none; white-space: nowrap; cursor: pointer;
   box-shadow: var(--shadow-glow); transition: transform var(--dur-micro) var(--ease-out), box-shadow var(--dur-short) var(--ease-out), filter var(--dur-short) var(--ease-out);
 }
-.btn:hover { filter: brightness(1.06); box-shadow: 0 0 0 1px var(--color-accent), 0 14px 40px -8px rgba(34, 211, 238, 0.5); }
+.btn:hover { filter: brightness(1.06); box-shadow: var(--shadow-glow-hover); }
 .btn:active { transform: translateY(2px); }
 .btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -137,9 +139,34 @@
 .post__body figure { margin-block: var(--space-2xl); }
 .post__body figure img { margin-block: 0; }
 .post__body figcaption { margin-top: var(--space-sm); font-size: var(--text-sm); color: var(--color-muted); }
-.post__body pre { padding: var(--space-md); background: var(--color-graphite); border: 1px solid var(--color-rule); border-radius: var(--radius-input); overflow-x: auto; }
-.post__body code { font-family: var(--font-outlier); background: color-mix(in oklab, var(--color-graphite) 80%, transparent); padding-inline: var(--space-2xs); border-radius: 4px; }
-.post__body pre code { background: none; padding: 0; }
+/* 代码块：独立版面。深底反相拉开与纸面的层次，3px 双线起首沿用系统的「主要分隔」，青色只作信号。 */
+.post__body pre {
+  margin-block: var(--space-lg) var(--space-xl);
+  padding: var(--space-lg) var(--space-lg) var(--space-md);
+  background: var(--color-code-bg);
+  color: var(--color-code-ink);
+  border: 1px solid var(--color-code-rule);
+  border-top: calc(var(--rule-hair) * 3) double var(--color-code-edge);
+  border-radius: 0 0 var(--radius-input) var(--radius-input);
+  font-family: var(--font-outlier);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  tab-size: 2;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: var(--color-code-rule) transparent;
+}
+.post__body pre:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.post__body code {
+  font-family: var(--font-outlier);
+  font-size: 0.9em;
+  color: var(--color-ink);
+  background: var(--color-accent-wash);
+  border: 1px solid color-mix(in oklab, var(--color-accent-edge) 45%, transparent);
+  padding-inline: var(--space-2xs);
+  border-radius: var(--space-2xs);
+}
+.post__body pre code { background: none; border: 0; padding: 0; color: inherit; font-size: inherit; }
 .post__body blockquote { margin-inline: 0; padding: var(--space-md) var(--space-lg); border-left: 2px solid var(--color-accent); border-radius: 0 var(--radius-input) var(--radius-input) 0; background: var(--color-accent-wash); color: var(--color-ink-2); }
 .post__body ul, .post__body ol { padding-left: var(--space-xl); margin-bottom: var(--space-lg); }
 .post__body li { margin-bottom: var(--space-2xs); }

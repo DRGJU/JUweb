@@ -40,6 +40,12 @@
   --color-graphite-ink: #cdd7e5;
   --color-graphite-muted: #6b7a90;
 
+  /* 代码块专用表面：与正文底色明确分层，青色只作起首信号 */
+  --color-code-bg: #0d1626;
+  --color-code-ink: #d7e2ef;
+  --color-code-rule: #2c3e56;
+  --color-code-edge: #22d3ee;
+
   /* 青/电光蓝点缀 */
   --color-accent: #22d3ee;
   --color-accent-deep: #0ea5c4;
@@ -64,6 +70,7 @@
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 18px 48px -24px rgba(0, 0, 0, 0.75);
   --shadow-soft: 0 8px 24px -16px rgba(0, 0, 0, 0.7);
   --shadow-glow: 0 0 0 1px var(--color-accent-edge), 0 10px 34px -8px rgba(34, 211, 238, 0.35);
+  --shadow-glow-hover: 0 0 0 1px var(--color-accent), 0 14px 40px -8px rgba(34, 211, 238, 0.5);
 
   --tracking-display: -0.02em; --display-weight: 700;
 }
@@ -85,6 +92,12 @@
   --color-graphite-ink: #d6deea;
   --color-graphite-muted: #8694a8;
 
+  /* 浅色主题下代码块仍走深色反相表面，保持代码块的整体识别性 */
+  --color-code-bg: #0e1521;
+  --color-code-ink: #d6deea;
+  --color-code-rule: #33445c;
+  --color-code-edge: #0891b2;
+
   --color-accent: #0891b2;
   --color-accent-deep: #0e7490;
   --color-accent-2: #06b6d4;
@@ -99,4 +112,5 @@
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 18px 48px -28px rgba(15, 30, 50, 0.35);
   --shadow-soft: 0 8px 24px -18px rgba(15, 30, 50, 0.3);
   --shadow-glow: 0 0 0 1px var(--color-accent-edge), 0 10px 30px -10px rgba(8, 145, 178, 0.3);
+  --shadow-glow-hover: 0 0 0 1px var(--color-accent), 0 14px 40px -8px rgba(8, 145, 178, 0.42);
 }
