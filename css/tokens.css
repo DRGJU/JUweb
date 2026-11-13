@@ -1,31 +1,102 @@
+/* 墨迹 · 设计系统（v2 · 科技化重构）
+ * 方向：深色为主 + 青/电光蓝点缀，覆盖原 Newsprint 编辑风（用户选择统一科技化）。
+ * 所有颜色/字体/间距均走令牌；明暗双主题，深色为默认。 */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+
+  /* 间距尺度 */
   --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+
+  /* 字号尺度 */
   --text-xs: 0.8125rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.25rem; --text-xl: 1.5625rem; --text-2xl: 1.953rem; --text-3xl: 2.441rem;
-  --text-display-s: clamp(2.25rem, 4vw + 0.5rem, 3.75rem); --text-display: clamp(2.75rem, 5vw + 1rem, 5.25rem);
-  --text-section: clamp(2rem, 2.5vw + 1rem, 3.5rem); --text-title: clamp(1.25rem, 0.75vw + 0.875rem, 1.625rem); --text-lead: clamp(1.125rem, 0.35vw + 1rem, 1.375rem);
+  --text-display-s: clamp(2.25rem, 4vw + 0.5rem, 3.5rem);
+  --text-display: clamp(2.75rem, 5.5vw + 1rem, 5.5rem);
+  --text-section: clamp(2rem, 2.5vw + 1rem, 3.5rem);
+  --text-title: clamp(1.25rem, 0.75vw + 0.875rem, 1.625rem);
+  --text-lead: clamp(1.125rem, 0.35vw + 1rem, 1.375rem);
+
+  /* 运动 */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
-  --color-error: oklch(52% 0.19 27); --color-success: oklch(50% 0.12 150);
+  --dur-micro: 140ms; --dur-short: 260ms; --dur-long: 460ms;
+
+  /* 容器与栅格 */
   --container: 1440px; --gutter: 64px; --gap-columns: 32px; --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
+
+  /* z 轴 */
   --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
-  --color-paper: oklch(94% 0.011 92); --color-paper-2: oklch(90.5% 0.015 88); --color-paper-3: oklch(87% 0.017 86);
-  --color-ink: oklch(17% 0.012 60); --color-ink-2: oklch(27% 0.012 58); --color-muted: oklch(46% 0.014 60);
-  --color-rule: oklch(68% 0.016 75); --color-rule-2: oklch(34% 0.012 60);
-  --color-accent: oklch(44% 0.13 32); --color-accent-ink: oklch(95% 0.012 90); --color-focus: oklch(48% 0.17 32);
-  --font-display: "Zilla Slab", "Noto Serif SC", "Songti SC", "SimSun", ui-serif, Georgia, serif;
-  --font-body: "Spectral", "Noto Serif SC", "Songti SC", "SimSun", ui-serif, Georgia, serif;
-  --font-outlier: "Libre Franklin", "PingFang SC", "Microsoft YaHei", ui-sans-serif, sans-serif;
-  --radius-card: 0; --radius-pill: 0; --rule-hair: 1px;
-  --shadow-card: none;
+
+  /* ===== 深色（默认）调色板 ===== */
+  --color-bg: #060910;
+  --color-paper: #0b111d;
+  --color-paper-2: #0f1726;
+  --color-paper-3: #142033;
+  --color-ink: #e9eef6;
+  --color-ink-2: #aab6c8;
+  --color-muted: #6b7a90;
+  --color-rule: #1e2a3c;
+  --color-rule-2: #2c3e56;
+  --color-graphite: #080d16;
+  --color-graphite-2: #0d1626;
+  --color-graphite-ink: #cdd7e5;
+  --color-graphite-muted: #6b7a90;
+
+  /* 青/电光蓝点缀 */
+  --color-accent: #22d3ee;
+  --color-accent-deep: #0ea5c4;
+  --color-accent-2: #7df0fb;
+  --color-accent-edge: #0e7490;
+  --color-accent-wash: rgba(34, 211, 238, 0.10);
+  --color-accent-ink: #04141a;
+
+  --color-focus: #22d3ee;
+  --color-success: #34d399; --color-success-ink: #34d399;
+  --color-error: #f87171; --color-error-ink: #f87171;
+
+  /* 字体（系统优先，带科技感衬底；不产生外部请求） */
+  --font-display: "Space Grotesk", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-outlier: "JetBrains Mono", "Cascadia Code", "SF Mono", "Consolas", "Liberation Mono", ui-monospace, monospace;
+
+  /* 圆角与描边 */
+  --radius-card: 16px; --radius-input: 10px; --radius-pill: 999px; --rule-hair: 1px;
+
+  /* 阴影（深色柔和 + 青色辉光） */
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 18px 48px -24px rgba(0, 0, 0, 0.75);
+  --shadow-soft: 0 8px 24px -16px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 0 1px var(--color-accent-edge), 0 10px 34px -8px rgba(34, 211, 238, 0.35);
+
   --tracking-display: -0.02em; --display-weight: 700;
 }
 
-/* 深色由同一套色阶派生，不反转色相 */
-[data-theme="dark"] {
-  color-scheme: dark;
-  --color-paper: oklch(17% 0.012 60); --color-paper-2: oklch(22% 0.014 58); --color-paper-3: oklch(27% 0.016 56);
-  --color-ink: oklch(94% 0.011 92); --color-ink-2: oklch(84% 0.012 90); --color-muted: oklch(68% 0.014 70);
-  --color-rule: oklch(45% 0.014 62); --color-rule-2: oklch(72% 0.012 70);
-  --color-accent: oklch(72% 0.12 32); --color-accent-ink: oklch(17% 0.012 60); --color-focus: oklch(76% 0.16 32);
+/* 浅色主题（科技化的亮色变体，仍保留青色信号色） */
+[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #eef3f9;
+  --color-paper: #f6f9fc;
+  --color-paper-2: #ffffff;
+  --color-paper-3: #eaf0f7;
+  --color-ink: #0c1622;
+  --color-ink-2: #41546b;
+  --color-muted: #6b7d92;
+  --color-rule: #d8e0ea;
+  --color-rule-2: #c2cddd;
+  --color-graphite: #0e1521;
+  --color-graphite-2: #16202e;
+  --color-graphite-ink: #d6deea;
+  --color-graphite-muted: #8694a8;
+
+  --color-accent: #0891b2;
+  --color-accent-deep: #0e7490;
+  --color-accent-2: #06b6d4;
+  --color-accent-edge: #0e7490;
+  --color-accent-wash: rgba(8, 145, 178, 0.08);
+  --color-accent-ink: #ffffff;
+
+  --color-focus: #0891b2;
+  --color-success: #0f9d73; --color-success-ink: #0f9d73;
+  --color-error: #e25555; --color-error-ink: #e25555;
+
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 18px 48px -28px rgba(15, 30, 50, 0.35);
+  --shadow-soft: 0 8px 24px -18px rgba(15, 30, 50, 0.3);
+  --shadow-glow: 0 0 0 1px var(--color-accent-edge), 0 10px 30px -10px rgba(8, 145, 178, 0.3);
 }

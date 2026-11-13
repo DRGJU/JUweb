@@ -1,4 +1,4 @@
-import { STORAGE_KEYS, writeStorage } from './core.js';
+import { STORAGE_KEYS, readStorage, writeStorage } from './core.js';
 
 /** 主题切换、页脚年份与提示条，首页与文章页共用。 */
 export function initTheme(buttonId = 'themeToggle') {
@@ -14,7 +14,9 @@ export function initTheme(buttonId = 'themeToggle') {
     }
   };
 
-  apply(document.documentElement.dataset.theme);
+  // 用户上次的主题优先于页面默认；readStorage 在隐私模式下会安全回退
+  const saved = readStorage(STORAGE_KEYS.theme, null);
+  apply(saved === 'dark' || saved === 'light' ? saved : document.documentElement.dataset.theme);
 
   button?.addEventListener('click', () => {
     const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';

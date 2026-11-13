@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +12,15 @@
   <meta property="article:published_time" content="{{DATE}}">
   <link rel="canonical" href="{{CANONICAL}}">
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <script>
+    // 在样式生效前恢复主题，避免深色/浅色闪烁；隐私模式下静默回退到默认深色
+    try {
+      var savedTheme = localStorage.getItem('juweb:theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        document.documentElement.dataset.theme = savedTheme;
+      }
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="../css/style.css">
   <script type="module" src="../js/post.js"></script>
 </head>
@@ -25,7 +34,7 @@
       <nav class="masthead__nav" aria-label="主导航">
         <a href="../index.html">文章归档</a>
         <a href="../index.html#about">关于</a>
-        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
+        <button id="themeToggle" type="button" aria-pressed="true">浅色</button>
       </nav>
     </div>
   </header>

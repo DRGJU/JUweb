@@ -11,6 +11,15 @@
   <meta property="og:url" content="https://drgju.github.io/JUweb/">
   <link rel="canonical" href="https://drgju.github.io/JUweb/">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <script>
+    // 在样式生效前恢复主题，避免深色/浅色闪烁；隐私模式下静默回退到默认深色
+    try {
+      var savedTheme = localStorage.getItem('juweb:theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        document.documentElement.dataset.theme = savedTheme;
+      }
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="./css/style.css">
   <script type="module" src="./js/app.js"></script>
 </head>
@@ -24,7 +33,7 @@
       <nav class="masthead__nav" aria-label="主导航">
         <a href="#articles">文章</a>
         <a href="#about">关于</a>
-        <button id="themeToggle" type="button" aria-pressed="false">深色</button>
+        <button id="themeToggle" type="button" aria-pressed="true">浅色</button>
       </nav>
     </div>
   </header>
@@ -33,7 +42,7 @@
     <section class="hero" aria-labelledby="heroTitle">
       <div class="container hero__grid">
         <div>
-          <h1 id="heroTitle" class="hero__head">白天写代码，晚上写文章。</h1>
+          <h1 id="heroTitle" class="hero__head">白天<span class="text-glow">写代码</span>，晚上写文章。</h1>
           <p class="hero__lead">墨迹是一个记录技术探索与日常思考的个人博客。</p>
           <div class="hero__actions">
             <a class="btn" href="./posts/11.html">读最新一篇</a>
