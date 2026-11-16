@@ -2,7 +2,7 @@
 
 零外部依赖的静态博客。文章数据在构建期写成静态 HTML，**关闭 JavaScript 也能完整阅读**；运行时不加载任何 CDN、框架或字体服务。
 
-本次按 Hallmark 做了完整重设计：**Newsprint** 主题（报纸式排版、双线规则、干砖色信号）、**Index-First** 结构，并**移除了浏览器内的文章编辑模块**。网站不再提供后台，发布流程收敛为「编辑 JSON → 构建 → 提交」。
+站点已于 2026-11 统一为**深色科技风**（深色为主 + 青 / 电光蓝点缀，玻璃面板与光晕），覆盖原先的 Newsprint 编辑风；信息结构仍沿用 Index-First。**已移除浏览器内的文章编辑模块**，网站不提供后台，发布流程收敛为「编辑 JSON → 构建 → 提交」。
 
 ## 快速开始
 
@@ -65,10 +65,10 @@ npm test           # 核心逻辑单元测试
 │   ├── post.html       文章页模板
 │   └── controls.html   两枚悬浮按钮的共享片段
 ├── css/
-│   ├── tokens.css      设计令牌（OKLCH 色阶、字体栈、间距刻度）
-│   ├── base.css        Hallmark 基础规则（焦点、容器、reduced-motion 等）
-│   ├── float-controls.css  圆形悬浮按钮（双线同心环 + 八态）
-│   └── style.css       页面样式（首行含 Hallmark stamp 与豁免记录）
+│   ├── tokens.css      设计令牌（深色 / 浅色变体、青色信号、字体栈、间距刻度）
+│   ├── base.css        基础层（深色底 + 极光/网格底纹、焦点、容器、reduced-motion）
+│   ├── float-controls.css  圆形悬浮按钮（青色同心环 + 八态）
+│   └── style.css       页面样式（玻璃报头、辉光按钮、归档行、刊记 band）
 ├── js/
 │   ├── core.js         纯函数：数据规范化、分页、日期、白名单消毒规则
 │   ├── ui.js           主题切换、年份、提示条
@@ -81,19 +81,19 @@ npm test           # 核心逻辑单元测试
 ├── build.mjs           静态页生成器
 ├── server.mjs          零依赖本地服务器
 ├── tests/              核心逻辑单元测试
-├── design.md           锁定的设计系统（新增页面请遵循）
+├── design.md           设计系统 v2：科技化覆盖说明与保留的排版细则
 ├── favicon.svg / robots.txt / sitemap.xml
 └── spec.md / checklist.md / tasks.md
 ```
 
 ## 设计系统
 
-- **主题**：Newsprint（editorial，restrained）。浅新闻纸底、暖黑墨、板衬线标题、书衬线正文、agate 数字；普通分隔用发丝线，大分隔用双线；干砖色只用于链接、焦点环等信号，不作填充。
-- **形态**：Index-First。首屏即报头 + 标题 + 一句 + 一个动作，归档行紧随其后；收尾是把「关于我」与页脚合并的换纸刊记 band（超大刊名字标 + 自述 + 真实刊记表）；没有卡片、渐变、阴影或入场动画。
-- **文章页**：标题区保持全宽原样，只有正文收进居中 68ch 阅读栏（约 34 个汉字/行）；不是把文字设为居中对齐。
-- **字体**：`Zilla Slab` / `Spectral` / `Libre Franklin` 优先，未安装时回退到系统中文字体栈。**不请求 Google Fonts**。
-- **主题切换**：报头右侧按钮切换浅/深，偏好存 localStorage；深色由同一套色阶派生。
-- **悬浮控件**：左下圆形音乐按钮（`preload="none"`，点击才加载，播放中双环转干砖色）；右下圆形回到顶部按钮（页首隐藏，滚动超过 240px 后出现）。两者都是双线同心环、八态齐全，样式与逻辑见 `css/float-controls.css` / `js/controls.js`，八态预览见 `float-controls.preview.html`。如不需要音乐，删除 `media/bgyy.mp3` 与 `templates/controls.html` 中的音乐按钮即可。
+- **主题**：深色为主 + 青 / 电光蓝点缀。近黑分层背景、固定在 `html` 上的极光渐变与细网格底纹、半透明玻璃面板、青色辉光；浅色变体由同一套令牌派生。覆盖说明见 `design.md` 顶部。
+- **形态**：Index-First。首屏即报头 + 标题 + 一句 + 一个动作，归档行紧随其后；收尾是把「关于我」与页脚合并的刊记 band（超大刊名字标 + 自述 + 真实刊记表）。归档行悬停时左侧出现青色标记。
+- **文章页**：标题区保持全宽原样，正文在 1440px 容器内铺满（16px / 1.8 行高），不收进窄阅读栏；代码块为石墨深色底。
+- **字体**：显示与正文用几何无衬线 / 系统无衬线栈，代码用等宽栈（`JetBrains Mono` 等）。**不请求 Google Fonts**。
+- **主题切换**：页面默认深色；报头右侧按钮切换浅/深，偏好存 `localStorage`（`juweb:theme`）。模板在 CSS 生效前用内联脚本恢复主题，避免刷新闪烁；无脚本时保持默认深色。
+- **悬浮控件**：左下圆形音乐按钮（`preload="none"`，点击才加载，播放中双环转青色）；右下圆形回到顶部按钮（页首隐藏，滚动超过 240px 后出现）。两者都是玻璃底 + 青色同心环、八态齐全，样式与逻辑见 `css/float-controls.css` / `js/controls.js`，八态预览见 `float-controls.preview.html`。如不需要音乐，删除 `media/bgyy.mp3` 与 `templates/controls.html` 中的音乐按钮即可。
 - **可访问性**：`skip-link`、即时焦点环、`aria-pressed` / `aria-current`、`prefers-reduced-motion` 回退、语义化标题层级。
 
 ## 部署
@@ -103,5 +103,6 @@ GitHub Pages 指向仓库根目录（`main`）。canonical、OG URL 与 sitemap 
 ## 已知限制
 
 - 无后端、无评论、无搜索、无浏览器内编辑；文章改动必须本地构建后提交。
-- 文章页是长文，字数不受营销页的 450 词预算约束（Hallmark 的 NOTE 58）。
-- 本机无 Chromium 内核浏览器，`sloplint --render` 的渲染层与截图对比未运行；静态规则检查已通过，浏览器目视复核项见 `checklist.md`。
+- 文章页是长文，字数不受营销页的篇幅预算约束。
+- 本机无 Chromium 内核浏览器，未做像素级渲染验证；已验证范围为构建、单元测试、CSS 令牌引用与 HTTP 资源可达性，目视复核项见 `checklist.md`。
+- GitHub Pages 的 CDN 缓存约 10 分钟，刚推送后可能仍看到旧版本。
