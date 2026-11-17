@@ -60,6 +60,15 @@
 - [ ] 后续新增文章均按此约定配图（外链图床直链 + figcaption 注明来源）
 - [x] 题图题材偏好：优先选用有设计感、构图克制的**建筑物 / 建筑摄影**（architecture）；文章有明确可视主题时仍以主题相关图优先，建筑图作通用兜底
 
+## v3.8 · 恢复精简主题（本次确认）
+
+- [x] 用户要求：把现在的主题风格**恢复成之前的精简主题**（Newsprint 编辑风）
+- [x] 回滚 `css/tokens.css`、`base.css`、`style.css`、`float-controls.css`、`templates/*`、`js/ui.js`、`float-controls.preview.html`、`design.md` 到 `de2d423`（科技化改造前的最后一个精简版本）
+- [x] 保留 v3 之后的全部功能与内容：全宽正文、12 篇文章与建筑题图、软导航音乐续播、表格内容
+- [x] 补回 Newsprint 风表格样式（发丝线网格 + 表头双线收口），此前表格样式只存在于科技化版本
+- [x] 修正音频错误态选择器：脚本把 `data-state` 写在 slot 上，样式补 `.float-slot[data-state="error"] .float-btn`
+- [x] 移除深色默认、内联防闪烁脚本、`text-glow` 渐变文字与玻璃面板
+
 ## 后续可选
 
 - [ ] 安装 `puppeteer-core` 后补 Hallmark 渲染层与截图对比审查

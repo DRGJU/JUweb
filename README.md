@@ -2,7 +2,7 @@
 
 零外部依赖的静态博客。文章数据在构建期写成静态 HTML，**关闭 JavaScript 也能完整阅读**；运行时不加载任何 CDN、框架或字体服务。
 
-站点已于 2026-11 统一为**深色科技风**（深色为主 + 青 / 电光蓝点缀，玻璃面板与光晕），覆盖原先的 Newsprint 编辑风；信息结构仍沿用 Index-First。**已移除浏览器内的文章编辑模块**，网站不提供后台，发布流程收敛为「编辑 JSON → 构建 → 提交」。
+站点沿用 **Newsprint 编辑风**（暖纸底、衬线正文、1px 发丝线与 3px 双线、直角、无卡片阴影）。2026-11 曾短暂改为深色科技风，已按用户要求恢复为精简的 Newsprint 主题；信息结构仍是 Index-First。**已移除浏览器内的文章编辑模块**，网站不提供后台，发布流程收敛为「编辑 JSON → 构建 → 提交」。
 
 ## 快速开始
 
@@ -65,35 +65,35 @@ npm test           # 核心逻辑单元测试
 │   ├── post.html       文章页模板
 │   └── controls.html   两枚悬浮按钮的共享片段
 ├── css/
-│   ├── tokens.css      设计令牌（深色 / 浅色变体、青色信号、字体栈、间距刻度）
-│   ├── base.css        基础层（深色底 + 极光/网格底纹、焦点、容器、reduced-motion）
-│   ├── float-controls.css  圆形悬浮按钮（青色同心环 + 八态）
-│   └── style.css       页面样式（玻璃报头、辉光按钮、归档行、刊记 band）
+│   ├── tokens.css      设计令牌（暖纸 / 墨色调色板、衬线字体栈、间距刻度）
+│   ├── base.css        基础层（纸面底、焦点、容器、reduced-motion）
+│   ├── float-controls.css  圆形悬浮按钮（干砖色信号 + 八态）
+│   └── style.css       页面样式（报头、按钮、归档行、刊记 band）
 ├── js/
 │   ├── core.js         纯函数：数据规范化、分页、日期、白名单消毒规则
 │   ├── ui.js           主题切换、年份、提示条
 │   ├── controls.js     两枚悬浮控件的共享逻辑
 │   ├── app.js          首页渐进增强（主题 + 控件）
-│   ├── post.js         文章页渐进增强（二次消毒、复制永久链接 + 控件）
+│   ├── post.js         文章页渐进增强（二次消毒 + 控件）
 │   └── sanitize.js     浏览器 DOM 白名单消毒
 ├── data/articles.json  唯一内容源
 ├── media/bgyy.mp3      背景音乐（preload="none"，点击才加载）
 ├── build.mjs           静态页生成器
 ├── server.mjs          零依赖本地服务器
 ├── tests/              核心逻辑单元测试
-├── design.md           设计系统 v2：科技化覆盖说明与保留的排版细则
+├── design.md           设计系统（Newsprint 编辑风：令牌、双线、刊记、文章页排版）
 ├── favicon.svg / robots.txt / sitemap.xml
 └── spec.md / checklist.md / tasks.md
 ```
 
 ## 设计系统
 
-- **主题**：深色为主 + 青 / 电光蓝点缀。近黑分层背景、固定在 `html` 上的极光渐变与细网格底纹、半透明玻璃面板、青色辉光；浅色变体由同一套令牌派生。覆盖说明见 `design.md` 顶部。
-- **形态**：Index-First。首屏即报头 + 标题 + 一句 + 一个动作，归档行紧随其后；收尾是把「关于我」与页脚合并的刊记 band（超大刊名字标 + 自述 + 真实刊记表）。归档行悬停时左侧出现青色标记。
-- **文章页**：标题区保持全宽原样，正文在 1440px 容器内铺满（16px / 1.8 行高），不收进窄阅读栏；代码块为石墨深色底。
-- **字体**：显示与正文用几何无衬线 / 系统无衬线栈，代码用等宽栈（`JetBrains Mono` 等）。**不请求 Google Fonts**。
-- **主题切换**：页面默认深色；报头右侧按钮切换浅/深，偏好存 `localStorage`（`juweb:theme`）。模板在 CSS 生效前用内联脚本恢复主题，避免刷新闪烁；无脚本时保持默认深色。
-- **悬浮控件**：左下圆形音乐按钮（`preload="none"`，点击才加载，播放中双环转青色）；右下圆形回到顶部按钮（页首隐藏，滚动超过 240px 后出现）。两者都是玻璃底 + 青色同心环、八态齐全，样式与逻辑见 `css/float-controls.css` / `js/controls.js`，八态预览见 `float-controls.preview.html`。如不需要音乐，删除 `media/bgyy.mp3` 与 `templates/controls.html` 中的音乐按钮即可。
+- **主题**：Newsprint 编辑风。暖纸底、暖黑墨、干砖色只作信号色；1px 发丝线分隔、3px 双线收口，直角、无卡片、无阴影、无渐变。
+- **形态**：Index-First。首屏即报头 + 标题 + 一句 + 一个动作，归档行紧随其后；收尾是把「关于我」与页脚合并的刊记 band（超大刊名字标 + 自述 + 真实刊记表）。
+- **文章页**：标题区保持全宽原样（标题 26ch），正文在 1440px 容器内铺满（16px / 1.75 行高），不收进窄阅读栏；代码块为 `--color-paper-2` 浅底 + 等宽字体；表格为发丝线网格、表头以双线收口。
+- **字体**：显示与正文用衬线栈（`Zilla Slab` / `Spectral` / `Noto Serif SC`，缺失时回退系统衬线），代码用等宽栈。**不请求 Google Fonts**。
+- **主题切换**：报头右侧「深色 / 浅色」按钮，默认浅色；深色由同一套色阶派生，不反转色相。
+- **悬浮控件**：左下圆形音乐按钮（`preload="none"`，点击才加载，播放中双环转干砖色）；右下圆形回到顶部按钮（页首隐藏，滚动超过 240px 后出现）。两者都是纸面底 + 墨色同心环、八态齐全，样式与逻辑见 `css/float-controls.css` / `js/controls.js`，八态预览见 `float-controls.preview.html`。如不需要音乐，删除 `media/bgyy.mp3` 与 `templates/controls.html` 中的音乐按钮即可。
 - **可访问性**：`skip-link`、即时焦点环、`aria-pressed` / `aria-current`、`prefers-reduced-motion` 回退、语义化标题层级。
 
 ## 部署
